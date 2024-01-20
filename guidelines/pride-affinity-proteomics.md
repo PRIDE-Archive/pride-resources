@@ -57,6 +57,28 @@ Similar to MS-based submissions PRIDE-AP datasets MUST provide a RAW file. This 
 
 **Experimental Design**: Every Affinity proteomics technology and software releases the experimental design in their file format (e.g. excel file). Those files include the sample and data metadata, and the the experimental design. By January 2024, these files could be provided as additional metadata (file class OTHERS). PRIDE team is working to extend the Proteomics sample metadata format to capture Affinity proteomics datasets.   
 
+## Ownership, privacy and release of datasets to the public
+
+This section is similar to [ProteomeXchange guidelines](https://www.proteomexchange.org/docs/guidelines_px.pdf) for data MS-based proteomics submissions. 
+
+**Data Ownership**: Original submitters and Principal Investigators (PI) own datasets submitted to PRIDE-AP resource. The submitter and PI must be explicitly identified for each dataset.
+
+**Privacy**: Submitted datasets are private by default, with password protection. Reviewers and editors can access data during the journal review process with provided credentials.
+
+**Changes to Datasets**: Changes to unreleased datasets are allowed upon reviewer request. However, after public release, changes must be justified and approved by PRIDE Team.
+
+**Withdrawal**: Unreleased datasets can be withdrawn before publication. Withdrawn entries are retained internally to prevent external access. Publicly released datasets can only be withdrawn in cases of retracted papers.
+
+**Public Release**: Public release of datasets is mandatory upon publication. Exceptions may be considered on a case-by-case basis. Pre-prints are not considered publications, allowing delayed release until formal acceptance.
+
+**Release Responsibility**: PX resources actively release datasets corresponding to known publications without submitters' permission. Authors should be aware that some journals may have similar release policies.
+
+**Timely Release**: PX resources aim for prompt public release, but delays may occur due to production cycles and staff availability.
+
+**Exceptions**: Exceptions to the public release policy may be granted in documented special cases, with a maximum 6-month extension for ongoing studies. Submitters must officially request an extension, considering journal requirements.
+
+You can read more about ProteomeXchange guidelines [here](https://www.proteomexchange.org/docs/guidelines_px.pdf). 
+
 ## ProteomeXchange
 
 By January 2024, only MS-based experiments are supported by ProteomeXchange, and  PX accessions are only released for MS-based experiments. Therefore, affinity proteomics datasets stored in PRIDE will not be a part of ProteomeXchange, and the PRIDE database will independently release their accessions. PRIDE team is collaborating with all ProteomeXchange partners to extend support for affinity proteomics submissions in the future. 
