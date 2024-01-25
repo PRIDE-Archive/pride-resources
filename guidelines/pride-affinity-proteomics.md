@@ -1,4 +1,4 @@
-# PRIDE Affinity Proteomics Archive: Submission guidelines
+# PRIDE Affinity Proteomics (PRIDE-AP) Archive: Submission guidelines
 
 **version**: 1.0.beta
 
