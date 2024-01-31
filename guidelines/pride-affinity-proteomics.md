@@ -112,6 +112,19 @@ experiments only. NGS-based submissions MUST provide the corresponding
 parquet files, which include the sample metadata, protein intensities,
 and NPX absolute quantification values.
 
+Additionally, the parquet files have to follow certain rules to be valid
+
+```
+- The file should include the following minimum mandatory string datatype columns: SampleID, SampleType, WellID,
+    PlateID, DataAnalysisRefID, OlinkID, UniProt, Panel, Block, Normalization, SampleQC, ExploreVersion
+- The file should include the following minimum mandatory integer datatype column: Count
+- The file should include the following minimum mandatory double datatype columns: ExtNPX, NPX
+- The file has at least one record
+- Possible values for string column SampleQC: NA or PASS or WARN or FAIL
+- All records where the SampleQC column indicates NA or FAIL have NaN in column NPX
+- All records where the SampleQC column indicates PASS or WARN have a real number, not NaN, in column NPX
+```
+
 #### Additional files
 
 **Additional protein reports**: SomaScan and Olink software can export additional Excel, 
