@@ -125,6 +125,13 @@ Additionally, the parquet files have to follow certain rules to be valid
 - All records where the SampleQC column indicates PASS or WARN have a real number, not NaN, in column NPX
 ```
 
+**Normalization Information** 
+
+Olink Internal Controls:
+Internal controls embedded in the Olink assay are used to ensure data quality. These may include:
+ - QC Control Samples: Reference samples to monitor assay performance.
+ - Interplate Control (IPC): Used for inter-plate normalization.
+
 #### Additional files
 
 **Additional protein reports**: SomaScan and Olink software can export additional Excel, 
@@ -144,6 +151,51 @@ the time of writing, these files could be provided as additional
 data (using the file tag 'OTHER'). At the time of writing, the PRIDE team is 
 working to extend the proteomics sample and data relationship (SDRF) metadata format 
 to capture AP datasets.
+
+##### Olink Target
+
+##### Datafile:
+
+  - Raw data: Ct Data File 
+
+       - Contains raw cycle threshold (Ct) values obtained from the qPCR stage of the OLINK assay.
+       - File Format: CSV or Excel
+    
+  - Results: Normalized Protein Expression (NPX) File /Abs quant
+
+       - This is the primary output file containing the normalized protein expression (NPX) data, which is the relative quantification of proteins on a log2 scale.
+       - File Format: CSV or Excel
+    
+  - Quality Control (QC) Report 
+
+       - A summary of the quality control results, evaluating the reliability of the assay and samples.
+       - File Format: PDF or Excel
+    
+  - Plate Layout File 
+
+       - Maps the positions of samples and controls on the 96- or 384-well plates used in the experiment.
+       - File Format: Excel or CSV
+    
+  - Assay Metadata File
+       - Provides information about the specific OLINK Target panel(s) used in the assay.
+       - File Format: PDF or Excel.
+    
+  - Data Normalization Report 
+
+       - Documents the normalization process applied to the raw Ct data to calculate NPX values.
+       - File Format: Text or PDF (may be part of the QC report)
+
+  - Summary Statistics 
+       - Provides an overview of the dataset, including key performance metrics for the assay.
+       - File Format: CSV or Excel
+
+##### Optional Files:
+   - Processed Data Logs - Logs of data processing steps for transparency and reproducibility.
+   - Batch or Run-Specific Files - Files specific to the batch or experimental run, detailing inter-batch normalization or plate-specific adjustments.
+
+
+##### 	Additional supporting material (if needed)
+
 
 ## Ownership, privacy and release of datasets to the public
 
