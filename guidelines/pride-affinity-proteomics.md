@@ -17,8 +17,7 @@
         -   [File requirements](#file-requirements)
     -   [Ownership, privacy and release of datasets to the
         public](#ownership-privacy-and-release-of-datasets-to-the-public)
-    -   [Support for AP proteomics experiments in
-        ProteomeXchange](#support-for-ap-proteomics-experiments-in-proteomexchange)
+    -   [Support for AP proteomics experiments in ProteomeXchange](#support-for-ap-proteomics-experiments-in-proteomexchange)
     -   [Conclusions](#conclusions)
     
 ## Introduction
