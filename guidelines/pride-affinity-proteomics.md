@@ -1,8 +1,8 @@
 # PRIDE Affinity Proteomics (PRIDE-AP) Archive: Submission guidelines
 
-**version**: 1.0.beta
+**version**: 1.1.beta
 
-**date**: January 25th 2024
+**date**: January 09th 2025
 
 -   [PRIDE Affinity Proteomics Archive: Submission
     guidelines](#pride-affinity-proteomics-archive-submission-guidelines)
