@@ -200,7 +200,7 @@ considering journal requirements.
 You can read more about ProteomeXchange guidelines
 [here](https://www.proteomexchange.org/docs/guidelines_px.pdf).
 
-## Support for AP experiments in ProteomeXchange
+### Support for AP experiments in ProteomeXchange
 
 At the time of writing, only MS-based experiments are supported by
 ProteomeXchange and ProteomeXchange PXD accession numbers are only released for MS-based
