@@ -4,7 +4,7 @@
 
 **date**: January 09th 2025
 
--   [PRIDE Affinity Proteomics Archive: Submission guidelines](#introduction)
+- [PRIDE Affinity Proteomics Archive: Submission guidelines](#introduction)
     -   [Introduction](#introduction)
     -   [PRIDE Archive guidelines and
         policies](#pride-archive-guidelines-and-policies)
