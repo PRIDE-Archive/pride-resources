@@ -1,11 +1,10 @@
 # PRIDE Affinity Proteomics (PRIDE-AP) Archive: Submission guidelines
 
-**version**: 1.0.beta
+**version**: 1.1.beta
 
-**date**: January 25th 2024
+**date**: January 09th 2025
 
--   [PRIDE Affinity Proteomics Archive: Submission
-    guidelines](#pride-affinity-proteomics-archive-submission-guidelines)
+- [PRIDE Affinity Proteomics Archive: Submission guidelines](https://pitchbookproperty.sharepoint.com/sites/PitchbookPropertySales/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FPitchbookPropertySales%2FShared%20Documents%2FDevelopments%2F%2D%20CAMBRIDGE%2FCapstone%20Fields%20%2D%20CB23%207QL%2FCapstone%20Fields%20%2D%20Host%20Brochure%2Epdf&parent=%2Fsites%2FPitchbookPropertySales%2FShared%20Documents%2FDevelopments%2F%2D%20CAMBRIDGE%2FCapstone%20Fields%20%2D%20CB23%207QL&p=true&ga=1)
     -   [Introduction](#introduction)
     -   [PRIDE Archive guidelines and
         policies](#pride-archive-guidelines-and-policies)
@@ -17,8 +16,7 @@
         -   [File requirements](#file-requirements)
     -   [Ownership, privacy and release of datasets to the
         public](#ownership-privacy-and-release-of-datasets-to-the-public)
-    -   [Support for AP proteomics experiments in
-        ProteomeXchange](#support-for-ap-proteomics-experiments-in-proteomexchange)
+    -   [Support for AP proteomics experiments in ProteomeXchange](#support-for-ap-experiments-in-proteomexchange)
     -   [Conclusions](#conclusions)
     
 ## Introduction
@@ -83,7 +81,7 @@ provided for each dataset:
 
 ### File requirements
 
-PRIDE-AP groups the files from each technology into two main
+PRIDE-AP groups the files from each technology into two main 
 categories: 'RAW' and 'Additional' files. The file requirements from PRIDE-AP
 datasets are therefore a bit different from those for MS-based experiments included in
 ProteomeXchange. [The PX
@@ -91,26 +89,30 @@ guidelines](https://www.proteomexchange.org/docs/guidelines_px.pdf)
 categorize file requirements based on 'RAW' file type, peptide/protein
 identification formats and search engine outputs (processed results).
 
-#### RAW files
+### OLINK technologies : 
 
-Analogous to MS-based submissions, PRIDE-AP datasets MUST contain 'RAW'
-files. This category name suggests that the data is raw and unprocessed coming from
-the platform or instrument. In MS-based proteomics,
-'RAW' files correspond to MS files containing the primary data, the mass spectra. However, in AP datasets, each technology has defined different formats and content for the unprocessed ('RAW') data.
+#### OLINK Explorer 
+Olink Explore is Olink's advanced platform for high-throughput protein biomarker discovery, 
+combining their proprietary Proximity Extension Assay (PEA) technology with Next-Generation 
+Sequencing (NGS) as the readout method. This platform is designed to enable large-scale 
+proteomics studies with high sensitivity, specificity, and scalability.
 
-##### SomaScan data submissions
+##### Olink NGS (Next Generation Sequencing)-based data submissions : Outout files and formats
 
-**.adat file**: For every SomaScan submission, the .adat file containing
-the 'RAW' reads, and protein quantification values without normalization MUST be
-provided. In addition, normalized versions of the .adat file can be
-included optionally.
+|File Name   | Purpose | content  | Format |
+|---|---------|----------|--------|
+|  Normalized Protein Expression (NPX) File |     Contains normalized protein expression (NPX) values for each protein in each sample. Includes metadata like sample IDs, protein names, assay information, and QC flags.    |   Sample ID, Protein/Assay name, NPX values, Flags for quality control (e.g., below detection limit)       |    CSV, XLSX    |
+|  Raw Data File |    Contains unprocessed sequencing data from the NGS platform. Includes raw read counts or signal intensities.     |    Sequencing reads aligned to specific DNA barcodes for proteins      |  FASTQ, CSV      |
+|  Limit of Detection (LOD) File |    	Provides detection limits for each protein in the panel. Indicates which proteins are detectable in each sample.    |    Protein/Assay name, LOD values, Flags indicating detectability in each sample      |   CSV, XLSX     |
+| Sample Annotation  |  	Contains metadata about the samples used in the study. Used for grouping and statistical analysis.       |  Sample ID, Grouping/condition information (e.g., treatment, time point), Other metadata (e.g., demographics)        |  CSV, XLSX      |
+|  Assay Information |     Provides detailed information about the assays used in the study. Helps with biological interpretation of the results.    |   Protein name/description, Assay ID, Biological pathway or disease relevance       |  CSV, XLSX      |
+|  Plate Layout |     Describes the layout of samples and controls on the assay plates. Used for troubleshooting plate-specific issues.    |  Plate ID, Well position (e.g., A1, B2), Sample/control designation        |   CSV, XLSX     |
+|  Quality Control (QC) Report |     Summarizes quality control metrics for the experiment, including assay and sample performance. Includes visualizations (e.g., scatterplots, histograms) for QC evaluation.    |   Plate-level and assay-level QC metrics, Sample-level QC flags (e.g., pass/fail indicators)       |  PDF, XLSX      |
+| Log File  |     Records data processing steps and any errors or warnings encountered during analysis. Useful for troubleshooting and maintaining an audit trail.   |   Time-stamped entries of processing steps, Details about normalization, QC steps, and errors       |   TXT     |
 
-##### Olink NGS (Next Generation Sequencing)-based data submissions
-
-**.parquet file**: At the time of writing, PRIDE-AP supports NGS-based Olink
-experiments only. NGS-based submissions MUST provide the corresponding
-parquet files, which include the sample metadata, protein intensities,
-and NPX absolute quantification values.
+**Note** :  If your experiment is done on the latest version of OLINK Explorer then you must 
+provide **.parquet file**  which was exported from OLINK Explorer which include the sample metadata, 
+protein intensities, and NPX absolute quantification values.
 
 Additionally, the parquet files have to follow certain rules to be valid
 
@@ -125,76 +127,32 @@ Additionally, the parquet files have to follow certain rules to be valid
 - All records where the SampleQC column indicates PASS or WARN have a real number, not NaN, in column NPX
 ```
 
-**Normalization Information** 
+#### OlINK Target
+Olink Target Technology is a platform developed by Olink Proteomics that utilizes their
+proprietary Proximity Extension Assay (PEA) technology for targeted protein biomarker analysis.
+Unlike Olink Explore, which is designed for large-scale, high-throughput proteomics,
+Olink Target focuses on smaller, predefined panels tailored to specific biological pathways,
+disease areas, or research needs.
 
-Olink Internal Controls:
-Internal controls embedded in the Olink assay are used to ensure data quality. These may include:
- - QC Control Samples: Reference samples to monitor assay performance.
- - Interplate Control (IPC): Used for inter-plate normalization.
+##### Olink Target based data submissions : Outout files and formats
 
-#### Additional files
-
-**Additional protein reports**: SomaScan and Olink software can export additional Excel, 
-and CSV tab-delimited files containing protein quantification values and sample metadata information.
-These files could be annotated using the 'OTHER' file tag during the submission process using the
-PRIDE Submission tool.
-
-**File reports**: SomaScan and Olink software can produce
-additional files, including QC (Quality Control) and quantitative results reports, as PDF
-or Word documents. Submitters can add these documents to the dataset
-submission in the PRIDE Submission tool.
-
-**Experimental Design**: Every AP technology and software releases the
-experimental design in their file format (e.g. Excel file). Those files
-include the sample and data metadata, and the experimental design. At
-the time of writing, these files could be provided as additional
-data (using the file tag 'OTHER'). At the time of writing, the PRIDE team is 
-working to extend the proteomics sample and data relationship (SDRF) metadata format 
-to capture AP datasets.
-
-##### Olink Target
-
-##### Datafile:
-
-  - Raw data: Ct Data File 
-
-       - Contains raw cycle threshold (Ct) values obtained from the qPCR stage of the OLINK assay.
-       - File Format: CSV or Excel
-    
-  - Results: Normalized Protein Expression (NPX) File /Abs quant
-
-       - This is the primary output file containing the normalized protein expression (NPX) data, which is the relative quantification of proteins on a log2 scale.
-       - File Format: CSV or Excel
-    
-  - Quality Control (QC) Report 
-
-       - A summary of the quality control results, evaluating the reliability of the assay and samples.
-       - File Format: PDF or Excel
-    
-  - Plate Layout File 
-
-       - Maps the positions of samples and controls on the 96- or 384-well plates used in the experiment.
-       - File Format: Excel or CSV
-    
-  - Assay Metadata File
-       - Provides information about the specific OLINK Target panel(s) used in the assay.
-       - File Format: PDF or Excel.
-    
-  - Data Normalization Report 
-
-       - Documents the normalization process applied to the raw Ct data to calculate NPX values.
-       - File Format: Text or PDF (may be part of the QC report)
-
-  - Summary Statistics 
-       - Provides an overview of the dataset, including key performance metrics for the assay.
-       - File Format: CSV or Excel
-
-##### Optional Files:
-   - Processed Data Logs - Logs of data processing steps for transparency and reproducibility.
-   - Batch or Run-Specific Files - Files specific to the batch or experimental run, detailing inter-batch normalization or plate-specific adjustments.
+| Data file | Purpose | Content | File format |
+|-----------|---------|---------|-------------|
+|      Raw Data: Ct Data File     |   Contains raw cycle threshold (Ct) values from qPCR      |   Cycle threshold (Ct) values for each sample and protein      |    CSV, Excel         |
+|   Normalized Protein Expression (NPX) File / Abs Quant        |   Primary output file with normalized protein expression data      |     Normalized Protein Expression (NPX) values (log2 scale)    |    CSV, Excel         |
+|    Quality Control (QC) Report       |     Summary of quality control results    |     	Evaluation of assay reliability, sample quality, and QC metrics    |       PDF, Excel      |
+|    Plate Layout File       |     	Maps sample and control positions on plates    |    Positioning of samples and controls on 96- or 384-well plates     |      Excel, CSV       |
+|        Assay Metadata File   |      Provides information on OLINK Target panels used   |   Details about the specific panels and assays used in the experiment      |    PDF, Excel         |
+|      Data Normalization Report     |   Documents the normalization process      |    Explanation of the normalization steps applied to Ct data to obtain NPX     |      Text, PDF (may be part of QC report)       |
+|      Summary Statistics     |    Overview of dataset and assay performance metrics     |    Key performance metrics and statistics for the assay     |    CSV, Excel         |
 
 
-##### 	Additional supporting material (if needed)
+### SomaScan data submissions
+
+**.adat file**: For every SomaScan submission, the .adat file containing
+the 'RAW' reads, and protein quantification values without normalization MUST be
+provided. In addition, normalized versions of the .adat file can be
+included optionally. (We are still refining this part)
 
 
 ## Ownership, privacy and release of datasets to the public
@@ -240,7 +198,7 @@ considering journal requirements.
 You can read more about ProteomeXchange guidelines
 [here](https://www.proteomexchange.org/docs/guidelines_px.pdf).
 
-## Support for AP experiments in ProteomeXchange
+### Support for AP experiments in ProteomeXchange
 
 At the time of writing, only MS-based experiments are supported by
 ProteomeXchange and ProteomeXchange PXD accession numbers are only released for MS-based
