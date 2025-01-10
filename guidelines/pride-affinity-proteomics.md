@@ -4,20 +4,20 @@
 
 **date**: January 09th 2025
 
-- [PRIDE Affinity Proteomics Archive: Submission guidelines](https://pitchbookproperty.sharepoint.com/sites/PitchbookPropertySales/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FPitchbookPropertySales%2FShared%20Documents%2FDevelopments%2F%2D%20CAMBRIDGE%2FCapstone%20Fields%20%2D%20CB23%207QL%2FCapstone%20Fields%20%2D%20Host%20Brochure%2Epdf&parent=%2Fsites%2FPitchbookPropertySales%2FShared%20Documents%2FDevelopments%2F%2D%20CAMBRIDGE%2FCapstone%20Fields%20%2D%20CB23%207QL&p=true&ga=1)
-    -   [Introduction](#introduction)
-    -   [PRIDE Archive guidelines and
+[PRIDE Affinity Proteomics Archive: Submission guidelines]()
+- [Introduction](#introduction)
+- [PRIDE Archive guidelines and
         policies](#pride-archive-guidelines-and-policies)
-    -   [Supported technologies](#supported-technologies)
-    -   [Dataset structure and file
+- [Supported technologies](#supported-technologies)
+- [Dataset structure and file
         requirements](#dataset-structure-and-file-requirements)
-        -   [Accession](#accession)
-        -   [Dataset metadata](#dataset-metadata)
-        -   [File requirements](#file-requirements)
-    -   [Ownership, privacy and release of datasets to the
-        public](#ownership-privacy-and-release-of-datasets-to-the-public)
-    -   [Support for AP proteomics experiments in ProteomeXchange](#support-for-ap-experiments-in-proteomexchange)
-    -   [Conclusions](#conclusions)
+   - [Accession](#accession)
+   -   [Dataset metadata](#dataset-metadata)
+   -   [File requirements](#file-requirements)
+-   [Ownership, privacy and release of datasets to the
+ public](#ownership-privacy-and-release-of-datasets-to-the-public)
+-   [Support for AP proteomics experiments in ProteomeXchange](#support-for-ap-experiments-in-proteomexchange)
+-   [Conclusions](#conclusions)
     
 ## Introduction
 
