@@ -76,71 +76,83 @@ Olink Explore is Olink's advanced platform for high-throughput protein biomarker
 
 ##### Olink NGS-based data submissions
 
-| Data File                            | Content                                                                                                                                                                    | Format              | Category (Requiered)    |
-|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|-------------------------|
-| Normalized Protein Expression (NPX)  | Normalized protein expression (NPX) values for each protein in each sample.                                                                                                | CSV, XLSX           | Results **(Required)** |
-| Raw Data File                        | Contains unprocessed sequencing data from the NGS platform. Includes raw read counts or signal intensities.                                                                | FASTQ, CSV, Parquet | Raw **(Requiered)**     |
-| Limit of Detection (LOD) File        | Provides detection limits for each protein in the panel. Indicates which proteins are detectable in each sample.                                                           | CSV, XLSX           | Additional              |
-| Sample Annotation                    | Contains metadata about the samples used in the study. Used for grouping and statistical analysis.                                                                         | CSV, XLSX           | Additional              |
-| Assay Information                    | Provides detailed information about the assays used in the study. Helps with biological interpretation of the results.                                                     | CSV, XLSX           | Additional              |
-| Plate Layout                         | Describes the layout of samples and controls on the assay plates. Used for troubleshooting plate-specific issues.                                                          | CSV, XLSX           | Additional              |
-| Quality Control (QC) Report          | Summarizes quality control metrics for the experiment, including assay and sample performance. Includes visualizations (e.g., scatterplots, histograms) for QC evaluation. | PDF, XLSX           | Additional              |
-| Log File                             | Records data processing steps and any errors or warnings encountered during analysis. Useful for troubleshooting and maintaining an audit trail.                           | TXT                 | Additional              |
+| Data File                            | Content                                                                                                                                                                    | Format              | Category (Requiered)     |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|--------------------------|
+| Normalized Protein Expression (NPX)  | Normalized protein expression (NPX) values for each protein in each sample.                                                                                                | CSV, XLSX           | Results **(Required)**   |
+| Raw Data File                        | Contains unprocessed sequencing data from the NGS platform. Includes raw read counts or signal intensities.                                                                | FASTQ, CSV, Parquet | Raw **(Requiered)**      |
+| Limit of Detection (LOD) File        | Provides detection limits for each protein in the panel. Indicates which proteins are detectable in each sample.                                                           | CSV, XLSX           | Additional               |
+| Sample Annotation                    | Contains metadata about the samples used in the study. Used for grouping and statistical analysis.                                                                         | CSV, XLSX           | Additional               |
+| Assay Information                    | Provides detailed information about the assays used in the study. Helps with biological interpretation of the results.                                                     | CSV, XLSX           | Additional               |
+| Plate Layout                         | Describes the layout of samples and controls on the assay plates. Used for troubleshooting plate-specific issues.                                                          | CSV, XLSX           | Additional               |
+| Quality Control (QC) Report          | Summarizes quality control metrics for the experiment, including assay and sample performance. Includes visualizations (e.g., scatterplots, histograms) for QC evaluation. | PDF, XLSX           | Additional               |
+| Log File                             | Records data processing steps and any errors or warnings encountered during analysis. Useful for troubleshooting and maintaining an audit trail.                           | TXT                 | Additional               |
 
 
 >[!IMPORTANT]
 >NPX and Raw files are mandatory for each submission to ensure comprehensive and reproducible datasets. To minimize confusion and maintain consistency in categorizing Additional, Raw, and Results files, we strongly recommend adhering to the following naming conventions:
 > 1. NPX files: Use the format 'file_name.npx.csv' for normalized protein expression files (e.g., NPX files). This ensures clarity in identifying processed data ready for downstream analysis.
 > 2. Raw files: Use the format 'file_name.raw.csv' for files containing unprocessed, original data, such as raw sequencing reads or non-normalized protein expression matrices. This helps distinguish foundational data essential for reanalysis or alternative processing.
-If your submission includes generic file extensions like .xlsx, .parquet, or .csv, it is crucial to maintain the same naming convention by appending .npx, .raw before the extension. This practice ensures clarity across diverse file formats and facilitates easy identification and categorization of files.
+>If your submission includes generic file extensions like .xlsx, .parquet, or .csv, it is crucial to maintain the same naming convention by appending .npx, .raw before the extension. This practice ensures clarity across diverse file formats and facilitates easy identification and categorization of files.
+
+If your experiment is done on the latest version of Olink Explore (@TODO: question for Eva) then you must provide **.parquet file** exported from Olink Explore which includes the sample metadata, protein intensities, and NPX absolute quantification values. If the experiment is done on an older version of Olink Explore, then you can provide a **.csv file** 
 
 By following these guidelines, submissions will adhere to a standardized structure, promoting transparency, usability, and consistency across datasets.
 
 ##### Raw File and Result validations for Olink Explore
 
-If your experiment is done on the latest version of Olink Explore (@Need a number here) then you must 
-provide **.parquet file** which was exported from Olink Explore which includes the sample metadata, 
-protein intensities, and NPX absolute quantification values.
+### File Validation Rules for PRIDE Submission  
 
-If the experiment is done on an older version of Olink Explore, then you can provide a **.csv file**
+During the submission process, the PRIDE submission tool performs a validation step to ensure the structure and content of each file type meet specific requirements. Below are the validation rules for each file type:  
 
-Raw **CSV** file validation:
-The Raw Data Files from Olink Explore typically contain detailed information about the experiment, including signal intensities, sample identifiers, and assay metadata. These files are often used for advanced data processing or troubleshooting. While the exact structure of raw data files may vary depending on the version of the platform and software, the following columns are commonly present -
-```
-- Sample Information : Sample ID, Sample Plate, Sample Well
-- Protein Iformation : Protein ID, Protein Name
-- Signal Data : Raw Signal, Background Signal, Normalized Signal	
-- Quality Control (QC) Metrics : LOD (Limit of Detection), QC Flag, Replicate Consistency
-- Control Information : Control Type, control ID	
-- Assay Metadata : Olink Panel, Assay Type, Assay Batch, Assay Plate
-- Additional Experimental Details : Dilution Facto, Processing Date, Operator
-```
-
-NPX file validation:
-The NPX (Normalized Protein Expression) data files from Olink Explore are the primary output used for downstream analysis of protein expression. These files provide processed and normalized data, ensuring comparability across samples and proteins. 
-Here’s an overview of the columns commonly found in NPX files -
+- **NPX (Normalized Protein Expression) files**: Main outputs of Olink Explore and are used for downstream protein expression analysis. These files provide processed and normalized data for consistency across samples and proteins. The following columns **MUST** be included:  
 
 ```
-- Sample Information : Sample ID, Sample Plate, Sample Well, Group/Condition
-- Protein Iformation : Protein ID, Protein Name, Olink Panel, LOD
-- NPX Values : NPX Value, Below LOD
-- Quality Control (QC) Metrics : QC Flags, Plate Control
-- Control Information : Control Type, Control NPX
-- Additional Metadata (Optional) : Experiment Date, Batch ID, Operator, Sample Metadata
+- Sample Information: 
+  - `Sample ID`, `Sample Plate`, `Sample Well`, `Group/Condition`  
+- Protein Information: 
+  - `Protein ID`, `Protein Name`, `Olink Panel`, `LOD`  
+- NPX Values: 
+  - `NPX Value`, `Below LOD`  
+- Control Information: 
+  - `Control Type`, `Control NPX`  
 ```
 
-Raw **Parquet** file validation: 
+- **Raw CSV File**: Raw data files from Olink Explore contain essential experimental information, such as signal intensities, sample identifiers, and assay metadata. While the structure may vary depending on the platform version and software, the following columns **MUST** be included:  
 
 ```
-- The file should include the following minimum mandatory string datatype columns: SampleID, SampleType, WellID,
-    PlateID, DataAnalysisRefID, OlinkID, UniProt, Panel, Block, Normalization, SampleQC, ExploreVersion
-- The file should include the following minimum mandatory integer datatype column: Count
-- The file should include the following minimum mandatory double datatype columns: ExtNPX, NPX
-- The file has at least one record
-- Possible values for string column SampleQC: NA or PASS or WARN or FAIL
-- All records where the SampleQC column indicates NA or FAIL have NaN in column NPX
-- All records where the SampleQC column indicates PASS or WARN have a real number, not NaN, in column NPX
+- Sample Information: 
+  - `Sample ID`, `Sample Plate`, `Sample Well`  
+- Protein Information: 
+  - `Protein ID`, `Protein Name`  
+- Signal Data: 
+  - `Raw Signal`, `Background Signal`, `Normalized Signal`  
+- Quality Control (QC) Metrics: 
+  - `LOD (Limit of Detection)`, `QC Flag`, `Replicate Consistency`  
+- Control Information: 
+  - `Control Type`, `Control ID`  
+- Assay Metadata: 
+  - `Olink Panel`, `Assay Type`, `Assay Batch`, `Assay Plate`  
+- Additional Experimental Details: 
+  - `Dilution Factor`, `Processing Date`, `Operator`  
 ```
+
+- **Raw Parquet File**: The last Olink Explore version exports the raw data in a Parquet file format. The following columns **MUST** be included:  
+
+```  
+- Mandatory String Columns: 
+  - `SampleID`, `SampleType`, `WellID`, `PlateID`, `DataAnalysisRefID`, `OlinkID`, `UniProt`, `Panel`, `Block`, `Normalization`, `SampleQC`, `ExploreVersion`  
+- Mandatory Integer Column: 
+  - `Count`  
+- Mandatory Double Columns:
+  - `ExtNPX`, `NPX`  
+- String Column Validation: 
+  - The `SampleQC` column must have one of the following values: `NA`, `PASS`, `WARN`, or `FAIL`.  
+- Data Consistency Rules:  
+  - Records where `SampleQC` is `NA` or `FAIL` must have `NaN` in the `NPX` column.  
+  - Records where `SampleQC` is `PASS` or `WARN` must contain a real number (not `NaN`) in the `NPX` column.  
+```
+
+By following these validation rules, submissions will meet the required standards for data quality, enabling reproducibility and effective downstream analysis.
 
 #### Olink Target series 
 
@@ -148,34 +160,26 @@ Olink Target Technology is a platform developed by Olink Proteomics that utilize
 
 ##### Olink Target data submissions
 
-| Data file                                             | Content | File format                                         | Category (Requiered) |
-|-------------------------------------------------------|---------|-----------------------------------------------------|------------|
-| *Normalized Protein Expression (NPX) File / Abs Quant |   Primary output file with normalized protein expression data | CSV, Excel | Results **(Requiered)** |
-| **Ct Data File                                        |   Contains raw cycle threshold (Ct) values from qPCR | CSV, Excel         | Raw **(Requiered)** |
-| Quality Control (QC) Report                           |   Summary of quality control results | PDF, Excel | Additional |
-| Plate Layout File                                     |   Maps sample and control positions on plates | Excel, CSV | Additional |
-| Assay Metadata File                                   |   Provides information on Olink Target panels used | PDF, Excel| Additional |
-| Data Normalization Report                             |   Documents the normalization process | Text, PDF (may be part of QC report) | Additional |
-| Summary Statistics                                    |   Overview of dataset and assay performance metrics | CSV, Excel |Additional|
-\* Example for naming your NPX (Result file ) : 'file name'.npx.csv
+| Data file                                             | Content                                                       | File format                | Category (Requiered)     |
+|-------------------------------------------------------|---------------------------------------------------------------|----------------------------|--------------------------|
+| *Normalized Protein Expression (NPX) File / Abs Quant | Primary output file with normalized protein expression data   | CSV, Excel                 | Results **(Required)**   |
+| **Ct Data File                                        | Contains raw cycle threshold (Ct) values from qPCR            | CSV, Excel                 | Raw **(Requiered)**      |
+| Quality Control (QC) Report                           | Summary of quality control results                            | PDF, Excel                 | Additional               |
+| Plate Layout File                                     | Maps sample and control positions on plates                   | Excel, CSV                 | Additional               |
+| Assay Metadata File                                   | Provides information on Olink Target panels used              | PDF, Excel                 | Additional               |
+| Data Normalization Report                             | Documents the normalization process                           | Text, PDF (e.g. QC report) | Additional               |
+| Summary Statistics                                    | Overview of dataset and assay performance metrics             | CSV, Excel                 | Additional               |
 
-\**Example for naming your RAW (RAW file ) : 'file name'.ct.csv
-##### Raw File and Result validations for Olink Explore
 
-Ct Data File validation:
-CT files refer to the Cycle Threshold (CT) files, which contain raw data from the qPCR-based detection step in Olink assays. These files are crucial for understanding the initial fluorescence signal levels and are used in the normalization process to calculate the final Normalized Protein Expression (NPX) values.
-Here’s an overview of the CT files and their contents:
+>[!IMPORTANT]
+>NPX and Raw files are mandatory for each submission to ensure comprehensive and reproducible datasets. To minimize confusion and maintain consistency in categorizing Additional, Raw, and Results files, we strongly recommend adhering to the following naming conventions:
+> 1. NPX files: Use the format 'file_name.npx.csv' for normalized protein expression files (e.g., NPX files). This ensures clarity in identifying processed data ready for downstream analysis.
+> 2. Raw files (Ct): Use the format 'file_name.ct.csv' for files containing unprocessed, original data.
 
-```
-- Sample Information : Sample ID, Plate ID, Well Position
-- Protein Information : Protein Name, Protein ID, Olink Panel
-- Cycle Threshold (CT) Data : CT Value, Background CT
-- Control Information : Control Type, Control CT Value
-- Quality Control (QC) Metrics : QC Flags, Replicate Consistency
-```
-NPX file validation:
-From Olink Target is the key output file for analyzing protein expression levels after raw data has been processed and normalized. The NPX values are calculated to provide log2-transformed, normalized expression levels for proteins in each sample. The NPX file contains several columns, each providing essential data for downstream analysis.
-Here are the typical columns found in an NPX data file from Olink Target:
+##### Raw File and Result validations for Olink Target 
+
+- **NPX file**: From Olink Target is the key output file for analyzing protein expression levels after raw data has been processed and normalized. The NPX values are calculated to provide log2-transformed, normalized expression levels for proteins in each sample. The NPX file contains several columns, each providing essential data for downstream analysis. Here are the typical columns found in an NPX data file from Olink Target:
+
 ```
 - Sample Information : Sample ID, Saple Plate, Sample Well, Group/Condition
 - Protein Information : Protein Name, Protein ID, Olink Panel
@@ -183,6 +187,21 @@ Here are the typical columns found in an NPX data file from Olink Target:
 - Quality Control (QC) Metrics - QC Flags, Replicate Consistency
 - Control Information : Control Type, Control NPX
 - Metadata (Optional) : Batch Id, Operator, Assay Plate, Experiment date
+```
+
+- **CT files**: Ct refer to the Cycle Threshold (CT) files, which contain raw data from the qPCR-based detection step in Olink assays. These files are crucial for understanding the initial fluorescence signal levels and are used in the normalization process to calculate the final Normalized Protein Expression (NPX) values. Here’s an overview of the CT files and their contents:
+
+```
+- Sample Information : 
+  - Sample ID, Plate ID, Well Position
+- Protein Information : 
+  - Protein Name, Protein ID, Olink Panel
+- Cycle Threshold (CT) Data : 
+  - CT Value, Background CT
+- Control Information : 
+  - Control Type, Control CT Value
+- Quality Control (QC) Metrics : 
+  - QC Flags, Replicate Consistency
 ```
 
 ### SomaScan data submissions
