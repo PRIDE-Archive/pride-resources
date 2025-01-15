@@ -160,15 +160,15 @@ Olink Target Technology is a platform developed by Olink Proteomics that utilize
 
 ##### Olink Target data submissions
 
-| Data file                                             | Content                                                       | File format                | Category (Requiered)     |
-|-------------------------------------------------------|---------------------------------------------------------------|----------------------------|--------------------------|
-| *Normalized Protein Expression (NPX) File / Abs Quant | Primary output file with normalized protein expression data   | CSV, Excel                 | Results **(Required)**   |
-| **Ct Data File                                        | Contains raw cycle threshold (Ct) values from qPCR            | CSV, Excel                 | Raw **(Requiered)**      |
-| Quality Control (QC) Report                           | Summary of quality control results                            | PDF, Excel                 | Additional               |
-| Plate Layout File                                     | Maps sample and control positions on plates                   | Excel, CSV                 | Additional               |
-| Assay Metadata File                                   | Provides information on Olink Target panels used              | PDF, Excel                 | Additional               |
-| Data Normalization Report                             | Documents the normalization process                           | Text, PDF (e.g. QC report) | Additional               |
-| Summary Statistics                                    | Overview of dataset and assay performance metrics             | CSV, Excel                 | Additional               |
+| Data file                                          | Content                                                     | File format                | Category (Requiered)     |
+|----------------------------------------------------|-------------------------------------------------------------|----------------------------|--------------------------|
+| Normalized Protein Expression (NPX) File / Abs Quant | Primary output file with normalized protein expression data | CSV, Excel                 | Results **(Required)**   |
+| Ct Data File                                       | Contains raw cycle threshold (Ct) values from qPCR          | CSV, Excel                 | Raw **(Requiered)**      |
+| Quality Control (QC) Report                        | Summary of quality control results                          | PDF, Excel                 | Additional               |
+| Plate Layout File                                  | Maps sample and control positions on plates                 | Excel, CSV                 | Additional               |
+| Assay Metadata File                                | Provides information on Olink Target panels used            | PDF, Excel                 | Additional               |
+| Data Normalization Report                          | Documents the normalization process                         | Text, PDF (e.g. QC report) | Additional               |
+| Summary Statistics                                 | Overview of dataset and assay performance metrics           | CSV, Excel                 | Additional               |
 
 
 >[!IMPORTANT]
