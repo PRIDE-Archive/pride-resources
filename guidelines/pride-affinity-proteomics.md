@@ -215,7 +215,9 @@ Olink Target Technology is a platform developed by Olink Proteomics that utilize
 
 ## Ownership, privacy and release of datasets to the public
 
-This section is similar to [ProteomeXchange guidelines](https://www.proteomexchange.org/docs/guidelines_px.pdf) for MS-based proteomics submissions.
+This section is similar to [ProteomeXchange
+guidelines](https://www.proteomexchange.org/docs/guidelines_px.pdf) for
+MS-based proteomics submissions.
 
 **Data Ownership**: Original submitters and Principal Investigators (PI) own the datasets submitted to PRIDE-AP resource. The submitter and PI must be explicitly identified for each dataset.
 
