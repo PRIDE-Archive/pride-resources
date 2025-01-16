@@ -90,7 +90,7 @@ Olink Proteomics offers two main platforms for affinity proteomics: Olink Explor
 >    - **Raw CSV files**: Name files containing unprocessed, original data (e.g., raw sequencing reads or non-normalized protein expression matrices) as `file_name.raw.csv` to distinguish foundational data required for reanalysis or alternative processing.  
 >    - **Raw Ct files**: Use the format `file_name.ct.csv` for files containing unprocessed cycle threshold (Ct) data.  
 >    - **Raw Parquet files**: Use the format `file_name.raw.parquet` for unprocessed data in Parquet format.
-> 3. If you use the latest version of Olink Explore for the Raw data we recommend to request and provide a parquet file with unproccesed signals before normalization. By following these guidelines, submissions will adhere to a standardized structure, promoting transparency, usability, and consistency across datasets.
+> 3. If you use the latest version of Olink Explore for the Raw data we recommend to request and provide a parquet file with unprocessed signals before normalization. By following these guidelines, submissions will adhere to a standardized structure, promoting transparency, usability, and consistency across datasets.
 
 #### File Validation Rules
 
@@ -164,14 +164,22 @@ In the current guidelines for Olink Technologies we are not validating the Raw f
 
 - **Quality Control (QC) Report**: This file provides a summary of quality control metrics for the experiment. 
 
-
 ### SomaScan data submissions
 
-@TODO: Move to the same format as Olink data submissions in tables. 
+| Data File                     | Content                                                | Format | Category (Requiered)      |
+|-------------------------------|--------------------------------------------------------|------|---------------------------|
+| ADAT Results File             | Normalized protein expression in ADAT File             | ADAT | Results **(Required)**    |
+| ADAT RAW File                 | Non normalized unprocess data from the platform.       | ADAT | Raw **(Recommended)**     |
+| Quality Control (QC) Reports  | Summarizes quality control metrics for the experiment. | PDF  | Additional                |
 
-**.adat file**: For every SomaScan submission, the .adat file containing the 'RAW' reads, and protein quantification values without normalization MUST be provided. In addition, normalized versions of the .adat file can be included optionally. (We are still refining this part)
+SomaScan platform provides all the data in ADAT format. The ADAT format is a tab-delimited text containing information about the sample, the protein expression values and the quality control metrics. The ADAT file is the main file for the submission and it is mandatory. The ADAT RAW file is the unprocessed data from the platform and it is recommended to be submitted. The Quality Control (QC) Reports are also recommended to be submitted.
 
-@TODO: Add more details about SomaScan data submissions
+> [!IMPORTANT]
+> 1. **ADAT files are mandatory** for every submission to ensure datasets are comprehensive and reproducible.
+> 2. To avoid confusion between normalized ADAT files and raw data files (containing unprocessed, non-normalized signals), please adhere to the following naming conventions:
+>    - **ADAT Result files**: They should be named as `file_name.adat` to identify the processed data ready for downstream analysis.
+>    - **ADAT RAW files**: They should be named as `file_name.raw.adat` to distinguish foundational data required for reanalysis or alternative processing.
+
 
 ## Ownership, privacy and release of datasets to the public
 
