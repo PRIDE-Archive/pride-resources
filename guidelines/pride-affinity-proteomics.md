@@ -83,13 +83,13 @@ Olink Proteomics offers two main platforms for affinity proteomics: Olink Explor
 | Plate Layout                  | Describes the layout of samples and controls on the assay plates. | CSV, XLSX | Additional |
 | Log File                      | Records data processing steps and any errors or warnings encountered during analysis. | TXT | Additional |
 
->[!IMPORTANT]
-> 1. NPX files are mandatory/required for each submission to ensure comprehensive and reproducible datasets. 
-> 2. To minimize confusion for Result NPX and Raw files containing unprocessed, non-normalized signals, we recommend the following convention:
-> 2.1. NPX files: Use the format 'file_name.npx.csv' for normalized protein expression files (e.g., NPX files). This ensures clarity in identifying processed data ready for downstream analysis.
-> 2.2. Raw CSV files: Raw files in CSV format should be named in with the following naming 'file_name.raw.csv' for files containing unprocessed, original data, such as raw sequencing reads or non-normalized protein expression matrices. This helps distinguish foundational data essential for reanalysis or alternative processing.
-> 2.3. Raw Ct files: Use the format 'file_name.ct.csv' for files containing unprocessed, original data.
-> 2.4. Raw Parquet files: Use the format 'file_name.raw.parquet' for files containing unprocessed, original data.
+> **IMPORTANT**  
+> 1. **NPX files are mandatory** for every submission to ensure datasets are comprehensive and reproducible.  
+> 2. To avoid confusion between normalized NPX files and raw data files (containing unprocessed, non-normalized signals), please adhere to the following naming conventions:  
+>    - **Normalized NPX files**: Use the format `file_name.npx.csv` for normalized protein expression files. This clearly identifies processed data ready for downstream analysis.  
+>    - **Raw CSV files**: Name files containing unprocessed, original data (e.g., raw sequencing reads or non-normalized protein expression matrices) as `file_name.raw.csv` to distinguish foundational data required for reanalysis or alternative processing.  
+>    - **Raw Ct files**: Use the format `file_name.ct.csv` for files containing unprocessed cycle threshold (Ct) data.  
+>    - **Raw Parquet files**: Use the format `file_name.raw.parquet` for unprocessed data in Parquet format.  
 
 >[!NOTE]
 If you use the latest version of Olink Explore for the Raw data we recommend to request and provide a parquet file with unproccesed songnals before normalization. By following these guidelines, submissions will adhere to a standardized structure, promoting transparency, usability, and consistency across datasets.
