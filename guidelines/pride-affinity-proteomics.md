@@ -89,10 +89,8 @@ Olink Proteomics offers two main platforms for affinity proteomics: Olink Explor
 >    - **Normalized NPX files**: Use the format `file_name.npx.csv` for normalized protein expression files. This clearly identifies processed data ready for downstream analysis.  
 >    - **Raw CSV files**: Name files containing unprocessed, original data (e.g., raw sequencing reads or non-normalized protein expression matrices) as `file_name.raw.csv` to distinguish foundational data required for reanalysis or alternative processing.  
 >    - **Raw Ct files**: Use the format `file_name.ct.csv` for files containing unprocessed cycle threshold (Ct) data.  
->    - **Raw Parquet files**: Use the format `file_name.raw.parquet` for unprocessed data in Parquet format.  
-
->[!NOTE]
-If you use the latest version of Olink Explore for the Raw data we recommend to request and provide a parquet file with unproccesed songnals before normalization. By following these guidelines, submissions will adhere to a standardized structure, promoting transparency, usability, and consistency across datasets.
+>    - **Raw Parquet files**: Use the format `file_name.raw.parquet` for unprocessed data in Parquet format.
+> If you use the latest version of Olink Explore for the Raw data we recommend to request and provide a parquet file with unproccesed songnals before normalization. By following these guidelines, submissions will adhere to a standardized structure, promoting transparency, usability, and consistency across datasets.
 
 #### File Validation Rules
 
