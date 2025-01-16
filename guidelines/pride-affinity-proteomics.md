@@ -83,7 +83,7 @@ Olink Proteomics offers two main platforms for affinity proteomics: Olink Explor
 | Plate Layout                  | Describes the layout of samples and controls on the assay plates. | CSV, XLSX | Additional |
 | Log File                      | Records data processing steps and any errors or warnings encountered during analysis. | TXT | Additional |
 
-> **IMPORTANT**  
+> [!IMPORTANT]  
 > 1. **NPX files are mandatory** for every submission to ensure datasets are comprehensive and reproducible.  
 > 2. To avoid confusion between normalized NPX files and raw data files (containing unprocessed, non-normalized signals), please adhere to the following naming conventions:  
 >    - **Normalized NPX files**: Use the format `file_name.npx.csv` for normalized protein expression files. This clearly identifies processed data ready for downstream analysis.  
