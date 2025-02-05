@@ -21,7 +21,7 @@
     
 ## Introduction
 
-PRIDE Affinity Proteomics (PRIDE-AP) is a new archive within the Proteomics IDEntification database (PRIDE) dedicated to advance the field of affinity proteomics (AP) by providing a centralised hub for openly accessible datasets generated using the innovative AP platforms such as Olink and SomaScan. We aim to foster collaboration, accelerate research, and promote the widespread dissemination of high-quality affinity proteomics data. This document outlines the submission guidelines for PRIDE-AP. PRIDE Archive infrastructure will be used to support the submission, validation and dissemination of AP datasets. 
+PRIDE Affinity Proteomics (PRIDE-AP) is a new archive section within the Proteomics IDEntifications database (PRIDE) dedicated to advance the field of affinity proteomics (AP) by providing a centralised hub for openly accessible datasets generated using the innovative AP platforms such as Olink and SomaScan. We aim to foster collaboration, accelerate research, and promote the widespread dissemination of high-quality affinity proteomics data. This document outlines the submission guidelines for PRIDE-AP. PRIDE Archive infrastructure is used to support the submission, validation and dissemination of AP datasets. 
 
 >[!NOTE]
 >Some parts of this document will reference and link to existing guidelines in PRIDE.
