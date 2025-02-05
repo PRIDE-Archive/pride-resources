@@ -211,6 +211,6 @@ At the time of writing, only MS-based experiments are supported by ProteomeXchan
 
 ## Conclusions
 
-In conclusion, the PRIDE-AP serves as a pivotal platform dedicated to advancing the field of AP. By centralising datasets generated through cutting-edge technologies like Olink and SomaScan, PRIDE-AP aims to facilitate collaboration, accelerate research, and enhance the widespread dissemination of high-quality AP data. This document provides submission guidelines for datasets, emphasising the importance of adherence to PRIDE guidelines and policies.
+In conclusion, the PRIDE-AP serves as a pivotal platform dedicated to advancing the field of AP. By centralising datasets generated through technologies like Olink and SomaScan, PRIDE-AP aims to facilitate collaboration, accelerate research, and enhance the widespread dissemination of high-quality AP data. This document provides submission guidelines for datasets, emphasising the importance of adherence to PRIDE guidelines and policies.
 
 The unique PAD accession identifier assigned to each dataset ensures proper citation in scientific literature. The document details the specific requirements for dataset structure and file formats, highlighting distinctions between SomaScan and Olink NGS-based data submissions. Additional files, experimental design, and metadata considerations are outlined to ensure comprehensive data representation. At the time of writing PRIDE-AP operates independently of ProteomeXchange for AP datasets and releases dataset accession numbers autonomously.
