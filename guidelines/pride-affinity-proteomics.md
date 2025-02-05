@@ -36,7 +36,7 @@ Before reading specific guidelines about affinity proteomics dataset submissions
 
 ## Supported technologies
 
-As of this writing, the PRIDE-AP Archive explicitly supports Olink Explore, Olink Target, and SomaScan datasets. Future AP approaches from the same or other vendors must be formally agreed upon and explicitly supported before inclusion in PRIDE-AP.
+As the moment of writing, the PRIDE-AP Archive explicitly supports Olink Explore, Olink Target, and SomaScan datasets. Future AP approaches from the same or other vendors must be formally agreed upon and explicitly supported before inclusion in PRIDE-AP.
 
 ## Dataset structure and file requirements
 
