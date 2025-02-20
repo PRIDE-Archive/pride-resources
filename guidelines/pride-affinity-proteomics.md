@@ -49,9 +49,7 @@ All PRIDE-AP datasets get a unique accession PAD (**P**roteomics **A**ffinity **
 
 ### Dataset metadata
 
-For every dataset, a minimum metadata is required similar to
-ProteomeXchange dataset requirements. The following information must be
-provided for each dataset:
+For every dataset, a minimum metadata is required similar to ProteomeXchange dataset requirements. The following information must be provided for each dataset:
 - Title (free-text)
 - Description (free-text)
 - Sample analysis protocol (free-text)
