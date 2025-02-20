@@ -67,9 +67,9 @@ provided for each dataset:
 
 ### Olink technologies:
 
-#### Olink Explore series
+The following sections outline the specific requirements and file types for each technology.
 
-Olink Explore is Olink's advanced platform for high-throughput protein biomarker discovery, combining their proprietary Proximity Extension Assay (PEA) technology with Next-Generation Sequencing (NGS) as the readout method. This platform is designed to enable large-scale proteomics studies with high sensitivity, specificity, and scalability.
+### Olink technologies 
 
 ##### Olink NGS-based data submissions
 
