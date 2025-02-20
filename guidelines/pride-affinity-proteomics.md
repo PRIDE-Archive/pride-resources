@@ -4,24 +4,19 @@
 
 **date**: January 25th 2024
 
--   [PRIDE Affinity Proteomics Archive: Submission
-    guidelines](#pride-affinity-proteomics-archive-submission-guidelines)
+-   [PRIDE Affinity Proteomics Archive: Submission guidelines](#pride-affinity-proteomics-archive-submission-guidelines)
     -   [Introduction](#introduction)
-    -   [PRIDE Archive guidelines and
-        policies](#pride-archive-guidelines-and-policies)
+    -   [PRIDE Archive guidelines and policies](#pride-archive-guidelines-and-policies)
     -   [Supported technologies](#supported-technologies)
-    -   [Dataset structure and file
-        requirements](#dataset-structure-and-file-requirements)
+    -   [Dataset structure and file requirements](#dataset-structure-and-file-requirements)
         -   [Accession](#accession)
         -   [Dataset metadata](#dataset-metadata)
         -   [File requirements](#file-requirements)
-    -   [Ownership, privacy and release of datasets to the
-        public](#ownership-privacy-and-release-of-datasets-to-the-public)
-    -   [Support for AP proteomics experiments in
-        ProteomeXchange](#support-for-ap-proteomics-experiments-in-proteomexchange)
+    -   [Ownership, privacy and release of datasets to the public](#ownership-privacy-and-release-of-datasets-to-the-public)
+    -   [Support for AP proteomics experiments in ProteomeXchange](#support-for-ap-proteomics-experiments-in-proteomexchange)
     -   [Conclusions](#conclusions)
 
-## Introduct ion
+## Introduction
 
 PRIDE Affinity Proteomics (PRIDE-AP) is a section of the PRIDE
 repository dedicated to advancing the field of affinity proteomics (AP)
@@ -86,8 +81,7 @@ provided for each dataset:
 PRIDE-AP groups the files from each technology into two main
 categories: 'RAW' and 'Additional' files. The file requirements from PRIDE-AP
 datasets are therefore a bit different from those for MS-based experiments included in
-ProteomeXchange. [The PX
-guidelines](https://www.proteomexchange.org/docs/guidelines_px.pdf)
+ProteomeXchange. [The PX guidelines](https://www.proteomexchange.org/docs/guidelines_px.pdf)
 categorize file requirements based on 'RAW' file type, peptide/protein
 identification formats and search engine outputs (processed results).
 
