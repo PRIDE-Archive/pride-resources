@@ -20,8 +20,8 @@
     -   [Support for AP proteomics experiments in
         ProteomeXchange](#support-for-ap-proteomics-experiments-in-proteomexchange)
     -   [Conclusions](#conclusions)
-    
-## Introduction
+
+## Introduct ion
 
 PRIDE Affinity Proteomics (PRIDE-AP) is a section of the PRIDE
 repository dedicated to advancing the field of affinity proteomics (AP)
