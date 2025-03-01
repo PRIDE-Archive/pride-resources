@@ -75,7 +75,7 @@ For every dataset, a minimum metadata is required similar to ProteomeXchange dat
 
 The following sections outline the specific requirements and file types for each technology.
 
-##### Olink NGS-based data submissions
+#### Olink NGS-based data submissions
 
 | Data File                           | Content                                                                                                                                                                    | Format              | Category (Requiered)    |
 |-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------|-------------------------|
