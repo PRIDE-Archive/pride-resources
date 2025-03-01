@@ -160,7 +160,7 @@ Here’s an overview of the CT files and their contents:
 **NPX file validation**: From Olink Target is the key output file for analyzing protein expression levels after raw data has been processed and normalized. The NPX values are calculated to provide log2-transformed, normalized expression levels for proteins in each sample. The NPX file contains several columns, each providing essential data for downstream analysis.
 Here are the typical columns found in an NPX data file from Olink Target:
 ```
-- Sample Information : Sample ID, Saple Plate, Sample Well, Group/Condition
+- Sample Information : Sample ID, Sample Plate, Sample Well, Group/Condition
 - Protein Information : Protein Name, Protein ID, Olink Panel
 - NPX Data : NPX Value, Below LOD (Limit of Detection), LOD (Limit of Detection)
 - Quality Control (QC) Metrics - QC Flags, Replicate Consistency
