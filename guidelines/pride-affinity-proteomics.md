@@ -115,8 +115,7 @@ Here’s an overview of the columns commonly found in NPX files:
 
 ```
 - The file should include the following minimum mandatory string datatype columns: SampleID, SampleType, WellID, PlateID, DataAnalysisRefID, OlinkID, UniProt, Panel, Block, Normalization, SampleQC, ExploreVersion
-- The file should include the following minimum mandatory integer datatype column: Count
-- The file should include the following minimum mandatory double datatype columns: ExtNPX, NPX
+- The file should include the following minimum mandatory column: Count (Integer datatype); ExtNPX (double datatype), NPX (double datatype)
 - The file has at least one record
 - Possible values for string column SampleQC: NA or PASS or WARN or FAIL
 - All records where the SampleQC column indicates NA or FAIL have NaN in column NPX
