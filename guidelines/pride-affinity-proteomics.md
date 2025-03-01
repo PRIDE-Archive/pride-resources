@@ -13,7 +13,7 @@
   requirements](#dataset-structure-and-file-requirements)
     - [Accession](#accession)
     -   [Dataset metadata](#dataset-metadata)
-    -   [Olink and SomaScan file requirements](#olink-and-somaScan-file-requirements)
+    -   [Olink and SomaScan file requirements](#olink-and-somascan-file-requirements)
 -   [Ownership, privacy and release of datasets to the
     public](#ownership-privacy-and-release-of-datasets-to-the-public)
 -   [Support for AP proteomics experiments in ProteomeXchange](#support-for-ap-experiments-in-proteomexchange)
