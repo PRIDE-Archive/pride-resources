@@ -215,7 +215,7 @@ This section is similar to [ProteomeXchange guidelines](https://www.proteomexcha
 
 **Exceptions**: Exceptions to the public release policy may be granted in documented special cases, with a maximum 6-month extension for ongoing studies. Submitters must officially request an extension, considering journal requirements.
 
-You can read more about ProteomeXchange guidelines [here](https://www.proteomexchange.org/docs/guidelines_px.pdf).
+You can read more about ProteomeXchange guidelines [here](proteomexchange-guidelines.md).
 
 ### Support for AP experiments in ProteomeXchange
 
