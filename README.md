@@ -6,9 +6,9 @@ Since 2004, the PRoteomics IDEntifications (PRIDE) database (https://www.ebi.ac.
 
 PRIDE stores datasets coming from all MS based proteomics experimental approaches, with a focus on discovery-driven techniques such data-dependent acquisition (DDA) and data independent acquisition (DIA) bottom-up proteomics, but also top-down proteomics and MS imaging, among others. Main Resources: 
 
-- PRIDE Archive https://www.ebi.ac.uk/pride/: PRIDE Archive stores all PRIDE Datasets 
+- [PRIDE Archive](https://www.ebi.ac.uk/pride/): PRIDE Archive stores all PRIDE Datasets 
 - PRIDE (PX) Submission Tool: Enables Submissions of datasets to PRIDE Archive 
-- PRIDE Archive Restful API ( https://www.ebi.ac.uk/pride/ws/archive/v3/webjars/swagger-ui/index.html): Programmatically access to PRIDE Archive data. 
+- [PRIDE Archive Restful API](https://www.ebi.ac.uk/pride/ws/archive/v3/webjars/swagger-ui/index.html): Programmatically access to PRIDE Archive data. 
 
 This repository stores PRIDE guidelines on how to submit data, formats for PRIDE Archive, PRIDE Affinity Proteomics Archive PRIDE-AP and PRIDE Crosslinking resource.
 
