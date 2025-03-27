@@ -4,6 +4,7 @@
 
 **date**: March 27th 2025
 
+[PRIDE Affinity Proteomics Archive: Submission guidelines]()
 - [Introduction](#introduction)
 - [PRIDE Archive guidelines and
   policies](#pride-archive-guidelines-and-policies)
@@ -93,10 +94,9 @@ The following sections outline the specific requirements and file types for each
 
 ##### npx.csv/npx.parquet validations
 
-If your experiment is done on Olink Explore HT then you must provide a `.parquet file` which was exported from Olink Explore HT which includes the sample metadata, protein intensities, and NPX absolute quantification values. If the experiment is done on any other version of Olink Explore, then you can provide a `.csv file`. 
+If your experiment is done on the latest version of Olink Explore (version 3.0) then you must provide a **.parquet file** which was exported from Olink Explore which includes the sample metadata, protein intensities, and NPX absolute quantification values. If the experiment is done on an older version of Olink Explore, then you can provide a **.csv file**
 
 **NPX file validation**:
-
 The NPX (Normalized Protein Expression) data files from Olink Explore are the primary output used for downstream analysis of protein expression. These files provide processed and normalized data, ensuring comparability across samples and proteins.
 
 Here’s an overview of the columns commonly found in NPX files:
