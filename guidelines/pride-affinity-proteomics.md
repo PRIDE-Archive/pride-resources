@@ -88,8 +88,8 @@ The following sections outline the specific requirements and file types for each
 | Log File                            | Records data processing steps and any errors or warnings encountered during analysis. Useful for troubleshooting and maintaining an audit trail.                           | TXT                 | Additional              |
 
 > [!NOTE]
-> * NPX (Result file) example name: 'file name'.npx.csv
-> ** RAW (RAW file) example name: 'file name'.raw.csv
+> NPX** (Result file) example name: {file name}.npx.cs
+> RAW** (RAW file) example name: {file name}.raw.csv
 
 ##### npx.csv/npx.parquet validations
 
