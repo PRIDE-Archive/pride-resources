@@ -90,6 +90,7 @@ The following sections outline the specific requirements and file types for each
 
 > [!NOTE]
 > NPX** (Result file) example name: {file name}.npx.cs
+> 
 > RAW** (RAW file) example name: {file name}.raw.csv
 
 ##### npx.csv/npx.parquet validations
