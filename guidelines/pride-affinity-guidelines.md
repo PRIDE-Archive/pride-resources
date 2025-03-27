@@ -183,7 +183,7 @@ SomaScan technology can measure thousands of proteins in biological samples, suc
 | R Data Files (RDS/RDA) | When using R for analysis, .adat files may be converted to R-compatible formats                               | .rds / .rda    |
 
 > [!NOTE]
-> Example for naming your .adat file : {file name}.adat
+> Example for naming your .adat file: {file name}.adat
 
 **.adat file**: In a SomaScan experiment, a .adat file is the primary data output format containing the processed results. It is a structured file format developed by SomaLogic to store the assay data, including protein measurements, sample metadata, and quality control (QC) information.
 
