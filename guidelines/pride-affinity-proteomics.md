@@ -88,7 +88,7 @@ The following sections outline the specific requirements and file types for each
 | Log File                            | Records data processing steps and any errors or warnings encountered during analysis. Useful for troubleshooting and maintaining an audit trail.                           | TXT                 | Additional              |
 
 > [!NOTE]
-> NPX** (Result file) example name: {file name}.npx.cs
+> NPX* (Result file) example name: {file name}.npx.cs
 > 
 > RAW** (RAW file) example name: {file name}.raw.csv
 
@@ -140,8 +140,9 @@ Olink Target Technology is a platform developed by Olink Proteomics that utilize
 | Summary Statistics                                    | Overview of dataset and assay performance metrics           | CSV, Excel                                         | Additional              |
 
 > [!NOTE]
-> * NPX (Result file) example name: 'file name'.npx.csv
-> * RAW (RAW file) example name: 'file name'.ct.csv
+> NPX* (Result file) example name: {file name}.npx.csv
+>
+> RAW** (RAW file) example name: {file name}.ct.csv
 
 ##### Raw File and Result validations for Olink Explore
 
@@ -181,7 +182,7 @@ SomaScan technology can measure thousands of proteins in biological samples, suc
 | R Data Files (RDS/RDA) | When using R for analysis, .adat files may be converted to R-compatible formats                               | .rds / .rda    |
 
 > [!NOTE]
-> Example for naming your .adat file : 'file name'.adat
+> Example for naming your .adat file : {file name}.adat
 
 **.adat file**: In a SomaScan experiment, a .adat file is the primary data output format containing the processed results. It is a structured file format developed by SomaLogic to store the assay data, including protein measurements, sample metadata, and quality control (QC) information.
 
