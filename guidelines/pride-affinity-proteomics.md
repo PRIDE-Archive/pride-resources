@@ -192,7 +192,7 @@ SomaScan technology can measure thousands of proteins in biological samples, suc
 | Annotation Section | Describes the protein targets and SOMAmer reagents used, including Target Name (protein name), SOMAmer ID, UniProt ID, and Dilution Group               |
 | Data Section       | The main numerical data table with Sample IDs, Relative Fluorescence Units (RFU) for each protein, and QC Flags indicating potential measurement issues |
 
-> [NOTE!] 
+> [!NOTE] 
 > The .adat file without normalization MUST be provided. In addition, normalized versions of the .adat file can be included optionally but should be mentioned specifically in the file name.
 
 ## Ownership, privacy and release of datasets to the public
