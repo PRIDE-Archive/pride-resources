@@ -262,10 +262,9 @@ All submissions must include comprehensive metadata:
 ## Contact and Support
 
 For specific questions about file formats or submission requirements, contact the PRIDE team:
-- Email: pride-support@ebi.ac.uk
-- Website: https://www.ebi.ac.uk/pride/
-- Submission Tool: PRIDE Submission Tool (https://www.ebi.ac.uk/pride/markdownpage/pridesubmissiontool)
-
+- Email: [pride-support@ebi.ac.uk](mailto:pride-support@ebi.ac.uk)
+- Website: [PRIDE website](https://www.ebi.ac.uk/pride/)
+- Submission Tool: [PRIDE Submission Tool](https://www.ebi.ac.uk/pride/markdownpage/pridesubmissiontool)
 ## File Compression Strategies
 
 Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. Below are recommended compression strategies for different file types:
