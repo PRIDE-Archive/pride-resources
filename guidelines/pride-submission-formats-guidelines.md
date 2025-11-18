@@ -220,7 +220,6 @@ MaxQuant is a software suite for quantitative proteomics, developed to process a
 | mqpar.xml | **Mandatory** | MaxQuant parameter file containing all search settings |
 | msms.txt | Recommended | MS/MS scan information and fragment ion matches |
 | Modified peptides.txt | Recommended | Modified peptide identifications |
-| mzIdentML export (.mzid) | Recommended | Standard format export of identification results (if available) |
 
 **Notes:**
 - Include MaxQuant version used
@@ -257,7 +256,6 @@ FragPipe is a versatile platform for mass spectrometry proteomics analysis, offe
 | pepXML files (.pep.xml) | **Mandatory** | Peptide identification results in pepXML format |
 | Protein inference results (.tsv or .txt) | **Mandatory** | Protein-level identification and inference results |
 | FragPipe parameter files | **Mandatory** | FragPipe configuration and parameter files |
-| mzIdentML export (.mzid) | Recommended | Standard format export of identification results (if available) |
 | FASTA database (.fasta, .fa) | Recommended | Protein sequence database used for the search |
 | PTM Shepherd output | Recommended | Post-translational modification analysis results (if PTM Shepherd was used) |
 | IonQuant output | Recommended | IonQuant quantification results (if IonQuant was used) |
