@@ -1,11 +1,16 @@
 # PRIDE Database Submission Guidelines
-## File Formats and Software Tool Requirements
+
+Document version: v1.0.0
+
+Authors: 
+  - Yasset Perez-Riverol (EMBL-EBI)
 
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Overview of PRIDE Database](#overview-of-pride-database)
-3. [Supported Raw Data Formats](#supported-raw-data-formats)
-4. [Search Engine and Analysis Tool Requirements](#search-engine-and-analysis-tool-requirements)
+3. [PRIDE Submission Types and File Requirements](#pride-submission-types-and-file-requirements)
+4. [Supported Raw Data Formats](#supported-raw-data-formats)
+5. [Search Engine and Analysis Tool Requirements](#search-engine-and-analysis-tool-requirements)
    - [Mascot](#mascot)
    - [MaxQuant](#maxquant)
    - [DIA-NN](#dia-nn)
@@ -15,11 +20,11 @@
    - [FragPipe/MSFragger](#fragpipe-msfragger)
    - [OpenMS](#openms)
    - [Other Tools](#other-tools)
-5. [Metadata Requirements](#metadata-requirements)
-6. [Best Practices for Submission](#best-practices-for-submission)
-7. [File Compression Strategies](#file-compression-strategies)
-8. [Submission Checklist](#submission-checklist)
-9. [Contact and Support](#contact-and-support)
+6. [Metadata Requirements](#metadata-requirements)
+7. [Best Practices for Submission](#best-practices-for-submission)
+8. [File Compression Strategies](#file-compression-strategies)
+9. [Submission Checklist](#submission-checklist)
+10. [Contact and Support](#contact-and-support)
 
 ## Introduction
 
@@ -27,7 +32,29 @@ This document provides comprehensive guidelines for submitting proteomics data t
 
 ## Overview of PRIDE Database
 
-PRIDE is a centralized repository for mass spectrometry-based proteomics data, including raw data, processed results, and associated metadata. It is part of the ProteomeXchange (PX) Consortium, which provides a coordinated submission process to proteomics repositories. PRIDE focuses on enabling data reuse, reproducibility, and transparency in proteomics research.
+[PRIDE](https://www.ebi.ac.uk/pride/archive) is a centralized repository for mass spectrometry-based proteomics data, including raw data, processed results, and associated metadata. It is part of the ProteomeXchange (PX) Consortium, which provides a coordinated submission process to proteomics repositories. PRIDE focuses on enabling data reuse, reproducibility, and transparency in proteomics research.
+
+## PRIDE Submission Types and File Requirements
+
+PRIDE supports two types of submissions: **PARTIAL** Submissions and **COMPLETE** Submissions. These categories are defined by the ProteomeXchange Consortium, of which PRIDE Archive is an active member. The main difference between the two submission types is that **COMPLETE** Submissions require standard file formats (such as mzIdentML or mzTab) for the results files, while **PARTIAL** Submissions primarily use tool-specific formats.
+
+This document focuses on which file formats and extensions should be provided for **PARTIAL** PRIDE submissions, with **COMPLETE** submissions representing an extension of **PARTIAL** requirements. This document is coordinated between the PRIDE team and software producers and developers of computational proteomics tools to ensure their data is well represented in the archive.
+
+**Note:** The term **PARTIAL** is a convention from ProteomeXchange and is not related to the quality or completeness of the dataset, but rather to the availability of results in a standard file format.
+
+### File Requirements by Submission Type
+
+| File Category | File Type/Format | PARTIAL Submission | COMPLETE Submission | Notes |
+|--------------|------------------|-------------------|-------------------|-------|
+| **Raw Data Files** | Raw instrument files (.raw, .mzML, .mzXML, .wiff, .baf, .tdf, .d folders) | **Mandatory** | **Mandatory** | Original unprocessed data from mass spectrometer |
+| **Peaks Type** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Recommended | Processed peak lists extracted from raw data |
+| **SEARCH Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) | **Mandatory** | Recommended | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, etc.) |
+| **RESULT Files - Standard Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended | **Mandatory** | Standard format for identification and quantification results |
+| **FASTA Database** | Protein sequence database (.fasta, .fa) | Recommended | Recommended | Database used for search (or clear reference to public database) |
+| **Spectral Libraries** | Spectral library files (.blib, .sptxt, etc.) | Recommended | Recommended | If used in the analysis workflow |
+| **Workflow Files** | Workflow description files (.sky, .skyd, .pdProcessingWF, etc.) | Recommended | Recommended | Tool-specific workflow and method files |
+| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Mandatory** | **Mandatory** | Comprehensive metadata required for all submissions |
+| **OTHER** | Supplementary files (.pdf, .doc, .docx, figures, images, etc.) | Recommended | Recommended | Additional documentation, figures, and supplementary materials |
 
 ## Supported Raw Data Formats
 
@@ -52,12 +79,11 @@ RAW files store the raw, unprocessed mass spectrometry data, including:
 
 ### Common workflows:
 
- - Acquisition – Mass spectrometer generates a RAW file.
+ - **Acquisition** – Mass spectrometer generates a RAW file.
+ - **Conversion (optional)** – RAW file converted to an open format (e.g., mzML, mzXML).
+ - **Processing** – Peptide/protein identification and quantification using tools like MaxQuant, MS-GF+, OpenMS, etc.
 
- - Conversion (optional) – RAW file converted to an open format (e.g., mzIdentML).
-
- - Processing – Peptide/protein identification and quantification using tools like MaxQuant, MS-GF+, OpenMS, etc.
-Raw data files contain the unprocessed data directly from the mass spectrometer. PRIDE accepts:
+Raw data files contain the unprocessed data directly from the mass spectrometer. PRIDE accepts the following formats:
 
 | Format | Extension | Vendor/Source | Description |
 |--------|-----------|---------------|-------------|
@@ -73,7 +99,9 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 
 The following sections detail the specific file formats and requirements for each major proteomics analysis tool and search engine. For each tool, we list the required files, recommended additional files, and important notes to ensure your submission is complete and reusable.
 
-### MaxQuant : Mostly 'Partial Submission'
+### MaxQuant
+*Submission Type: Mostly PARTIAL Submission*
+
 MaxQuant is a software suite for quantitative proteomics, developed to process and analyze large-scale mass spectrometry data.
 
 **Required Files:**
@@ -97,7 +125,9 @@ MaxQuant is a software suite for quantitative proteomics, developed to process a
 - Document LFQ settings if applicable
 - Special parameters for match-between-runs or other advanced features
 
-### DIA-NN : 'Partial submission'
+### DIA-NN
+*Submission Type: PARTIAL Submission*
+
 DIA-NN is an advanced software for data-independent acquisition (DIA) proteomics, using neural networks to improve protein identification and quantification from complex mass spectrometry data.
 
 **Required Files:**
@@ -117,7 +147,9 @@ DIA-NN is an advanced software for data-independent acquisition (DIA) proteomics
 - Document extraction and quantification settings
 - Window scheme used for acquisition
 
-### FragPipe/MSFragger : Mostly 'Partial submission'
+### FragPipe/MSFragger
+*Submission Type: Mostly PARTIAL Submission*
+
 FragPipe is a versatile platform for mass spectrometry proteomics analysis, offering a user-friendly GUI and command-line options across Windows, Linux, and cloud. It integrates multiple tools and is powered by MSFragger, a fast search engine for both standard and wide-tolerance peptide identification.
 
 **Required Files:**
@@ -137,7 +169,9 @@ FragPipe is a versatile platform for mass spectrometry proteomics analysis, offe
 - Document all search parameters, especially for open searches
 - Note FDR calculation method
 
-### Skyline : 'Partial submission'
+### Skyline
+*Submission Type: PARTIAL Submission*
+
 Skyline is a free, open-source Windows application designed for creating and analyzing Selected Reaction Monitoring (SRM)/Multiple Reaction Monitoring (MRM), Parallel Reaction Monitoring (PRM), Data Independent Acquisition (DIA/SWATH), and DDA with MS1 quantitative workflows from mass spectrometry data.
 
 **Required Files:**
@@ -156,7 +190,9 @@ Skyline is a free, open-source Windows application designed for creating and ana
 - Describe peak integration settings
 - Note interference removal techniques if applied
 
-### OpenMS : Mostly 'Partial submission''
+### OpenMS
+*Submission Type: Mostly PARTIAL Submission*
+
 OpenMS is an open-source C++ library with Python bindings for managing, analyzing, and visualizing LC/MS data. It facilitates fast development of mass spectrometry software and is freely available under the three-clause BSD license, compatible with Windows, macOS, and Linux.
 
 **Required Files:**
@@ -174,7 +210,9 @@ OpenMS is an open-source C++ library with Python bindings for managing, analyzin
 - Document which TOPP tools were used
 - Describe workflow parameters
 
-### Mascot : 'Complete Submission'
+### Mascot
+*Submission Type: COMPLETE Submission*
+
 Mascot is a widely used software search engine that identifies proteins by matching mass spectrometry data to peptide sequence databases.
 
 **Required Files:**
@@ -193,7 +231,9 @@ Mascot is a widely used software search engine that identifies proteins by match
 - Specify fixed and variable modifications
 - Document all search parameters
 
-### Proteome Discoverer : 'Partial Submission'
+### Proteome Discoverer
+*Submission Type: PARTIAL Submission*
+
 Thermo Scientific Proteome Discoverer is a flexible software suite for protein research, offering customizable workflows to simplify protein identification, quantification, PTM analysis, isobaric tagging, and label-free quantitation in complex samples.
 
 **Required Files:**
@@ -214,7 +254,9 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for protein r
 - Document which nodes and search engines were used in the workflow
 - Note scoring thresholds and FDR settings
 
-### MS-GF+ : Mostly 'Partial submission'
+### MS-GF+
+*Submission Type: Mostly PARTIAL Submission*
+
 MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein database peptides. It supports mzML input, outputs mzIdentML, and is compatible with ProteomeXchange submissions.
 
 **Required Files:**
@@ -291,12 +333,6 @@ All submissions must include comprehensive metadata:
 - [ ] QC metrics (if available)
 - [ ] README file explaining file organization (recommended)
 
-## Contact and Support
-
-For specific questions about file formats or submission requirements, contact the PRIDE team:
-- Email: [pride-support@ebi.ac.uk](mailto:pride-support@ebi.ac.uk)
-- Website: [PRIDE website](https://www.ebi.ac.uk/pride/)
-- Submission Tool: [PRIDE Submission Tool](https://www.ebi.ac.uk/pride/markdownpage/pridesubmissiontool)
 ## File Compression Strategies
 
 Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. Below are recommended compression strategies for different file types:
@@ -376,3 +412,10 @@ tar -czf sample1.d.tar.gz ./sample1.d/
    - Use relative paths within archives
 
 **Note**: These guidelines are regularly updated to reflect new tools and formats. Please check the PRIDE website for the most current version of the submission guidelines.
+
+## Contact and Support
+
+For specific questions about file formats or submission requirements, contact the PRIDE team:
+- **Email**: [pride-support@ebi.ac.uk](mailto:pride-support@ebi.ac.uk)
+- **Website**: [PRIDE website](https://www.ebi.ac.uk/pride/)
+- **Submission Tool**: [PRIDE Submission Tool](https://www.ebi.ac.uk/pride/markdownpage/pridesubmissiontool)
