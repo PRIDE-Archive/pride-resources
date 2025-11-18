@@ -47,7 +47,7 @@ This document focuses on which file formats and extensions should be provided fo
 | File Category | File Type/Format | PARTIAL Submission | COMPLETE Submission | Notes |
 |--------------|------------------|-------------------|-------------------|-------|
 | **Raw Data Files** | Raw instrument files (.raw, .mzML, .mzXML, .wiff, .baf, .tdf, .d folders) | **Mandatory** | **Mandatory** | Original unprocessed data from mass spectrometer |
-| **SEARCH Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) | **Mandatory** | Recommended | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, etc.) |
+| **SEARCH Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) | **Mandatory** | Recommended | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, etc.). Can be provided as individual files or grouped together in a ZIP or TAR.GZ archive |
 | **Peaks Type** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Recommended | Processed peak lists extracted from raw data |
 | **RESULT Files - Standard Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended | **Mandatory** | Standard format for identification and quantification results |
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | Recommended | Recommended | Database used for search (or clear reference to public database) |
@@ -55,6 +55,78 @@ This document focuses on which file formats and extensions should be provided fo
 | **Workflow Files** | Workflow description files (.sky, .skyd, .pdProcessingWF, etc.) | Recommended | Recommended | Tool-specific workflow and method files |
 | **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Mandatory** | **Mandatory** | Comprehensive metadata required for all submissions |
 | **OTHER** | Supplementary files (.pdf, .doc, .docx, figures, images, etc.) | Recommended | Recommended | Additional documentation, figures, and supplementary materials |
+
+### File Compression Rules
+
+Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. The following rules apply to all file types:
+
+#### Supported Compression Formats
+
+- **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported**
+- **RAR (.rar) format is NOT accepted**
+
+#### RAW Files Compression Rules
+
+**Critical: One run per compressed file**
+
+When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression:
+- **Only one run should be included per compressed archive**
+- **Do NOT compress multiple runs together** into a single ZIP or GZ file
+
+**Why this matters:**
+- Each msrun in the SDRF (Sample to Data Relationship Format) must be properly linked to its specific raw file, even when compressed
+- Download statistics and links to other omics files are tracked accurately on a per-run basis
+- File-level metadata and associations remain intact
+
+**Exception:** This restriction does **NOT** apply to .d folders (Bruker and Agilent), as these directory-based formats are typically associated with a single run per folder and should be compressed as complete folders.
+
+**Example:**
+```bash
+# Correct: One run per compressed file
+gzip run1.mzML          # Creates run1.mzML.gz
+gzip run2.mzML          # Creates run2.mzML.gz
+
+# Incorrect: Multiple runs in one archive
+zip all_runs.zip run1.mzML run2.mzML run3.mzML  # DO NOT DO THIS
+```
+
+#### Directory-Based RAW Files (.d folders)
+
+- Bruker `.d` folders and Agilent `.d` folders **must be compressed** (as `.zip` or `.tar.gz`) before submission
+- Compress the **entire folder** as a single archive, preserving the complete directory structure
+- These folders are typically associated with one run, so this is acceptable
+
+**Example:**
+```bash
+tar -czf experiment1.d.tar.gz experiment1.d/
+# or
+zip -r experiment1.d.zip experiment1.d/
+```
+
+#### SEARCH Files Compression Rules
+
+- **All SEARCH files for a given analysis can be grouped together** and compressed into a single ZIP (.zip) or TAR.GZ (.tar.gz) archive
+- This is **recommended** for better organization and easier submission
+- Group all search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) from a single analysis into one archive
+
+**Example:**
+```bash
+zip search_results.zip evidence.txt peptides.txt proteinGroups.txt parameters.txt
+```
+
+#### RESULT Files (Standard Formats) Compression
+
+- For large mzIdentML files: Use GZ compression (`gzip large_file.mzid`)
+- For multiple mzTab files: Group and ZIP by experiment or analysis batch
+
+#### General Compression Guidelines
+
+1. **Preserve directory structure** when compressing folders
+2. **Use logical naming** (e.g., `mascot_exp1.zip`, `maxquant_full_results.tar.gz`)
+3. **Size considerations**: Try to keep individual compressed files under 50GB for easier upload
+4. **For very large datasets**: Split into multiple compressed archives of reasonable size (< 50GB each), but maintain the one-run-per-archive rule for RAW files
+
+**Note:** These compression rules are explained in detail in the [File Compression Strategies](#file-compression-strategies) section below, but are summarized here for quick reference.
 
 ## Supported Raw Data Formats
 
@@ -136,20 +208,18 @@ The following sections detail the specific file formats and requirements for eac
 
 MaxQuant is a software suite for quantitative proteomics, developed to process and analyze large-scale mass spectrometry data.
 
-**Required Files:**
-- Raw data files (.raw)
-- MaxQuant output folder containing:
-    - evidence.txt
-    - peptides.txt
-    - proteinGroups.txt
-    - parameters.txt
-    - summary.txt
-- mqpar.xml (parameter file)
-
-**Recommended Additional Files:**
-- msms.txt
-- Modified peptides.txt
-- mzIdentML export if available
+| File | Status | Description |
+|------|--------|-------------|
+| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
+| evidence.txt | **Mandatory** | Evidence table with peptide identifications and quantifications |
+| peptides.txt | **Mandatory** | Peptide-level identification and quantification results |
+| proteinGroups.txt | **Mandatory** | Protein group identification and quantification results |
+| parameters.txt | **Mandatory** | Processing parameters used in the analysis |
+| summary.txt | **Mandatory** | Summary statistics of the MaxQuant run |
+| mqpar.xml | **Mandatory** | MaxQuant parameter file containing all search settings |
+| msms.txt | Recommended | MS/MS scan information and fragment ion matches |
+| Modified peptides.txt | Recommended | Modified peptide identifications |
+| mzIdentML export (.mzid) | Recommended | Standard format export of identification results (if available) |
 
 **Notes:**
 - Include MaxQuant version used
@@ -162,17 +232,15 @@ MaxQuant is a software suite for quantitative proteomics, developed to process a
 
 DIA-NN is an advanced software for data-independent acquisition (DIA) proteomics, using neural networks to improve protein identification and quantification from complex mass spectrometry data.
 
-**Required Files:**
-- Raw data files (.raw or instrument-specific formats)
-- DIA-NN report:
-    - report.tsv (or report.pr_matrix.tsv)
-    - report.pg_matrix.tsv
-- Parameter configuration file
-
-**Recommended Additional Files:**
-- Spectral library used (if applicable)
-- FASTA database used (if direct database search)
-- Log file from analysis
+| File | Status | Description |
+|------|--------|-------------|
+| Raw data files (.raw or instrument-specific formats) | **Mandatory** | Original mass spectrometry raw data files |
+| report.tsv (or report.pr_matrix.tsv) | **Mandatory** | DIA-NN report file with peptide-level results (or precursor matrix) |
+| report.pg_matrix.tsv | **Mandatory** | Protein group matrix with quantification results |
+| Parameter configuration file | **Mandatory** | DIA-NN parameter configuration file |
+| Spectral library (.blib, .sptxt, etc.) | Recommended | Spectral library used for library-based search (if applicable) |
+| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used for direct database search (if applicable) |
+| Log file | Recommended | DIA-NN analysis log file |
 
 **Notes:**
 - Include DIA-NN version
@@ -184,17 +252,16 @@ DIA-NN is an advanced software for data-independent acquisition (DIA) proteomics
 
 FragPipe is a versatile platform for mass spectrometry proteomics analysis, offering a user-friendly GUI and command-line options across Windows, Linux, and cloud. It integrates multiple tools and is powered by MSFragger, a fast search engine for both standard and wide-tolerance peptide identification.
 
-**Required Files:**
-- Raw data files (.raw)
-- pepXML files (.pep.xml)
-- Protein inference results (.tsv or .txt)
-- FragPipe parameter files
-
-**Recommended Additional Files:**
-- mzIdentML export if available
-- FASTA database used
-- PTM Shepherd output if used
-- IonQuant output if used
+| File | Status | Description |
+|------|--------|-------------|
+| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
+| pepXML files (.pep.xml) | **Mandatory** | Peptide identification results in pepXML format |
+| Protein inference results (.tsv or .txt) | **Mandatory** | Protein-level identification and inference results |
+| FragPipe parameter files | **Mandatory** | FragPipe configuration and parameter files |
+| mzIdentML export (.mzid) | Recommended | Standard format export of identification results (if available) |
+| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used for the search |
+| PTM Shepherd output | Recommended | Post-translational modification analysis results (if PTM Shepherd was used) |
+| IonQuant output | Recommended | IonQuant quantification results (if IonQuant was used) |
 
 **Notes:**
 - Include MSFragger and FragPipe versions
@@ -206,15 +273,14 @@ FragPipe is a versatile platform for mass spectrometry proteomics analysis, offe
 
 Skyline is a free, open-source Windows application designed for creating and analyzing Selected Reaction Monitoring (SRM)/Multiple Reaction Monitoring (MRM), Parallel Reaction Monitoring (PRM), Data Independent Acquisition (DIA/SWATH), and DDA with MS1 quantitative workflows from mass spectrometry data.
 
-**Required Files:**
-- Raw data files (.raw or vendor formats)
-- Skyline document (.sky)
-- Skyline data file (.skyd)
-- Exported reports (.csv or .tsv)
-
-**Recommended Additional Files:**
-- Spectral library used (.blib)
-- Acquisition method (.method) if relevant
+| File | Status | Description |
+|------|--------|-------------|
+| Raw data files (.raw or vendor formats) | **Mandatory** | Original mass spectrometry raw data files |
+| Skyline document (.sky) | **Mandatory** | Skyline document containing method and target definitions |
+| Skyline data file (.skyd) | **Mandatory** | Skyline data file with extracted chromatographic data |
+| Exported reports (.csv or .tsv) | **Mandatory** | Exported quantification reports in CSV or TSV format |
+| Spectral library (.blib) | Recommended | Spectral library used for method development |
+| Acquisition method (.method) | Recommended | Instrument acquisition method file (if relevant) |
 
 **Notes:**
 - Include Skyline version used
@@ -227,15 +293,15 @@ Skyline is a free, open-source Windows application designed for creating and ana
 
 OpenMS is an open-source C++ library with Python bindings for managing, analyzing, and visualizing LC/MS data. It facilitates fast development of mass spectrometry software and is freely available under the three-clause BSD license, compatible with Windows, macOS, and Linux.
 
-**Required Files:**
-- Raw data files (.raw)
-- Analysis results in idXML (.idxml)
-- Quantification results (if applicable)
-- TOPP workflow or KNIME workflow description
-
-**Recommended Additional Files:**
-- mzIdentML or mzTab export
-- Parameter files for individual TOPP tools
+| File | Status | Description |
+|------|--------|-------------|
+| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
+| Analysis results in idXML (.idxml) | **Mandatory** | OpenMS identification results in idXML format |
+| Quantification results | **Mandatory** | Quantification results (if quantification was performed) |
+| TOPP workflow or KNIME workflow description | **Mandatory** | Workflow description file documenting the analysis pipeline |
+| mzIdentML export (.mzid) | Recommended | Standard format export of identification results |
+| mzTab export (.mztab) | Recommended | Standard format export of identification and quantification results |
+| Parameter files for individual TOPP tools | Recommended | Parameter files for each TOPP tool used in the workflow |
 
 **Notes:**
 - Include OpenMS version
@@ -247,16 +313,15 @@ OpenMS is an open-source C++ library with Python bindings for managing, analyzin
 
 Mascot is a widely used software search engine that identifies proteins by matching mass spectrometry data to peptide sequence databases.
 
-**Required Files:**
-- Raw data files (.raw, .mzML)
-- Mascot DAT files (.dat)
-- Results exported as mzIdentML (.mzid) **strongly recommended**
-- Parameter file (.xml)
-
-**Recommended Additional Files:**
-- MGF files used for the search
-- FASTA database used (or clear reference to public database version)
-- Custom modifications list if applicable
+| File | Status | Description |
+|------|--------|-------------|
+| Raw data files (.raw, .mzML) | **Mandatory** | Original mass spectrometry raw data files |
+| Mascot DAT files (.dat) | **Mandatory** | Mascot search result files in DAT format |
+| mzIdentML export (.mzid) | **Mandatory** | Results exported in mzIdentML standard format (strongly recommended) |
+| Parameter file (.xml) | **Mandatory** | Mascot search parameter file |
+| MGF files (.mgf) | Recommended | MGF peak list files used for the Mascot search |
+| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used (or clear reference to public database version) |
+| Custom modifications list | Recommended | List of custom modifications used (if applicable) |
 
 **Notes:**
 - Include the version of Mascot Server used
@@ -268,18 +333,17 @@ Mascot is a widely used software search engine that identifies proteins by match
 
 Thermo Scientific Proteome Discoverer is a flexible software suite for protein research, offering customizable workflows to simplify protein identification, quantification, PTM analysis, isobaric tagging, and label-free quantitation in complex samples.
 
-**Required Files:**
-- Raw data files (.raw)
-- Proteome Discoverer result file (.pdresult)
-- Exported files:
-  - PSMs export (.txt)
-  - Peptides export (.txt)
-  - Proteins export (.txt)
-- mzIdentML export (.mzid) **strongly recommended**
-
-**Recommended Additional Files:**
-- Processing and consensus workflows (.pdProcessingWF, .pdConsensusWF)
-- FASTA database used (or clear reference)
+| File | Status | Description |
+|------|--------|-------------|
+| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
+| Proteome Discoverer result file (.pdresult) | **Mandatory** | Proteome Discoverer result file containing all analysis data |
+| PSMs export (.txt) | **Mandatory** | Exported PSM (Peptide Spectrum Match) results |
+| Peptides export (.txt) | **Mandatory** | Exported peptide-level identification and quantification results |
+| Proteins export (.txt) | **Mandatory** | Exported protein-level identification and quantification results |
+| mzIdentML export (.mzid) | **Mandatory** | Standard format export of identification results (strongly recommended) |
+| Processing workflow (.pdProcessingWF) | Recommended | Proteome Discoverer processing workflow file |
+| Consensus workflow (.pdConsensusWF) | Recommended | Proteome Discoverer consensus workflow file |
+| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used (or clear reference) |
 
 **Notes:**
 - Include Proteome Discoverer version
@@ -291,14 +355,13 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for protein r
 
 MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein database peptides. It supports mzML input, outputs mzIdentML, and is compatible with ProteomeXchange submissions.
 
-**Required Files:**
-- Raw data files (.raw)
-- Result files (.mzid preferred, or .tsv)
-- Parameter file
-
-**Recommended Additional Files:**
-- FASTA database used (or clear reference)
-- Converted peak lists if used
+| File | Status | Description |
+|------|--------|-------------|
+| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
+| Result files (.mzid preferred, or .tsv) | **Mandatory** | MS-GF+ search results in mzIdentML format (preferred) or TSV format |
+| Parameter file | **Mandatory** | MS-GF+ search parameter file |
+| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used (or clear reference) |
+| Converted peak lists | Recommended | Peak list files used for the search (if conversion was performed) |
 
 **Notes:**
 - Include MS-GF+ version
@@ -378,15 +441,22 @@ Proper file compression is essential for efficient data storage and transmission
 | Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
 | Waters RAW | No compression (maintain as .raw) | These are already in a compressed format |
 | SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
-| mzML/mzXML | GZ compression | `gzip large_file.mzML` to create `large_file.mzML.gz` |
+| mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
 
 **Important Notes for Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
 - PRIDE accepts both uncompressed and compressed raw files
 - **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
-- For very large datasets, consider splitting into multiple compressed archives of reasonable size (< 50GB each)
+- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
+  - Each msrun in the SDRF (Sample to Data Relationship Format) can be properly linked to its specific raw file, even when compressed
+  - Download statistics and links to other omics files can be tracked accurately on a per-run basis
+  - File-level metadata and associations remain intact
+- **Note:** This restriction does not apply to .d folders (Bruker and Agilent), as these directory-based formats are typically associated with a single run per folder
+- For very large datasets, consider splitting into multiple compressed archives of reasonable size (< 50GB each), but maintain the one-run-per-archive rule
 
 ### Search Results and Analysis Tool Outputs
+
+**Note:** All SEARCH files for a given analysis can be grouped together and compressed into a single ZIP (.zip) or TAR.GZ (.tar.gz) archive. This is recommended for better organization and easier submission.
 
 | Tool | Recommended Compression | Strategy |
 |------|-------------------------|----------|
@@ -396,21 +466,8 @@ Proper file compression is essential for efficient data storage and transmission
 | Skyline | No compression for .sky/.skyd | These are already in a compressed format |
 | FragPipe | ZIP all output directories | Group by experiment/search |
 | TPP | ZIP all output XML files | Combine pepXML, protXML and other outputs |
+| General SEARCH Files | ZIP or TAR.GZ all SEARCH files together | Group all search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) from a single analysis into one archive |
 
-**Example Commands:**
-```bash
-# Compressing a MaxQuant output directory
-zip -r maxquant_results.zip ./maxquant/txt/
-
-# Compressing multiple Mascot DAT files
-zip mascot_results.zip *.dat
-
-# Compressing DIA-NN outputs
-zip diann_results.zip *.tsv *.csv report.*
-
-# Compressing Agilent .d folder
-tar -czf sample1.d.tar.gz ./sample1.d/
-```
 
 ### mzIdentML and mzTab Files
 
