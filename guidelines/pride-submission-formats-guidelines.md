@@ -201,7 +201,9 @@ When compressing an Agilent `.d` folder, ensure the archive contains the complet
 
 ## Search Engine and Analysis Tool Requirements
 
-The following sections detail the specific file formats and requirements for each major proteomics analysis tool and search engine. For each tool, we list the required files, recommended additional files, and important notes to ensure your submission is complete and reusable.
+The following sections detail the specific file formats and requirements for each major proteomics analysis tool and search engine. For each tool, we list the tool-specific output files, recommended additional files, and important notes to ensure your submission is complete and reusable.
+
+**Note:** Raw Data Files and Peak Lists are common requirements for all tools and are covered in the [File Requirements by Submission Type](#file-requirements-by-submission-type) table above. The tables below focus on the tool-specific output files that differ between analysis tools.
 
 ### MaxQuant
 *Submission Type: Mostly PARTIAL Submission*
@@ -210,7 +212,6 @@ MaxQuant is a software suite for quantitative proteomics, developed to process a
 
 | File | Status | Description |
 |------|--------|-------------|
-| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
 | evidence.txt | **Mandatory** | Evidence table with peptide identifications and quantifications |
 | peptides.txt | **Mandatory** | Peptide-level identification and quantification results |
 | proteinGroups.txt | **Mandatory** | Protein group identification and quantification results |
@@ -234,7 +235,6 @@ DIA-NN is an advanced software for data-independent acquisition (DIA) proteomics
 
 | File | Status | Description |
 |------|--------|-------------|
-| Raw data files (.raw or instrument-specific formats) | **Mandatory** | Original mass spectrometry raw data files |
 | report.tsv (or report.pr_matrix.tsv) | **Mandatory** | DIA-NN report file with peptide-level results (or precursor matrix) |
 | report.pg_matrix.tsv | **Mandatory** | Protein group matrix with quantification results |
 | Parameter configuration file | **Mandatory** | DIA-NN parameter configuration file |
@@ -254,7 +254,6 @@ FragPipe is a versatile platform for mass spectrometry proteomics analysis, offe
 
 | File | Status | Description |
 |------|--------|-------------|
-| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
 | pepXML files (.pep.xml) | **Mandatory** | Peptide identification results in pepXML format |
 | Protein inference results (.tsv or .txt) | **Mandatory** | Protein-level identification and inference results |
 | FragPipe parameter files | **Mandatory** | FragPipe configuration and parameter files |
@@ -275,7 +274,6 @@ Skyline is a free, open-source Windows application designed for creating and ana
 
 | File | Status | Description |
 |------|--------|-------------|
-| Raw data files (.raw or vendor formats) | **Mandatory** | Original mass spectrometry raw data files |
 | Skyline document (.sky) | **Mandatory** | Skyline document containing method and target definitions |
 | Skyline data file (.skyd) | **Mandatory** | Skyline data file with extracted chromatographic data |
 | Exported reports (.csv or .tsv) | **Mandatory** | Exported quantification reports in CSV or TSV format |
@@ -295,7 +293,6 @@ OpenMS is an open-source C++ library with Python bindings for managing, analyzin
 
 | File | Status | Description |
 |------|--------|-------------|
-| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
 | Analysis results in idXML (.idxml) | **Mandatory** | OpenMS identification results in idXML format |
 | Quantification results | **Mandatory** | Quantification results (if quantification was performed) |
 | TOPP workflow or KNIME workflow description | **Mandatory** | Workflow description file documenting the analysis pipeline |
@@ -315,7 +312,6 @@ Mascot is a widely used software search engine that identifies proteins by match
 
 | File | Status | Description |
 |------|--------|-------------|
-| Raw data files (.raw, .mzML) | **Mandatory** | Original mass spectrometry raw data files |
 | Mascot DAT files (.dat) | **Mandatory** | Mascot search result files in DAT format |
 | mzIdentML export (.mzid) | **Mandatory** | Results exported in mzIdentML standard format (strongly recommended) |
 | Parameter file (.xml) | **Mandatory** | Mascot search parameter file |
@@ -335,7 +331,6 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for protein r
 
 | File | Status | Description |
 |------|--------|-------------|
-| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
 | Proteome Discoverer result file (.pdresult) | **Mandatory** | Proteome Discoverer result file containing all analysis data |
 | PSMs export (.txt) | **Mandatory** | Exported PSM (Peptide Spectrum Match) results |
 | Peptides export (.txt) | **Mandatory** | Exported peptide-level identification and quantification results |
@@ -357,7 +352,6 @@ MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein da
 
 | File | Status | Description |
 |------|--------|-------------|
-| Raw data files (.raw) | **Mandatory** | Original mass spectrometry raw data files |
 | Result files (.mzid preferred, or .tsv) | **Mandatory** | MS-GF+ search results in mzIdentML format (preferred) or TSV format |
 | Parameter file | **Mandatory** | MS-GF+ search parameter file |
 | FASTA database (.fasta, .fa) | Recommended | Protein sequence database used (or clear reference) |
