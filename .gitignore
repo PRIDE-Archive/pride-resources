@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+#Ignore cursor AI rules
+.cursor/rules/codacy.mdc
+.idea/
+
+.vscode/
+.vscode/
+.DS_Store
