@@ -38,7 +38,7 @@ This document provides comprehensive guidelines for submitting proteomics data t
 
 PRIDE supports two types of submissions: **PARTIAL** Submissions and **COMPLETE** Submissions. These categories are defined by the ProteomeXchange Consortium, of which PRIDE Archive is an active member. The main difference between the two submission types is that **COMPLETE** Submissions require standard file formats (such as mzIdentML or mzTab) for the results files, while **PARTIAL** Submissions primarily use tool-specific formats.
 
-This document focuses on which file formats and extensions should be provided for **PARTIAL** PRIDE submissions, with **COMPLETE** submissions representing an extension of **PARTIAL** requirements. This document is coordinated between the PRIDE team and software producers and developers of computational proteomics tools to ensure their data is well represented in the archive.
+This document focuses on which file formats and extensions should be provided for **PARTIAL** PRIDE submissions, with **COMPLETE** submissions representing an extension of **PARTIAL**  submission requirements. This document is coordinated between the PRIDE team and software producers and developers of computational proteomics tools to ensure their data is well represented in the archive.
 
 **Note:** The term **PARTIAL** is a convention from ProteomeXchange and is not related to the quality or completeness of the dataset, but rather to the availability of results in a standard file format.
 
@@ -152,11 +152,16 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 | Format | Extension | Vendor/Source | Description |
 |--------|-----------|---------------|-------------|
 | Thermo RAW | .raw | Thermo Fisher Scientific | Binary format for Thermo instruments |
-| Bruker BAF/TDF | .baf, .tdf, .d folder | Bruker | Format for Bruker instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
+| Bruker BAF/TDF | .baf, .tdf, .d folder, fid | Bruker | Format for Bruker instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
 | SCIEX WIFF | .wiff, .wiff2, .scan | SCIEX | Format for SCIEX instruments |
 | Agilent D | .d folder | Agilent | Format for Agilent instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
-| Waters RAW | .raw | Waters | Format for Waters instruments |
+| Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually (see details below)  |
 | mzML | .mzml | PSI Standard | Open XML-based standard format |
+
+
+
+
+
 
 ### Directory-Based Raw Data Formats (Bruker and Agilent)
 
@@ -169,6 +174,7 @@ When compressing a Bruker `.d` folder, ensure the archive contains the complete 
 #### Agilent .d Folder Contents
 
 When compressing an Agilent `.d` folder, ensure the archive contains the complete folder structure with all of the following files:
+
 
 **Required files:**
 - `AcqData/` directory (contains acquisition data)
@@ -416,7 +422,7 @@ All submissions must include comprehensive metadata:
 - [ ] Quantification results files (if applicable)
 - [ ] Parameter files for all search engines/tools used
 - [ ] FASTA database files or precise references
-- [ ] Complete metadata
+- [ ] Complete metadata (SDRF)
 - [ ] QC metrics (if available)
 - [ ] README file explaining file organization (recommended)
 
@@ -431,7 +437,7 @@ Proper file compression is essential for efficient data storage and transmission
 | Thermo RAW | No compression (maintain as .raw) | These are already in a compressed binary format |
 | Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf experiment1.d.tar.gz experiment1.d/` |
 | Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
-| Waters RAW | No compression (maintain as .raw) | These are already in a compressed format |
+| Waters RAW | Both Compressed or not compression (maintain as .raw) | Based on the WATERS instrument |
 | SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
 | mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
 
