@@ -335,10 +335,7 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for protein r
 | PSMs export (.txt) | **Mandatory** | Exported PSM (Peptide Spectrum Match) results |
 | Peptides export (.txt) | **Mandatory** | Exported peptide-level identification and quantification results |
 | Proteins export (.txt) | **Mandatory** | Exported protein-level identification and quantification results |
-| mzIdentML export (.mzid) | **Mandatory** | Standard format export of identification results (strongly recommended) |
-| Processing workflow (.pdProcessingWF) | Recommended | Proteome Discoverer processing workflow file |
-| Consensus workflow (.pdConsensusWF) | Recommended | Proteome Discoverer consensus workflow file |
-| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used (or clear reference) |
+| mzIdentML export (.mzid) | Recommended | Standard format export of identification results (strongly recommended) |
 
 **Notes:**
 - Include Proteome Discoverer version
@@ -353,7 +350,7 @@ MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein da
 | File | Status | Description |
 |------|--------|-------------|
 | Result files (.mzid preferred, or .tsv) | **Mandatory** | MS-GF+ search results in mzIdentML format (preferred) or TSV format |
-| Parameter file | **Mandatory** | MS-GF+ search parameter file |
+| Parameter file | Recommended | MS-GF+ search parameter file |
 | FASTA database (.fasta, .fa) | Recommended | Protein sequence database used (or clear reference) |
 | Converted peak lists | Recommended | Peak list files used for the search (if conversion was performed) |
 
