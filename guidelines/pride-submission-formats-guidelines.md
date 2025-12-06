@@ -155,7 +155,7 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 | Bruker BAF/TDF | .baf, .tdf, .d folder, .fid | Bruker | Format for Bruker instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
 | SCIEX WIFF | .wiff, .wiff2, .scan | SCIEX | Format for SCIEX instruments |
 | Agilent D | .d folder | Agilent | Format for Agilent instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
-| Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually (see details below)  |
+| Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually (see details below) |
 | mzML | .mzml | PSI Standard | Open XML-based standard format |
 
 ### Directory-Based Raw Data Formats (Bruker and Agilent)
