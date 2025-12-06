@@ -4,6 +4,7 @@ Document version: v1.0.0
 
 Authors: 
   - Yasset Perez-Riverol (EMBL-EBI)
+  - Deepti Jaiswal Kundu (EMBL-EBI)
 
 ## Table of Contents
 1. [Introduction](#introduction)
