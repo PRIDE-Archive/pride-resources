@@ -312,7 +312,7 @@ Mascot is a widely used software search engine that identifies proteins by match
 | Mascot DAT files (.dat) | **Mandatory** | SEARCH | Mascot search result files in DAT format |
 | mzIdentML export (.mzid) | **Mandatory** | RESULT | Results exported in mzIdentML standard format (strongly recommended) |
 | Parameter file (.xml) | **Mandatory** | OTHER | Mascot search parameter file |
-| MGF files (.mgf) | Recommended | OTHER | MGF peak list files used for the Mascot search |
+| MGF files (.mgf) | Recommended | PEAK | MGF peak list files used for the Mascot search |
 | Custom modifications list | Recommended | OTHER | List of custom modifications used (if applicable) |
 
 **Notes:**
