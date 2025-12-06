@@ -225,7 +225,6 @@ MaxQuant is a software suite for quantitative proteomics, developed to process a
 
 **Notes:**
 - Include MaxQuant version used
-- FASTA database used for the search (or clear reference to public database version)
 - Document LFQ settings if applicable
 - Special parameters for match-between-runs or other advanced features
 
@@ -240,7 +239,6 @@ DIA-NN is an advanced software for data-independent acquisition (DIA) proteomics
 | report.pg_matrix.tsv | **Mandatory** | Protein group matrix with quantification results |
 | Parameter configuration file | **Mandatory** | DIA-NN parameter configuration file |
 | Spectral library (.blib, .sptxt, etc.) | Recommended | Spectral library used for library-based search (if applicable) |
-| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used for direct database search (if applicable) |
 | Log file | Recommended | DIA-NN analysis log file |
 
 **Notes:**
@@ -258,7 +256,6 @@ FragPipe is a versatile platform for mass spectrometry proteomics analysis, offe
 | pepXML files (.pep.xml) | **Mandatory** | Peptide identification results in pepXML format |
 | Protein inference results (.tsv or .txt) | **Mandatory** | Protein-level identification and inference results |
 | FragPipe parameter files | **Mandatory** | FragPipe configuration and parameter files |
-| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used for the search |
 | PTM Shepherd output | Recommended | Post-translational modification analysis results (if PTM Shepherd was used) |
 | IonQuant output | Recommended | IonQuant quantification results (if IonQuant was used) |
 
@@ -316,7 +313,6 @@ Mascot is a widely used software search engine that identifies proteins by match
 | mzIdentML export (.mzid) | **Mandatory** | Results exported in mzIdentML standard format (strongly recommended) |
 | Parameter file (.xml) | **Mandatory** | Mascot search parameter file |
 | MGF files (.mgf) | Recommended | MGF peak list files used for the Mascot search |
-| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used (or clear reference to public database version) |
 | Custom modifications list | Recommended | List of custom modifications used (if applicable) |
 
 **Notes:**
@@ -351,7 +347,6 @@ MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein da
 |------|--------|-------------|
 | Result files (.mzid preferred, or .tsv) | **Mandatory** | MS-GF+ search results in mzIdentML format (preferred) or TSV format |
 | Parameter file | Recommended | MS-GF+ search parameter file |
-| FASTA database (.fasta, .fa) | Recommended | Protein sequence database used (or clear reference) |
 | Converted peak lists | Recommended | Peak list files used for the search (if conversion was performed) |
 
 **Notes:**
@@ -367,7 +362,6 @@ For tools not listed above, generally include:
 3. Search results in original format
 4. Converted results to community standard format (mzIdentML, mzTab) when possible
 5. Parameter files or detailed documentation of settings
-6. FASTA database used or clear reference
 
 ## Metadata Requirements
 
