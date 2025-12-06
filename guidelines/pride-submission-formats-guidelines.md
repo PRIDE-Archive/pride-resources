@@ -38,7 +38,7 @@ This document provides comprehensive guidelines for submitting proteomics data t
 
 PRIDE supports two types of submissions: **PARTIAL** Submissions and **COMPLETE** Submissions. These categories are defined by the ProteomeXchange Consortium, of which PRIDE Archive is an active member. The main difference between the two submission types is that **COMPLETE** Submissions require standard file formats (such as mzIdentML or mzTab) for the results files, while **PARTIAL** Submissions primarily use tool-specific formats.
 
-This document focuses on which file formats and extensions should be provided for **PARTIAL** PRIDE submissions, with **COMPLETE** submissions representing an extension of **PARTIAL**  submission requirements. This document is coordinated between the PRIDE team and software producers and developers of computational proteomics tools to ensure their data is well represented in the archive.
+This document focuses on which file formats and extensions should be provided for **PARTIAL** PRIDE submissions, with **COMPLETE** submissions representing an extension of **PARTIAL** submission requirements. This document is coordinated between the PRIDE team and software producers and developers of computational proteomics tools to ensure their data is well represented in the archive.
 
 **Note:** The term **PARTIAL** is a convention from ProteomeXchange and is not related to the quality or completeness of the dataset, but rather to the availability of results in a standard file format.
 
