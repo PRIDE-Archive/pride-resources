@@ -271,8 +271,8 @@ Skyline is a free, open-source Windows application designed for creating and ana
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| Skyline document (.sky) | **Mandatory** | OTHER | Skyline document containing method and target definitions |
-| Skyline data file (.skyd) | **Mandatory** | OTHER | Skyline data file with extracted chromatographic data |
+| Skyline document (.sky) | **Mandatory** | SEARCH | Skyline document containing method and target definitions |
+| Skyline data file (.skyd) | **Mandatory** | SEARCH | Skyline data file with extracted chromatographic data |
 | Exported reports (.csv or .tsv) | **Mandatory** | SEARCH | Exported quantification reports in CSV or TSV format |
 | Spectral library (.blib) | Recommended | SPECTRAL_LIBRARY | Spectral library used for method development |
 | Acquisition method (.method) | Recommended | OTHER | Instrument acquisition method file (if relevant) |
@@ -310,7 +310,7 @@ Mascot is a widely used software search engine that identifies proteins by match
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | Mascot DAT files (.dat) | **Mandatory** | SEARCH | Mascot search result files in DAT format |
-| mzIdentML export (.mzid) | **Mandatory** | RESULT | Results exported in mzIdentML standard format (strongly recommended) |
+| mzIdentML export (.mzid) | Recommended | RESULT | Results exported in mzIdentML standard format (strongly recommended) |
 | Parameter file (.xml) | **Mandatory** | OTHER | Mascot search parameter file |
 | MGF files (.mgf) | Recommended | PEAK | MGF peak list files used for the Mascot search |
 | Custom modifications list | Recommended | OTHER | List of custom modifications used (if applicable) |
