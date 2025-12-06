@@ -158,11 +158,6 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 | Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually (see details below)  |
 | mzML | .mzml | PSI Standard | Open XML-based standard format |
 
-
-
-
-
-
 ### Directory-Based Raw Data Formats (Bruker and Agilent)
 
 Both Bruker `.d` folders and Agilent `.d` folders must be compressed (as `.zip` or `.tar.gz`) before submission to PRIDE. **Note: RAR format (.rar) is not supported—only ZIP (.zip) and TAR.GZ (.tar.gz) formats are accepted.** The compressed archive must preserve the complete directory structure and include all required files.
