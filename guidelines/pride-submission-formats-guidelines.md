@@ -345,7 +345,8 @@ MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein da
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| Result files (.mzid preferred, or .tsv) | **Mandatory** | RESULT | MS-GF+ search results in mzIdentML format (preferred) or TSV format |
+| Result files (.mzid) | **Mandatory** | RESULT | MS-GF+ search results in mzIdentML format (preferred) |
+| Result files (.tsv) | **Mandatory** | SEARCH | MS-GF+ search results in TSV format (alternative to mzIdentML) |
 | Parameter file | Recommended | OTHER | MS-GF+ search parameter file |
 | Converted peak lists | Recommended | OTHER | Peak list files used for the search (if conversion was performed) |
 
