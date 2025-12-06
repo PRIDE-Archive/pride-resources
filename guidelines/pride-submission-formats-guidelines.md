@@ -212,16 +212,16 @@ The following sections detail the specific file formats and requirements for eac
 
 MaxQuant is a software suite for quantitative proteomics, developed to process and analyze large-scale mass spectrometry data.
 
-| File | Status | Description |
-|------|--------|-------------|
-| evidence.txt | **Mandatory** | Evidence table with peptide identifications and quantifications |
-| peptides.txt | **Mandatory** | Peptide-level identification and quantification results |
-| proteinGroups.txt | **Mandatory** | Protein group identification and quantification results |
-| parameters.txt | **Mandatory** | Processing parameters used in the analysis |
-| summary.txt | **Mandatory** | Summary statistics of the MaxQuant run |
-| mqpar.xml | **Mandatory** | MaxQuant parameter file containing all search settings |
-| msms.txt | Recommended | MS/MS scan information and fragment ion matches |
-| Modified peptides.txt | Recommended | Modified peptide identifications |
+| File | Status | File Category | Description |
+|------|--------|---------------|-------------|
+| evidence.txt | **Mandatory** | SEARCH | Evidence table with peptide identifications and quantifications |
+| peptides.txt | **Mandatory** | SEARCH | Peptide-level identification and quantification results |
+| proteinGroups.txt | **Mandatory** | SEARCH | Protein group identification and quantification results |
+| parameters.txt | **Mandatory** | OTHER | Processing parameters used in the analysis |
+| summary.txt | **Mandatory** | OTHER | Summary statistics of the MaxQuant run |
+| mqpar.xml | **Mandatory** | OTHER | MaxQuant parameter file containing all search settings |
+| msms.txt | Recommended | SEARCH | MS/MS scan information and fragment ion matches |
+| Modified peptides.txt | Recommended | SEARCH | Modified peptide identifications |
 
 **Notes:**
 - Include MaxQuant version used
@@ -233,13 +233,13 @@ MaxQuant is a software suite for quantitative proteomics, developed to process a
 
 DIA-NN is an advanced software for data-independent acquisition (DIA) proteomics, using neural networks to improve protein identification and quantification from complex mass spectrometry data.
 
-| File | Status | Description |
-|------|--------|-------------|
-| report.tsv (or report.pr_matrix.tsv) | **Mandatory** | DIA-NN report file with peptide-level results (or precursor matrix) |
-| report.pg_matrix.tsv | **Mandatory** | Protein group matrix with quantification results |
-| Parameter configuration file | **Mandatory** | DIA-NN parameter configuration file |
-| Spectral library (.blib, .sptxt, etc.) | Recommended | Spectral library used for library-based search (if applicable) |
-| Log file | Recommended | DIA-NN analysis log file |
+| File | Status | File Category | Description |
+|------|--------|---------------|-------------|
+| report.tsv (or report.pr_matrix.tsv) | **Mandatory** | SEARCH | DIA-NN report file with peptide-level results (or precursor matrix) |
+| report.pg_matrix.tsv | **Mandatory** | SEARCH | Protein group matrix with quantification results |
+| Parameter configuration file | **Mandatory** | OTHER | DIA-NN parameter configuration file |
+| Spectral library (.blib, .sptxt, etc.) | Recommended | SPECTRAL_LIBRARY | Spectral library used for library-based search (if applicable) |
+| Log file | Recommended | OTHER | DIA-NN analysis log file |
 
 **Notes:**
 - Include DIA-NN version
@@ -251,13 +251,13 @@ DIA-NN is an advanced software for data-independent acquisition (DIA) proteomics
 
 FragPipe is a versatile platform for mass spectrometry proteomics analysis, offering a user-friendly GUI and command-line options across Windows, Linux, and cloud. It integrates multiple tools and is powered by MSFragger, a fast search engine for both standard and wide-tolerance peptide identification.
 
-| File | Status | Description |
-|------|--------|-------------|
-| pepXML files (.pep.xml) | **Mandatory** | Peptide identification results in pepXML format |
-| Protein inference results (.tsv or .txt) | **Mandatory** | Protein-level identification and inference results |
-| FragPipe parameter files | **Mandatory** | FragPipe configuration and parameter files |
-| PTM Shepherd output | Recommended | Post-translational modification analysis results (if PTM Shepherd was used) |
-| IonQuant output | Recommended | IonQuant quantification results (if IonQuant was used) |
+| File | Status | File Category | Description |
+|------|--------|---------------|-------------|
+| pepXML files (.pep.xml) | **Mandatory** | SEARCH | Peptide identification results in pepXML format |
+| Protein inference results (.tsv or .txt) | **Mandatory** | SEARCH | Protein-level identification and inference results |
+| FragPipe parameter files | **Mandatory** | OTHER | FragPipe configuration and parameter files |
+| PTM Shepherd output | Recommended | SEARCH | Post-translational modification analysis results (if PTM Shepherd was used) |
+| IonQuant output | Recommended | SEARCH | IonQuant quantification results (if IonQuant was used) |
 
 **Notes:**
 - Include MSFragger and FragPipe versions
@@ -269,13 +269,13 @@ FragPipe is a versatile platform for mass spectrometry proteomics analysis, offe
 
 Skyline is a free, open-source Windows application designed for creating and analyzing Selected Reaction Monitoring (SRM)/Multiple Reaction Monitoring (MRM), Parallel Reaction Monitoring (PRM), Data Independent Acquisition (DIA/SWATH), and DDA with MS1 quantitative workflows from mass spectrometry data.
 
-| File | Status | Description |
-|------|--------|-------------|
-| Skyline document (.sky) | **Mandatory** | Skyline document containing method and target definitions |
-| Skyline data file (.skyd) | **Mandatory** | Skyline data file with extracted chromatographic data |
-| Exported reports (.csv or .tsv) | **Mandatory** | Exported quantification reports in CSV or TSV format |
-| Spectral library (.blib) | Recommended | Spectral library used for method development |
-| Acquisition method (.method) | Recommended | Instrument acquisition method file (if relevant) |
+| File | Status | File Category | Description |
+|------|--------|---------------|-------------|
+| Skyline document (.sky) | **Mandatory** | OTHER | Skyline document containing method and target definitions |
+| Skyline data file (.skyd) | **Mandatory** | OTHER | Skyline data file with extracted chromatographic data |
+| Exported reports (.csv or .tsv) | **Mandatory** | SEARCH | Exported quantification reports in CSV or TSV format |
+| Spectral library (.blib) | Recommended | SPECTRAL_LIBRARY | Spectral library used for method development |
+| Acquisition method (.method) | Recommended | OTHER | Instrument acquisition method file (if relevant) |
 
 **Notes:**
 - Include Skyline version used
@@ -288,14 +288,14 @@ Skyline is a free, open-source Windows application designed for creating and ana
 
 OpenMS is an open-source C++ library with Python bindings for managing, analyzing, and visualizing LC/MS data. It facilitates fast development of mass spectrometry software and is freely available under the three-clause BSD license, compatible with Windows, macOS, and Linux.
 
-| File | Status | Description |
-|------|--------|-------------|
-| Analysis results in idXML (.idxml) | **Mandatory** | OpenMS identification results in idXML format |
-| Quantification results | **Mandatory** | Quantification results (if quantification was performed) |
-| TOPP workflow or KNIME workflow description | **Mandatory** | Workflow description file documenting the analysis pipeline |
-| mzIdentML export (.mzid) | Recommended | Standard format export of identification results |
-| mzTab export (.mztab) | Recommended | Standard format export of identification and quantification results |
-| Parameter files for individual TOPP tools | Recommended | Parameter files for each TOPP tool used in the workflow |
+| File | Status | File Category | Description |
+|------|--------|---------------|-------------|
+| Analysis results in idXML (.idxml) | **Mandatory** | SEARCH | OpenMS identification results in idXML format |
+| Quantification results | **Mandatory** | SEARCH | Quantification results (if quantification was performed) |
+| TOPP workflow or KNIME workflow description | **Mandatory** | OTHER | Workflow description file documenting the analysis pipeline |
+| mzIdentML export (.mzid) | Recommended | RESULT | Standard format export of identification results |
+| mzTab export (.mztab) | Recommended | RESULT | Standard format export of identification and quantification results |
+| Parameter files for individual TOPP tools | Recommended | OTHER | Parameter files for each TOPP tool used in the workflow |
 
 **Notes:**
 - Include OpenMS version
@@ -307,13 +307,13 @@ OpenMS is an open-source C++ library with Python bindings for managing, analyzin
 
 Mascot is a widely used software search engine that identifies proteins by matching mass spectrometry data to peptide sequence databases.
 
-| File | Status | Description |
-|------|--------|-------------|
-| Mascot DAT files (.dat) | **Mandatory** | Mascot search result files in DAT format |
-| mzIdentML export (.mzid) | **Mandatory** | Results exported in mzIdentML standard format (strongly recommended) |
-| Parameter file (.xml) | **Mandatory** | Mascot search parameter file |
-| MGF files (.mgf) | Recommended | MGF peak list files used for the Mascot search |
-| Custom modifications list | Recommended | List of custom modifications used (if applicable) |
+| File | Status | File Category | Description |
+|------|--------|---------------|-------------|
+| Mascot DAT files (.dat) | **Mandatory** | SEARCH | Mascot search result files in DAT format |
+| mzIdentML export (.mzid) | **Mandatory** | RESULT | Results exported in mzIdentML standard format (strongly recommended) |
+| Parameter file (.xml) | **Mandatory** | OTHER | Mascot search parameter file |
+| MGF files (.mgf) | Recommended | OTHER | MGF peak list files used for the Mascot search |
+| Custom modifications list | Recommended | OTHER | List of custom modifications used (if applicable) |
 
 **Notes:**
 - Include the version of Mascot Server used
@@ -325,13 +325,13 @@ Mascot is a widely used software search engine that identifies proteins by match
 
 Thermo Scientific Proteome Discoverer is a flexible software suite for protein research, offering customizable workflows to simplify protein identification, quantification, PTM analysis, isobaric tagging, and label-free quantitation in complex samples.
 
-| File | Status | Description |
-|------|--------|-------------|
-| Proteome Discoverer result file (.pdresult) | **Mandatory** | Proteome Discoverer result file containing all analysis data |
-| PSMs export (.txt) | **Mandatory** | Exported PSM (Peptide Spectrum Match) results |
-| Peptides export (.txt) | **Mandatory** | Exported peptide-level identification and quantification results |
-| Proteins export (.txt) | **Mandatory** | Exported protein-level identification and quantification results |
-| mzIdentML export (.mzid) | Recommended | Standard format export of identification results (strongly recommended) |
+| File | Status | File Category | Description |
+|------|--------|---------------|-------------|
+| Proteome Discoverer result file (.pdresult) | **Mandatory** | SEARCH | Proteome Discoverer result file containing all analysis data |
+| PSMs export (.txt) | **Mandatory** | SEARCH | Exported PSM (Peptide Spectrum Match) results |
+| Peptides export (.txt) | **Mandatory** | SEARCH | Exported peptide-level identification and quantification results |
+| Proteins export (.txt) | **Mandatory** | SEARCH | Exported protein-level identification and quantification results |
+| mzIdentML export (.mzid) | Recommended | RESULT | Standard format export of identification results (strongly recommended) |
 
 **Notes:**
 - Include Proteome Discoverer version
@@ -343,11 +343,11 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for protein r
 
 MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein database peptides. It supports mzML input, outputs mzIdentML, and is compatible with ProteomeXchange submissions.
 
-| File | Status | Description |
-|------|--------|-------------|
-| Result files (.mzid preferred, or .tsv) | **Mandatory** | MS-GF+ search results in mzIdentML format (preferred) or TSV format |
-| Parameter file | Recommended | MS-GF+ search parameter file |
-| Converted peak lists | Recommended | Peak list files used for the search (if conversion was performed) |
+| File | Status | File Category | Description |
+|------|--------|---------------|-------------|
+| Result files (.mzid preferred, or .tsv) | **Mandatory** | RESULT | MS-GF+ search results in mzIdentML format (preferred) or TSV format |
+| Parameter file | Recommended | OTHER | MS-GF+ search parameter file |
+| Converted peak lists | Recommended | OTHER | Peak list files used for the search (if conversion was performed) |
 
 **Notes:**
 - Include MS-GF+ version
