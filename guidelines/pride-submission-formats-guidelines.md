@@ -437,7 +437,7 @@ Proper file compression is essential for efficient data storage and transmission
 | Thermo RAW | No compression (maintain as .raw) | These are already in a compressed binary format |
 | Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf experiment1.d.tar.gz experiment1.d/` |
 | Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
-| Waters RAW | Both Compressed or not compression (maintain as .raw) | Based on the WATERS instrument |
+| Waters RAW | ZIP or TAR.GZ if directory-based; otherwise uncompressed | Compress directory-based .raw folders; single .raw files may remain uncompressed |
 | SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
 | mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
 
