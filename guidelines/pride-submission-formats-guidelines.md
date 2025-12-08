@@ -48,24 +48,47 @@ This document focuses on which file formats and extensions should be provided fo
 |--------------|------------------|-------------------|-------------------|-------|
 | **Raw Data Files** | Raw instrument files (.raw, .mzML, .mzXML, .wiff, .baf, .tdf, .d folders) | **Mandatory** | **Mandatory** | Original unprocessed data from mass spectrometer |
 | **SEARCH Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) | **Mandatory** | Recommended | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, etc.). Can be provided as individual files or grouped together in a ZIP or TAR.GZ archive |
-| **Peaks Type** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Recommended | Processed peak lists extracted from raw data |
+| **Peaks Type** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Mandatory | Processed peak lists extracted from raw data. **Note:** If you have mzTab as RESULT file then PEAL list file is not mandatory |
 | **RESULT Files - Standard Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended | **Mandatory** | Standard format for identification and quantification results |
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | Recommended | Recommended | Database used for search (or clear reference to public database) |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, etc.) | Recommended | Recommended | If used in the analysis workflow |
 | **Workflow Files** | Workflow description files (.sky, .skyd, .pdProcessingWF, etc.) | Recommended | Recommended | Tool-specific workflow and method files |
-| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Mandatory** | **Mandatory** | Comprehensive metadata required for all submissions |
+| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Optional** | **Optional** | Comprehensive metadata required for all submissions |
 | **OTHER** | Supplementary files (.pdf, .doc, .docx, figures, images, etc.) | Recommended | Recommended | Additional documentation, figures, and supplementary materials |
 
-### File Compression Rules
+**Note:** You can upload mzTab file as a SEARCH file if it fails the validation.
 
-Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. The following rules apply to all file types:
+## General Compression Guidelines
+
+1. **Group Related Files**: 
+   - Group all results from a single analysis tool together
+   - Use logical naming (e.g., `mascot_exp1.zip`, `maxquant_full_results.tar.gz`)
+
+2. **Size Considerations**:
+   - Try to keep individual compressed files under 50GB for easier upload
+   - For very large datasets, split logically by experiment/fraction
+
+3. **Documentation**: 
+   - Include a README.txt file in each compressed archive explaining contents
+   - Document the compression method used in your submission metadata
+
+4. **Verification**:
+   - Always verify the integrity of compressed archives before submission
+   - Test extracting files from your archives to ensure they're correctly formed
+
+5. **Directory Structure**:
+   - Maintain a consistent directory structure across compressed files
+   - Use relative paths within archives
+
+
+Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. The following sections describe the proper compression methods for each file type:
 
 #### Supported Compression Formats
 
 - **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported**
 - **RAR (.rar) format is NOT accepted**
 
-#### RAW Files Compression Rules
+### RAW Files Compression Rules
 
 **Critical: One run per compressed file**
 
@@ -78,7 +101,7 @@ When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or
 - Download statistics and links to other omics files are tracked accurately on a per-run basis
 - File-level metadata and associations remain intact
 
-**Exception:** This restriction does **NOT** apply to .d folders (Bruker and Agilent), as these directory-based formats are typically associated with a single run per folder and should be compressed as complete folders.
+**Exception:** This restriction does **NOT** apply to these directory-based formats as they are typically associated with a single run per folder and should be compressed as complete folders.
 
 **Example:**
 ```bash
@@ -90,7 +113,7 @@ gzip run2.mzML          # Creates run2.mzML.gz
 zip all_runs.zip run1.mzML run2.mzML run3.mzML  # DO NOT DO THIS
 ```
 
-#### Directory-Based RAW Files (.d folders)
+#### Directory-Based RAW Files (e.g .d folders)
 
 - Bruker `.d` folders and Agilent `.d` folders **must be compressed** (as `.zip` or `.tar.gz`) before submission
 - Compress the **entire folder** as a single archive, preserving the complete directory structure
@@ -103,7 +126,7 @@ tar -czf experiment1.d.tar.gz experiment1.d/
 zip -r experiment1.d.zip experiment1.d/
 ```
 
-#### SEARCH Files Compression Rules
+### SEARCH Files Compression Rules
 
 - **All SEARCH files for a given analysis can be grouped together** and compressed into a single ZIP (.zip) or TAR.GZ (.tar.gz) archive
 - This is **recommended** for better organization and easier submission
@@ -114,19 +137,21 @@ zip -r experiment1.d.zip experiment1.d/
 zip search_results.zip evidence.txt peptides.txt proteinGroups.txt parameters.txt
 ```
 
-#### RESULT Files (Standard Formats) Compression
+### RESULT Files (Standard Formats) Compression
+
+- For large mzIdentML files: Use GZ compression (`gzip large_file.mzid`)
+- For multiple mzTab files: Group and ZIP by experiment or analysis batch. Compress them individually.
+
+#### mzIdentML and mzTab Files
 
 - For large mzIdentML files: Use GZ compression (`gzip large_file.mzid`)
 - For multiple mzTab files: Group and ZIP by experiment or analysis batch
 
-#### General Compression Guidelines
+### FASTA and Supplementary Files
 
-1. **Preserve directory structure** when compressing folders
-2. **Use logical naming** (e.g., `mascot_exp1.zip`, `maxquant_full_results.tar.gz`)
-3. **Size considerations**: Try to keep individual compressed files under 50GB for easier upload
-4. **For very large datasets**: Split into multiple compressed archives of reasonable size (< 50GB each), but maintain the one-run-per-archive rule for RAW files
+- FASTA databases: Always compress with GZ (`gzip database.fasta`)
+- Multiple supplementary files: Group logically and ZIP together
 
-**Note:** These compression rules are explained in detail in the [File Compression Strategies](#file-compression-strategies) section below, but are summarized here for quick reference.
 
 ## Supported Raw Data Formats
 
@@ -149,27 +174,30 @@ RAW files store the raw, unprocessed mass spectrometry data, including:
 
 Raw data files contain the unprocessed data directly from the mass spectrometer. PRIDE accepts the following formats by instrument/vendor:
 
-| Format | Extension | Vendor/Source | Description |
-|--------|-----------|---------------|-------------|
-| Thermo RAW | .raw | Thermo Fisher Scientific | Binary format for Thermo instruments |
-| Bruker BAF/TDF | .baf, .tdf, .d folder, .fid | Bruker | Format for Bruker instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
-| SCIEX WIFF | .wiff, .wiff2, .scan | SCIEX | Format for SCIEX instruments |
-| Agilent D | .d folder | Agilent | Format for Agilent instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
-| Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually (see details below) |
-| mzML | .mzml | PSI Standard | Open XML-based standard format |
+### Raw Data Files:
 
-### Directory-Based Raw Data Formats (Bruker and Agilent)
+| File Type | Recommended Compression | Notes |
+|-----------|-------------------------|-------|
+| Thermo RAW | No compression (maintain as .raw) | These are already in a compressed binary format |
+| Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf experiment1.d.tar.gz experiment1.d/` |
+| Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
+| Waters RAW | ZIP or TAR.GZ if directory-based; otherwise uncompressed | Compress directory-based .raw folders; single .raw files may remain uncompressed |
+| SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
+| mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
 
-Both Bruker `.d` folders and Agilent `.d` folders must be compressed (as `.zip` or `.tar.gz`) before submission to PRIDE. **Note: RAR format (.rar) is not supported—only ZIP (.zip) and TAR.GZ (.tar.gz) formats are accepted.** The compressed archive must preserve the complete directory structure and include all required files.
+**Important Notes for Raw Data:**
+- When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
+- PRIDE accepts both uncompressed and compressed raw files
+- **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
+- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
+  - Each msrun in the SDRF (Sample to Data Relationship Format) can be properly linked to its specific raw file, even when compressed
+  - Download statistics and links to other omics files can be tracked accurately on a per-run basis
+  - File-level metadata and associations remain intact
+- **Note:** This restriction does not apply to .d folders (Bruker and Agilent), as these directory-based formats are typically associated with a single run per folder
+- For very large datasets, consider splitting into multiple compressed archives of reasonable size (< 50GB each), but maintain the one-run-per-archive rule
 
-#### Bruker .d Folder Contents
-
-When compressing a Bruker `.d` folder, ensure the archive contains the complete folder structure with all of the following files:
-
-#### Agilent .d Folder Contents
-
-When compressing an Agilent `.d` folder, ensure the archive contains the complete folder structure with all of the following files:
-
+#### Directory-Based Raw Data Formats (Bruker and Agilent)
+When compressing a Bruker and Agilent `.d` folder, ensure the archive contains the complete folder structure with all of the following files:
 
 **Required files:**
 - `AcqData/` directory (contains acquisition data)
@@ -195,10 +223,20 @@ When compressing an Agilent `.d` folder, ensure the archive contains the complet
 - `*.xml` files (various XML configuration and metadata files)
 - `*.info` files (information files)
 
+### Search Results and Analysis Tool Outputs
 
-**Important:** 
-- When compressing directory-based raw data, always preserve the complete directory structure. Do not compress individual files separately—compress the entire `.d` folder as a single archive.
-- **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
+**Note:** All SEARCH files for a given analysis can be grouped together and compressed into a single ZIP (.zip) or TAR.GZ (.tar.gz) archive. This is recommended for better organization and easier submission.
+
+| Tool | Recommended Compression | Strategy |
+|------|-------------------------|----------|
+| MaxQuant | ZIP or TAR.GZ the entire output folder | Group all txt files and the andromeda folder into a single archive named `maxquant_results.zip` |
+| Mascot | ZIP multiple .dat files together | Group by experiment/project |
+| DIA-NN | ZIP all TSV/CSV report files | Include all matrices and report files in one archive |
+| Skyline | No compression for .sky/.skyd | These are already in a compressed format |
+| FragPipe | ZIP all output directories | Group by experiment/search |
+| TPP | ZIP all output XML files | Combine pepXML, protXML and other outputs |
+| General SEARCH Files | ZIP or TAR.GZ all SEARCH files together | Group all search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) from a single analysis into one archive |
+
 
 ## Search Engine and Analysis Tool Requirements
 
@@ -420,79 +458,6 @@ All submissions must include comprehensive metadata:
 - [ ] Complete metadata (SDRF)
 - [ ] QC metrics (if available)
 - [ ] README file explaining file organization (recommended)
-
-## File Compression Strategies
-
-Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. **Important: PRIDE only accepts ZIP (.zip) and TAR.GZ (.tar.gz) compression formats. RAR (.rar) format is not supported.** Below are recommended compression strategies for different file types:
-
-### Raw Data Files
-
-| File Type | Recommended Compression | Notes |
-|-----------|-------------------------|-------|
-| Thermo RAW | No compression (maintain as .raw) | These are already in a compressed binary format |
-| Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf experiment1.d.tar.gz experiment1.d/` |
-| Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
-| Waters RAW | ZIP or TAR.GZ if directory-based; otherwise uncompressed | Compress directory-based .raw folders; single .raw files may remain uncompressed |
-| SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
-| mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
-
-**Important Notes for Raw Data:**
-- When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
-- PRIDE accepts both uncompressed and compressed raw files
-- **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
-- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
-  - Each msrun in the SDRF (Sample to Data Relationship Format) can be properly linked to its specific raw file, even when compressed
-  - Download statistics and links to other omics files can be tracked accurately on a per-run basis
-  - File-level metadata and associations remain intact
-- **Note:** This restriction does not apply to .d folders (Bruker and Agilent), as these directory-based formats are typically associated with a single run per folder
-- For very large datasets, consider splitting into multiple compressed archives of reasonable size (< 50GB each), but maintain the one-run-per-archive rule
-
-### Search Results and Analysis Tool Outputs
-
-**Note:** All SEARCH files for a given analysis can be grouped together and compressed into a single ZIP (.zip) or TAR.GZ (.tar.gz) archive. This is recommended for better organization and easier submission.
-
-| Tool | Recommended Compression | Strategy |
-|------|-------------------------|----------|
-| MaxQuant | ZIP or TAR.GZ the entire output folder | Group all txt files and the andromeda folder into a single archive named `maxquant_results.zip` |
-| Mascot | ZIP multiple .dat files together | Group by experiment/project |
-| DIA-NN | ZIP all TSV/CSV report files | Include all matrices and report files in one archive |
-| Skyline | No compression for .sky/.skyd | These are already in a compressed format |
-| FragPipe | ZIP all output directories | Group by experiment/search |
-| TPP | ZIP all output XML files | Combine pepXML, protXML and other outputs |
-| General SEARCH Files | ZIP or TAR.GZ all SEARCH files together | Group all search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) from a single analysis into one archive |
-
-
-### mzIdentML and mzTab Files
-
-- For large mzIdentML files: Use GZ compression (`gzip large_file.mzid`)
-- For multiple mzTab files: Group and ZIP by experiment or analysis batch
-
-### FASTA and Supplementary Files
-
-- FASTA databases: Always compress with GZ (`gzip database.fasta`)
-- Multiple supplementary files: Group logically and ZIP together
-
-### General Compression Recommendations
-
-1. **Group Related Files**: 
-   - Group all results from a single analysis tool together
-   - Use logical naming (e.g., `mascot_exp1.zip`, `maxquant_full_results.tar.gz`)
-
-2. **Size Considerations**:
-   - Try to keep individual compressed files under 50GB for easier upload
-   - For very large datasets, split logically by experiment/fraction
-
-3. **Documentation**: 
-   - Include a README.txt file in each compressed archive explaining contents
-   - Document the compression method used in your submission metadata
-
-4. **Verification**:
-   - Always verify the integrity of compressed archives before submission
-   - Test extracting files from your archives to ensure they're correctly formed
-
-5. **Directory Structure**:
-   - Maintain a consistent directory structure across compressed files
-   - Use relative paths within archives
 
 **Note**: These guidelines are regularly updated to reflect new tools and formats. Please check the PRIDE website for the most current version of the submission guidelines.
 
