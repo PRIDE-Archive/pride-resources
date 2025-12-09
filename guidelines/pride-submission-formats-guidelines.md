@@ -233,7 +233,7 @@ When compressing a Bruker and Agilent `.d` folder, ensure the archive contains t
 | General SEARCH Files | ZIP or TAR.GZ all SEARCH files together | Group all search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) from a single analysis into one archive |
 
 
-## Requieremtns for specific Search Engine and Analysis Tool
+## Requirements for specific Search Engine and Analysis Tool
 
 The following sections detail the specific file formats and requirements for each major proteomics analysis tool and search engine. For each tool, we list the tool-specific output files, recommended additional files, and important notes to ensure your submission is complete and reusable.
 
