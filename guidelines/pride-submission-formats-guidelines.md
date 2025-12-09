@@ -83,7 +83,7 @@ This document focuses on which file formats and extensions should be provided fo
 
 Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. The following sections describe the proper compression methods for each file type:
 
-#### Supported Compression Formats
+### Supported Compression Formats
 
 - **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported**
 - **RAR (.rar) format is NOT accepted**
