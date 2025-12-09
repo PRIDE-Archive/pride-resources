@@ -53,7 +53,7 @@ This document focuses on which file formats and extensions should be provided fo
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | Recommended | Recommended | Database used for search (or clear reference to public database) |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, etc.) | Recommended | Recommended | If used in the analysis workflow |
 | **Workflow Files** | Workflow description files (.sky, .skyd, .pdProcessingWF, etc.) | Recommended | Recommended | Tool-specific workflow and method files |
-| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Optional** | **Optional** | Comprehensive metadata required for all submissions |
+| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Optional** | **Optional** | Comprehensive metadata, highly recommended for all submissions to improve data reusability |
 | **OTHER** | Supplementary files (.pdf, .doc, .docx, figures, images, etc.) | Recommended | Recommended | Additional documentation, figures, and supplementary materials |
 
 **Note:** You can upload mzTab file as a SEARCH file if it fails the validation.
