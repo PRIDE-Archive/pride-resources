@@ -54,7 +54,7 @@ This document focuses on which file formats and extensions should be provided fo
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | Recommended | Recommended | Database used for search (or clear reference to public database) |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, etc.) | Recommended (if applicable) | Recommended (if applicable) | If used in the analysis workflow |
 | **Workflow Files** | Workflow description parameters | Recommended | Recommended | Tool-specific workflow and method files |
-| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Mandatory** | **Mandatory** | Comprehensive metadata required for all submissions |
+| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Recommended** | **Recommended** | Comprehensive metadata required for all submissions |
 | **OTHER** | Supplementary files (.pdf, .doc, .docx, figures, images, etc.) | Recommended | Recommended | Additional documentation, figures, and supplementary materials |
 
 **Note:** You can upload mzTab file as a SEARCH file if it fails the validation.
@@ -81,8 +81,6 @@ Proper file compression is essential for efficient data storage and transmission
    - Maintain a consistent directory structure across compressed files
    - Use relative paths within archives
 
-
-Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. The following sections describe the proper compression methods for each file type:
 
 ### Supported Compression Formats
 
@@ -169,8 +167,6 @@ RAW files store the raw, unprocessed mass spectrometry data, including:
  - They are the starting point for downstream data analysis, such as peptide/protein identification and quantification.
  - Tools like Proteome Discoverer, MaxQuant, and MSConvert (from ProteoWizard) are used to read directly or to convert RAW files into open formats like mzML or mzXML for interoperability with a wider range of software tools.
 
-### Common workflows:
-
 Raw data files contain the unprocessed data directly from the mass spectrometer. PRIDE accepts the following formats by instrument/vendor:
 
 | Format | Extension | Vendor/Source | Description |
@@ -182,16 +178,7 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 | Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually |
 | mzML | .mzml | PSI Standard | Open XML-based standard format |
 
-### Directory-Based Raw Data Formats (Bruker and Agilent)
-
-| File Type | Recommended Compression | Notes |
-|-----------|-------------------------|-------|
-| Thermo RAW | No compression (maintain as .raw) | These are already in a compressed binary format |
-| Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf experiment1.d.tar.gz experiment1.d/` |
-| Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
-| Waters RAW | ZIP or TAR.GZ if directory-based; otherwise uncompressed | Compress directory-based .raw folders; single .raw files may remain uncompressed |
-| SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
-| mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
+### Common workflows:
 
 **Important Notes for Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
@@ -206,7 +193,6 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 
 #### Directory-Based Raw Data Formats (Bruker and Agilent)
 When compressing a Bruker and Agilent `.d` folder, ensure the archive contains the complete folder structure with all of the following files:
-
 
 **Required files:**
 - `AcqData/` directory (contains acquisition data)
