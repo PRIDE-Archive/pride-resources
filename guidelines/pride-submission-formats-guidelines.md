@@ -112,7 +112,7 @@ gzip run2.mzML          # Creates run2.mzML.gz
 zip all_runs.zip run1.mzML run2.mzML run3.mzML  # DO NOT DO THIS
 ```
 
-#### Directory-Based RAW Files (e.g .d folders)
+#### Directory-Based RAW Files (e.g. .d folders)
 
 - Bruker `.d` folders and Agilent `.d` folders **must be compressed** (as `.zip` or `.tar.gz`) before submission
 - Compress the **entire folder** as a single archive, preserving the complete directory structure
