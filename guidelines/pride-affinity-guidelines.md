@@ -21,16 +21,16 @@
 
 ## Introduction
 
-PRIDE Affinity Proteomics (PRIDE-AP) is a new Archive within PRIDE repository dedicated to advancing the field of affinity proteomics (AP)
-by providing a centralised hub for openly accessible datasets generated
-using the innovative AP platforms such as Olink and SomaLogic (the SomaScan platform). 
+PRIDE Affinity Proteomics (PRIDE-AP) is a new Archive within the PRIDE repository dedicated to advancing the field of affinity proteomics (AP)
+by providing a centralised resource for openly accessible datasets generated
+using AP platforms such as Olink and SomaLogic (the SomaScan platform). 
 
 We aim to foster collaboration, accelerate research, and promote the widespread dissemination of high-quality affinity proteomics data. This document outlines the submission guidelines for PRIDE-AP. PRIDE Archive infrastructure will be used to support the submission, validation and dissemination of AP datasets. Some parts of this document will reference and link to existing guidelines in PRIDE.
 
 ## PRIDE Archive guidelines and policies
 
 Before reading specific guidelines about affinity proteomics dataset
-submissions in PRIDE-AP, you may read about the following topics:
+submissions to PRIDE-AP, you may read about the following topics:
 
 -   [Introduction to PRIDE
     Archive](https://www.ebi.ac.uk/pride/markdownpage/intropride).
@@ -198,9 +198,9 @@ SomaScan technology can measure thousands of proteins in biological samples, suc
 
 ## Ownership, privacy and release of datasets to the public
 
-This section is similar to [ProteomeXchange guidelines](https://www.proteomexchange.org/docs/guidelines_px.pdf) for MS-based proteomics submissions.
+This section is similar to the [ProteomeXchange guidelines](https://www.proteomexchange.org/docs/guidelines_px.pdf) for MS-based proteomics data submissions.
 
-**Data Ownership**: Original submitters and Principal Investigators (PI) own the datasets submitted to PRIDE-AP resource. The submitter and PI must be explicitly identified for each dataset.
+**Data Ownership**: Original submitters and Principal Investigators (PI) own the datasets submitted to the PRIDE-AP resource. The submitter and PI must be explicitly identified for each dataset.
 
 **Data availability after submission**: Submitted datasets are private (unreleased) by default, under password protection. Reviewers and editors can access data during the journal review process with the provided credentials.
 
@@ -210,11 +210,11 @@ This section is similar to [ProteomeXchange guidelines](https://www.proteomexcha
 
 **Withdrawal**: Unreleased datasets can be withdrawn before publication. Withdrawn entries are retained internally to prevent external access. Publicly released datasets can only be withdrawn in cases of retracted papers.
 
-**Release Responsibility**: PX resources actively release datasets corresponding to known publications without submitters' permission. Authors should be aware that some journals may have similar release policies.
+**Release Responsibility**: PX resources actively release datasets corresponding to known released publications without the submitters' permission. Authors should be aware that some journals may have similar release policies.
 
 **Timely Release**: PX resources aim for prompt public release, but delays may occur due to production cycles and staff availability.
 
-**Exceptions**: Exceptions to the public release policy may be granted in documented special cases, with a maximum 6-month extension for ongoing studies. Submitters must officially request an extension, considering journal requirements.
+**Exceptions**: Exceptions to the public release policy may be granted in documented special cases, with a maximum 6-month extension for ongoing studies. Submitters must officially request an extension, considering the journal requirements.
 
 You can read more about ProteomeXchange guidelines [here](proteomexchange-guidelines.md).
 
