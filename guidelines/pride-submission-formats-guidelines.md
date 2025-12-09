@@ -54,7 +54,7 @@ This document focuses on which file formats and extensions should be provided fo
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | Recommended | Recommended | Database used for search (or clear reference to public database) |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, etc.) | Recommended (if applicable) | Recommended (if applicable) | If used in the analysis workflow |
 | **Workflow Files** | Workflow description parameters | Recommended | Recommended | Tool-specific workflow and method files |
-| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Recommended** | **Recommended** | Comprehensive metadata required for all submissions |
+| **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Recommended** | **Recommended** | Comprehensive metadata recommended for all submissions |
 | **OTHER** | Supplementary files (.pdf, .doc, .docx, figures, images, etc.) | Recommended | Recommended | Additional documentation, figures, and supplementary materials |
 
 **Note:** You can upload mzTab file as a SEARCH file if it fails the validation.
@@ -112,7 +112,7 @@ gzip run2.mzML          # Creates run2.mzML.gz
 zip all_runs.zip run1.mzML run2.mzML run3.mzML  # DO NOT DO THIS
 ```
 
-#### Directory-Based RAW Files (e.g .d folders)
+#### Directory-Based RAW Files (e.g. .d folders)
 
 - Bruker `.d` folders and Agilent `.d` folders **must be compressed** (as `.zip` or `.tar.gz`) before submission
 - Compress the **entire folder** as a single archive, preserving the complete directory structure
