@@ -48,7 +48,7 @@ This document focuses on which file formats and extensions should be provided fo
 |--------------|------------------|-------------------|-------------------|-------|
 | **Raw Data Files** | Raw instrument files (.raw, .mzML, .mzXML, .wiff, .baf, .tdf, .d folders) | **Mandatory** | **Mandatory** | Original unprocessed data from mass spectrometer |
 | **SEARCH Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, etc.) | **Mandatory** | Recommended | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, etc.). Can be provided as individual files or grouped together in a ZIP or TAR.GZ archive |
-| **Peaks Type** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Mandatory | Processed peak lists extracted from raw data. **Note:** If you have mzTab as RESULT file then PEAL list file is not mandatory |
+| **Peaks Type** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Mandatory | Processed peak lists extracted from raw data. **Note:** If you have mzTab as RESULT file then PEAK list file is not mandatory |
 | **RESULT Files - Standard Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended | **Mandatory** | Standard format for identification and quantification results |
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | Recommended | Recommended | Database used for search (or clear reference to public database) |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, etc.) | Recommended | Recommended | If used in the analysis workflow |
