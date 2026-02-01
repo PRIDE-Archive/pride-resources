@@ -248,31 +248,29 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 - For very large datasets, consider splitting into multiple compressed archives of reasonable size (< 50GB each), but maintain the one-run-per-archive rule
 
 #### Directory-Based Raw Data Formats (Bruker and Agilent)
-When compressing a Bruker and Agilent `.d` folder, ensure the archive contains the complete folder structure with all of the following files:
 
-**Required files:**
-- `AcqData/` directory (contains acquisition data)
-  - `.ms` files (mass spectrometry data files)
-  - `.msb` files (mass spectrometry binary files)
-  - `AcqData.ms` (main acquisition data file)
-- `Method/` directory (contains method files)
-  - `.meth` files (method files)
-  - `Method.m` (main method file)
-- `LogFiles/` directory (contains log files, if present)
-- `Results/` directory (contains results, if present)
-- `*.xml` files (metadata and configuration files)
-- `*.info` files (information files)
+When compressing `.d` folders, **include the entire folder with all its contents**. Do not selectively include or exclude files—the complete directory structure is required for the data to be readable.
 
-**Additional files that may be present:**
-- `AcqData/mspeak.bin` and `AcqData/mspeak.bin.idx` (peak data and index)
-- `AcqData/msprofile.bin` and `AcqData/msprofile.bin.idx` (profile data and index)
-- `AcqData/msraw.bin` and `AcqData/msraw.bin.idx` (raw data and index)
-- `AcqData/msraw.bin.lock` (lock file for raw data)
-- `AcqData/msrt.bin` and `AcqData/msrt.bin.idx` (retention time data and index)
-- `AcqData/msrt.bin.lock` (lock file for retention time data)
-- `AcqData/msrtdc*.bin` and `AcqData/msrtdc*.bin.idx` (retention time data channels, numbered 1-30, with corresponding index and lock files)
-- `*.xml` files (various XML configuration and metadata files)
-- `*.info` files (information files)
+**Bruker .d folders** (timsTOF and other Bruker instruments):
+- Compress the entire `.d` folder as-is
+- Key files include `analysis.tdf` (metadata database) and `analysis.tdf_bin` (spectral data) for timsTOF instruments
+- Older Bruker formats may contain `.baf` or `.fid` files instead
+
+**Agilent .d folders**:
+- Compress the entire `.d` folder as-is
+- These typically contain an `AcqData/` directory with acquisition data and a `Method/` directory with method files
+
+**Important:** Do not modify, reorganize, or remove any files from the `.d` folder before compression. The internal structure is vendor-specific and all files may be required for proper data access.
+
+#### Raw Data Validation
+
+PRIDE performs automated validation on submitted raw data files to ensure they are readable and properly formatted. During the submission process:
+
+- **File integrity checks**: Compressed archives are verified to ensure they are not corrupted and can be extracted successfully.
+- **Format validation**: Raw files are checked to confirm they contain valid mass spectrometry data and can be read by standard tools.
+- **Structure verification**: For directory-based formats (.d folders), the pipeline verifies that essential files are present (e.g., `analysis.tdf` for Bruker timsTOF, `AcqData/` for Agilent).
+
+If validation fails, you will be notified with specific error messages to help you identify and resolve the issue before resubmitting. Common issues include incomplete .d folder compression, corrupted files, or unsupported format versions.
 
 ### ANALYSIS Files and Tool Outputs
 
