@@ -49,24 +49,34 @@ This terminology change reflects our focus on the actual outputs from search eng
 
 ## Terminology and Historical Context
 
-### Historical Background: PARTIAL vs COMPLETE Submissions
+### ProteomeXchange Background: PARTIAL vs COMPLETE Submissions
 
-In previous versions of the ProteomeXchange guidelines, submissions were classified into two categories:
+The [ProteomeXchange Consortium](http://www.proteomexchange.org/), of which PRIDE is a founding member, has historically classified submissions into two categories:
 
 - **PARTIAL Submissions**: Datasets containing raw data and tool-specific result files (native search engine outputs), but without standardized format files like mzIdentML or mzTab.
 - **COMPLETE Submissions**: Datasets that included, in addition to raw data and tool-specific files, standardized format files (mzIdentML or mzTab) that enable automated data validation and integration.
 
-The term "PARTIAL" was a ProteomeXchange convention that often caused confusion. It was **not** related to the quality or completeness of the scientific dataset—a "PARTIAL" submission could contain a perfectly complete and high-quality proteomics experiment. The terminology simply indicated whether standardized format files were included.
+The term "PARTIAL" was a ProteomeXchange convention that, while technically accurate, often caused confusion among submitters. It was **not** related to the quality or completeness of the scientific dataset—a "PARTIAL" submission could contain a perfectly complete and high-quality proteomics experiment. The terminology simply indicated whether standardized format files were included.
 
-### Moving Forward: A Unified Submission Model
+### PRIDE's Approach: Focus on Analysis Outputs
 
-Going forward, PRIDE adopts a simplified approach: **all datasets are simply "submissions"**. We no longer distinguish between PARTIAL and COMPLETE as separate submission types. Instead:
+These guidelines represent **PRIDE's submission framework**, designed to simplify the submission experience while maintaining full compatibility with ProteomeXchange standards.
 
-- **All submissions** require raw data and ANALYSIS files (native tool outputs).
-- **Submissions with STANDARD file formats** (mzIdentML, mzTab) are more interoperable and enable automated validation, reprocessing, and integration with other resources.
-- **Submissions without STANDARD file formats** are equally valid and represent complete, high-quality datasets. The native ANALYSIS files from modern search engines and analysis tools contain rich information that serves the scientific community well.
+**What this means for submitters:**
 
-This change acknowledges that a dataset's value lies in its raw data, the analysis results, and the associated metadata—not in whether a particular file format conversion was performed. Submitters are encouraged to include STANDARD file formats when available, but their absence does not diminish the submission's quality or completeness.
+Within the PRIDE submission process, we adopt a unified approach where **all datasets are simply "submissions"**. We no longer emphasize the PARTIAL/COMPLETE distinction during submission. Instead, we focus on what matters most: your raw data, the native outputs from your analysis tools (ANALYSIS files), and comprehensive metadata.
+
+- **All submissions** require raw data and ANALYSIS files (native tool outputs from software like MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.).
+- **Submissions with STANDARD file formats** (mzIdentML, mzTab) benefit from enhanced interoperability and automated validation.
+- **Submissions without STANDARD file formats** are equally valid and scientifically complete. Modern analysis tools produce rich, well-structured output files that provide comprehensive information for data reuse.
+
+**ProteomeXchange Compliance:**
+
+PRIDE remains fully compliant with ProteomeXchange guidelines. When your submission includes validated STANDARD file formats (mzIdentML or mzTab), PRIDE will automatically register it as a "COMPLETE" submission with ProteomeXchange. Submissions without these formats will be registered as "PARTIAL" in the ProteomeXchange ecosystem. However, this technical classification happens behind the scenes and does not affect the value or visibility of your dataset.
+
+**Why we emphasize ANALYSIS files:**
+
+We believe the native outputs from search engines and analysis pipelines deserve greater recognition. These files—such as MaxQuant's evidence.txt, DIA-NN's report.parquet, or FragPipe's pepXML files—contain the complete results of computational analyses in formats optimized by tool developers. By prioritizing these ANALYSIS files, we ensure that the rich information produced by modern proteomics software is fully captured and preserved for the research community.
 
 ## PRIDE Submission File Requirements
 
