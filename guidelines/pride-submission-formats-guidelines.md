@@ -226,7 +226,7 @@ When compressing a Bruker and Agilent `.d` folder, ensure the archive contains t
 |------|-------------------------|----------|
 | MaxQuant | ZIP or TAR.GZ the entire output folder | Group all txt files and the andromeda folder into a single archive named `maxquant_results.zip` |
 | Mascot | ZIP multiple .dat files together | Group by experiment/project |
-| DIA-NN | ZIP all TSV/CSV report files | Include all matrices and report files in one archive |
+| DIA-NN | ZIP all search output files | Include all files in one archive |
 | Skyline | No compression for .sky/.skyd | These are already in a compressed format |
 | FragPipe | ZIP all output directories | Group by experiment/search |
 | TPP | ZIP all output XML files | Combine pepXML, protXML and other outputs |
@@ -242,18 +242,31 @@ The following sections detail the specific file formats and requirements for eac
 ### MaxQuant
 *Submission Type: Mostly PARTIAL Submission*
 
-MaxQuant is a software suite for quantitative proteomics, which can be used for both Data Dependent-Adquisition (DDA) and Data-Independent Adquisition (DIA).
+MaxQuant is a software suite for quantitative proteomics, which can be used for both Data Dependent-Acquisition (DDA) and Data-Independent Acquisition (DIA).
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
+| sdrf.tsv | **Mandatory** | METADATA | SDRF Metadata |
+| mzTab.mzTab | **Mandatory** | SEARCH | mzTab output |
 | evidence.txt | **Mandatory** | SEARCH | Evidence table with peptide identifications and quantifications |
 | peptides.txt | **Mandatory** | SEARCH | Peptide-level identification and quantification results |
 | proteinGroups.txt | **Mandatory** | SEARCH | Protein group identification and quantification results |
 | parameters.txt | **Mandatory** | OTHER | Processing parameters used in the analysis |
 | summary.txt | **Mandatory** | OTHER | Summary statistics of the MaxQuant run |
 | mqpar.xml | **Mandatory** | OTHER | MaxQuant parameter file containing all search settings |
-| msms.txt | Recommended | SEARCH | MS/MS scan information and fragment ion matches |
-| Modified peptides.txt | Recommended | SEARCH | Modified peptide identifications |
+| allPeptides.txt | Recommended | SEARCH | All peptide-like features |
+| matchedFeatures.txt | Recommended | SEARCH | Matched peptide-like features |
+| msScans.txt | Recommended | SEARCH | MS scan information |
+| msmsScans.txt | Recommended | SEARCH | MS/MS scan information and fragment ion matches for identifications |
+| Oxidation (M)Sites.txt | Recommended | SEARCH | Oxidation (M)Sites identifications |
+| modificationSpecificPeptides.txt | Recommended | SEARCH | Modified peptide identifications |
+| msms.txt | Optional | SEARCH | All MS/MS scans |
+| ms3Scans.txt | Optional | SEARCH | MS3 scan information and fragment ion matches |
+| fragment.txt | Optional | SEARCH | Fragment information |
+| fragmentQuant.txt | Optional | SEARCH | Fragment quantification |
+| mzRange.txt | Optional | SEARCH | Isotope patterns in the data |
+| dependentPeptides.txt | Optional | SEARCH | Protein group identification and quantification results |
+
 
 ### DIA-NN
 *Submission Type: PARTIAL Submission*
@@ -262,11 +275,11 @@ DIA-NN is an advanced software for DIA proteomics, using neural networks to impr
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| report.tsv (or report.pr_matrix.tsv) | **Mandatory** | SEARCH | DIA-NN report file with peptide-level results (or precursor matrix) |
-| report.pg_matrix.tsv | **Mandatory** | SEARCH | Protein group matrix with quantification results |
-| Parameter configuration file | **Mandatory** | OTHER | DIA-NN parameter configuration file |
-| Spectral library (.blib, .sptxt, etc.) | Recommended | SPECTRAL_LIBRARY | Spectral library used for library-based search (if applicable) |
-| Log file | Recommended | OTHER | DIA-NN analysis log file |
+| report.parquet (or report.tsv) | **Mandatory** | SEARCH | DIA-NN report file |
+| Spectral library (.blib, .sptxt, etc.) | **Mandatory** | SPECTRAL_LIBRARY | Spectral library used for library-based search (if applicable) |
+| Log file | **Mandatory** | OTHER | DIA-NN analysis log file |
+| Parameter configuration file | Optional | OTHER | Optional DIA-NN configuration file |
+
 
 ### FragPipe/MSFragger
 *Submission Type: Mostly PARTIAL Submission*
