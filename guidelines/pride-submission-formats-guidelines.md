@@ -116,7 +116,7 @@ Before reviewing the file requirements, here are definitions of common file form
 
 **Note:** If an mzTab file fails validation, you can upload it as an ANALYSIS file instead.
 
-Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE, _particularly for large files_. The following rules apply to all file types:
+Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE, _particularly for .d folders and large files_. The following rules apply to all file types:
 
 1. **Group Related Files**: 
    - Group all results from a single analysis tool together
@@ -146,7 +146,7 @@ Proper file compression is essential for efficient data storage and transmission
 
 ### RAW Files Compression Rules
 
-**Critical: One run per compressed file**
+**Critical: One run per compressed file (for .d folders, one folder per compressed file)**
 
 When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression:
 - **Only one MS run should be included per compressed archive**
@@ -223,7 +223,7 @@ RAW files store the raw, unprocessed mass spectrometry data, including:
 ### Why RAW Files Are Important
 
 - They are the starting point for downstream data analysis, such as peptide/protein identification and quantification.
-- Tools like Proteome Discoverer, MaxQuant, and MSConvert (from ProteoWizard) can read these files directly or convert them into open formats like mzML or mzXML for interoperability with a wider range of software tools.
+- Tools like ThermoRawFileParser and MSConvert (from ProteoWizard) can read these files directly or convert them into open formats like mzML or mzXML for interoperability with a wider range of software tools.
 
 Raw data files contain the unprocessed data directly from the mass spectrometer. PRIDE accepts the following formats by instrument/vendor:
 
