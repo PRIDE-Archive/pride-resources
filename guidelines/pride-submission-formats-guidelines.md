@@ -76,7 +76,7 @@ PRIDE remains fully compliant with ProteomeXchange guidelines. When your submiss
 
 **Why we emphasize ANALYSIS files:**
 
-We believe the native outputs from search engines and analysis pipelines deserve greater recognition. These files—such as MaxQuant's evidence.txt, DIA-NN's report.parquet, or FragPipe's pepXML files—contain the complete results of computational analyses in formats optimized by tool developers. By prioritizing these ANALYSIS files, we ensure that the rich information produced by modern proteomics software is fully captured and preserved for the research community.
+We believe the native outputs from search engines and analysis pipelines deserve greater recognition. These files—such as MaxQuant's evidence.txt, DIA-NN's report.parquet, or FragPipe's psm.tsv files—contain the complete results of computational analyses in formats optimized by tool developers. By prioritizing these ANALYSIS files, we ensure that the rich information produced by modern proteomics software is fully captured and preserved for the research community.
 
 ## PRIDE Submission File Requirements
 
@@ -283,7 +283,7 @@ If validation fails, you will be notified with specific error messages to help y
 | DIA-NN | ZIP all output files | Include report.parquet/report.tsv and log files in one archive |
 | Spectronaut | ZIP all output files | Include all report files and settings in one archive |
 | Skyline | No compression for .sky/.skyd | These are already in a compressed format |
-| FragPipe | ZIP all output directories | Group by experiment/search |
+| FragPipe | ZIP output .tsv and .csv files | Group by experiment/search |
 | TPP | ZIP all output XML files | Combine pepXML, protXML, and other outputs |
 | General ANALYSIS Files | ZIP or TAR.GZ all ANALYSIS files together | Group all search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) from a single analysis into one archive |
 
@@ -353,17 +353,22 @@ Spectronaut is a commercial software platform for Data-Independent Acquisition (
 
 ### FragPipe/MSFragger
 
-FragPipe is a versatile platform for MS proteomics analysis, offering both a graphical user interface (GUI) and command-line options across Windows, Linux, and cloud environments. It integrates multiple tools and is powered by MSFragger, a fast search engine for both standard and open/wide-tolerance peptide identification.
+FragPipe is a versatile platform for MS proteomics analysis, offering both a graphical user interface (GUI) and command-line options across Windows, Linux, and cloud environments. It integrates multiple tools including DIA-Umpire, diaTracer, MSFragger, MSBooster, Percolator, PeptideProphet, PTMProphet, ProteinProphet, Philosopher, PTM-Shepherd, IonQuant, TMT-Integrator, EasyPQP, and DIA-NN.
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| pepXML files (.pep.xml) | **Mandatory** | ANALYSIS | Peptide identification results in pepXML format |
-| Protein inference results (.tsv or .txt) | **Mandatory** | ANALYSIS | Protein-level identification and inference results |
+| Peptide identification results (psm.tsv) | **Mandatory** | ANALYSIS | Peptide identification results in tsv format |
+| Protein inference results (protein.tsv) | **Mandatory** | ANALYSIS | Protein-level identification and inference results |
 | FragPipe parameter files (fragpipe.workflow) | **Mandatory** | OTHER | FragPipe configuration and parameter files |
-| PTM Shepherd output | Recommended | ANALYSIS | Post-translational modification analysis results (if PTM Shepherd was used) |
-| IonQuant output | Recommended | ANALYSIS | IonQuant quantification results (if IonQuant was used) |
-| combined_protein.tsv | Recommended | ANALYSIS | Combined protein-level results across experiments |
+| FragPipe manifest files (fragpipe-files.fp-manifest) | **Mandatory** | OTHER | FragPipe manifest files |
+| combined_ion.tsv | Recommended | ANALYSIS | Combined ion-level results across experiments |
+| combined_modified_peptide.tsv | Recommended | ANALYSIS | Combined peptidoform-level results across experiments |
 | combined_peptide.tsv | Recommended | ANALYSIS | Combined peptide-level results across experiments |
+| combined_protein.tsv | Recommended | ANALYSIS | Combined protein-level results across experiments |
+| combined_ion_label_quant.tsv | Recommended | ANALYSIS | Combined ion-level results from isotopic labeling quantification |
+| combined_modified_peptide_label_quant.tsv | Recommended | ANALYSIS | Combined peptidoform-level results from isotopic labeling quantification |
+| combined_protein_label_quant.tsv | Recommended | ANALYSIS | Combined protein-level results from isotopic labeling quantification |
+| the whole tmt-report folder | Recommended | ANALYSIS | Combined results from isobaric labeling quantification |
 
 ### Skyline
 
