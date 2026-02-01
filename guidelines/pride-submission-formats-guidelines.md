@@ -5,6 +5,7 @@ Document version: v2.0.0
 Authors:
   - Yasset Perez-Riverol (EMBL-EBI)
   - Deepti Jaiswal Kundu (EMBL-EBI)
+  - Fengchao Yu (University of Michigan)
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -76,7 +77,7 @@ PRIDE remains fully compliant with ProteomeXchange guidelines. When your submiss
 
 **Why we emphasize ANALYSIS files:**
 
-We believe the native outputs from search engines and analysis pipelines deserve greater recognition. These files—such as MaxQuant's evidence.txt, DIA-NN's report.parquet, or FragPipe's pepXML files—contain the complete results of computational analyses in formats optimized by tool developers. By prioritizing these ANALYSIS files, we ensure that the rich information produced by modern proteomics software is fully captured and preserved for the research community.
+We believe the native outputs from search engines and analysis pipelines deserve greater recognition. These files—such as MaxQuant's evidence.txt, DIA-NN's report.parquet, or FragPipe's psm.tsv files—contain the complete results of computational analyses in formats optimized by tool developers. By prioritizing these ANALYSIS files, we ensure that the rich information produced by modern proteomics software is fully captured and preserved for the research community.
 
 ## PRIDE Submission File Requirements
 
@@ -108,7 +109,7 @@ Before reviewing the file requirements, here are definitions of common file form
 | **ANALYSIS Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) | **Mandatory** | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.). Can be provided as individual files or grouped in a ZIP or TAR.GZ archive |
 | **Peak List Files** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Processed peak lists extracted from raw data |
 | **STANDARD File Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended | Community-standard formats for identification and quantification results. Including these improves interoperability and enables automated validation |
-| **FASTA Database** | Protein sequence database (.fasta, .fa) | Recommended | Database used for search (or clear reference to a public database version) |
+| **FASTA Database** | Protein sequence database (.fasta, .fa) | **Mandatory** | Database used for search (or clear reference to a public database version) |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, .tsv, etc.) | Recommended (if applicable) | Required if used in the analysis workflow (e.g., library-based DIA searches) |
 | **Workflow Files** | Workflow description and parameters | Recommended | Tool-specific workflow and method files documenting the analysis pipeline |
 | **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Recommended** | Comprehensive metadata describing samples, experimental design, and data acquisition |
@@ -116,7 +117,7 @@ Before reviewing the file requirements, here are definitions of common file form
 
 **Note:** If an mzTab file fails validation, you can upload it as an ANALYSIS file instead.
 
-Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE, _particularly for large files_. The following rules apply to all file types:
+Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE, _particularly for .d folders and large files_. The following rules apply to all file types:
 
 1. **Group Related Files**: 
    - Group all results from a single analysis tool together
@@ -146,7 +147,7 @@ Proper file compression is essential for efficient data storage and transmission
 
 ### RAW Files Compression Rules
 
-**Critical: One run per compressed file**
+**Critical: One run per compressed file (for .d folders, one folder per compressed file)**
 
 When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression:
 - **Only one MS run should be included per compressed archive**
@@ -223,7 +224,7 @@ RAW files store the raw, unprocessed mass spectrometry data, including:
 ### Why RAW Files Are Important
 
 - They are the starting point for downstream data analysis, such as peptide/protein identification and quantification.
-- Tools like Proteome Discoverer, MaxQuant, and MSConvert (from ProteoWizard) can read these files directly or convert them into open formats like mzML or mzXML for interoperability with a wider range of software tools.
+- Tools like ThermoRawFileParser and MSConvert (from ProteoWizard) can read these files directly or convert them into open formats like mzML or mzXML for interoperability with a wider range of software tools.
 
 Raw data files contain the unprocessed data directly from the mass spectrometer. PRIDE accepts the following formats by instrument/vendor:
 
@@ -283,7 +284,7 @@ If validation fails, you will be notified with specific error messages to help y
 | DIA-NN | ZIP all output files | Include report.parquet/report.tsv and log files in one archive |
 | Spectronaut | ZIP all output files | Include all report files and settings in one archive |
 | Skyline | No compression for .sky/.skyd | These are already in a compressed format |
-| FragPipe | ZIP all output directories | Group by experiment/search |
+| FragPipe | ZIP output .tsv and .csv files | Group by experiment/search |
 | TPP | ZIP all output XML files | Combine pepXML, protXML, and other outputs |
 | General ANALYSIS Files | ZIP or TAR.GZ all ANALYSIS files together | Group all search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) from a single analysis into one archive |
 
@@ -353,17 +354,22 @@ Spectronaut is a commercial software platform for Data-Independent Acquisition (
 
 ### FragPipe/MSFragger
 
-FragPipe is a versatile platform for MS proteomics analysis, offering both a graphical user interface (GUI) and command-line options across Windows, Linux, and cloud environments. It integrates multiple tools and is powered by MSFragger, a fast search engine for both standard and open/wide-tolerance peptide identification.
+FragPipe is a versatile platform for MS proteomics analysis, offering both a graphical user interface (GUI) and command-line options across Windows, Linux, and cloud environments. It integrates multiple tools including DIA-Umpire, diaTracer, MSFragger, MSBooster, Percolator, PeptideProphet, PTMProphet, ProteinProphet, Philosopher, PTM-Shepherd, IonQuant, TMT-Integrator, EasyPQP, and DIA-NN.
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| pepXML files (.pep.xml) | **Mandatory** | ANALYSIS | Peptide identification results in pepXML format |
-| Protein inference results (.tsv or .txt) | **Mandatory** | ANALYSIS | Protein-level identification and inference results |
+| Peptide identification results (psm.tsv) | **Mandatory** | ANALYSIS | Peptide identification results in tsv format |
+| Protein inference results (protein.tsv) | **Mandatory** | ANALYSIS | Protein-level identification and inference results |
 | FragPipe parameter files (fragpipe.workflow) | **Mandatory** | OTHER | FragPipe configuration and parameter files |
-| PTM Shepherd output | Recommended | ANALYSIS | Post-translational modification analysis results (if PTM Shepherd was used) |
-| IonQuant output | Recommended | ANALYSIS | IonQuant quantification results (if IonQuant was used) |
-| combined_protein.tsv | Recommended | ANALYSIS | Combined protein-level results across experiments |
+| FragPipe manifest files (fragpipe-files.fp-manifest) | **Mandatory** | OTHER | FragPipe manifest files |
+| combined_ion.tsv | Recommended | ANALYSIS | Combined ion-level results across experiments |
+| combined_modified_peptide.tsv | Recommended | ANALYSIS | Combined peptidoform-level results across experiments |
 | combined_peptide.tsv | Recommended | ANALYSIS | Combined peptide-level results across experiments |
+| combined_protein.tsv | Recommended | ANALYSIS | Combined protein-level results across experiments |
+| combined_ion_label_quant.tsv | Recommended | ANALYSIS | Combined ion-level results from isotopic labeling quantification |
+| combined_modified_peptide_label_quant.tsv | Recommended | ANALYSIS | Combined peptidoform-level results from isotopic labeling quantification |
+| combined_protein_label_quant.tsv | Recommended | ANALYSIS | Combined protein-level results from isotopic labeling quantification |
+| the whole tmt-report folder | Recommended | ANALYSIS | Combined results from isobaric labeling quantification |
 
 ### Skyline
 
