@@ -5,7 +5,7 @@ Document version: v2.0.0
 Authors:
 - Yasset Perez-Riverol (EMBL-EBI)
 - Deepti Jaiswal Kundu (EMBL-EBI)
-  - Fengchao Yu (University of Michigan)
+- Fengchao Yu (University of Michigan)
 
 ## Table of Contents
 1. [Introduction](#introduction)
