@@ -32,32 +32,32 @@ Authors:
 
 ## Introduction
 
-This document provides comprehensive guidelines for submitting proteomics data to the PRIDE (PRoteomics IDEntifications) database, focusing on the supported file formats and specific requirements for different search engines and analysis tools. Following these guidelines will ensure your data is properly documented, can be reused more effectively by the research community, and complies with journal data availability requirements.
+This document provides comprehensive guidelines for submitting mass spectrometry(MS)-based proteomics data to the PRIDE (PRoteomics IDEntifications) database, focusing on the supported file formats and specific requirements for different search engines and analysis tools. Following these guidelines will ensure your data is properly documented, can be reused more effectively by the research community, and complies with journal data availability requirements.
 
 ### What's New in This Version
 
 In this version of the guidelines, we have updated the terminology to better reflect the nature of the files being submitted:
 
-- **ANALYSIS Files** (previously called "SEARCH files"): These are the native output files from search engines and analysis tools (e.g., evidence.txt, peptides.txt, report.tsv). We renamed this category because these files represent the actual results of the computational analysis—the primary outputs that researchers work with and that contain the peptide/protein identifications and quantifications.
+- **ANALYSIS Files** (previously called "SEARCH files"): These are the native output files from search engines and analysis tools (e.g., evidence.txt, peptides.txt, report.tsv). We renamed this category because these files represent the actual results of the computational analysis— the primary outputs that researchers work with and that contain the peptide/protein identifications and quantification values.
 
-- **STANDARD File Formats** (previously called "RESULT files"): These are community-standard formats like mzIdentML (.mzid) and mzTab (.mztab) that provide interoperable representations of identification and quantification data. We renamed this category to emphasize that these formats are standardized representations rather than the primary analysis outputs.
+- **STANDARD File Formats** (previously called "RESULT files"): These are community-standard (PSI, Proteomics Standards Initiative) data formats like mzIdentML (.mzid) and mzTab (.mztab) that provide representations of identification and quantification data in open standard formats. We renamed this category to emphasize that these formats are standardized representations rather than the primary analysis outputs.
 
-This terminology change reflects our focus on the actual outputs from search engines and analysis pipelines. The ANALYSIS files are the direct outputs of computational workflows—they contain the complete analysis data in the format native to each tool. STANDARD file formats, while valuable for interoperability, are derived representations of these results.
+This terminology change reflects our increased focus on the actual file outputs from search engines and analysis pipelines. The ANALYSIS files are the direct outputs of computational workflows— they contain the complete analysis data in the format native to each tool. STANDARD file formats, while valuable for improving interoperability, are derived representations of these results.
 
 ## Overview of PRIDE Database
 
-[PRIDE](https://www.ebi.ac.uk/pride) is a centralized repository for mass spectrometry (MS)-based proteomics data, including raw data, processed results, and associated metadata. It is part of the ProteomeXchange (PX) Consortium, which provides a coordinated submission and data dissemination process to proteomics repositories. PRIDE focuses on enabling data reuse, reproducibility, and transparency in proteomics research.
+[PRIDE](https://www.ebi.ac.uk/pride) is a centralized repository for mass spectrometry (MS)-based proteomics data, including raw data, processed results, associated metadata and other data types (e.g. search database, spectral libraries, etc). It is a founding member of the [ProteomeXchange Consortium](http://www.proteomexchange.org/), which provides a coordinated submission and data dissemination process for proteomics repositories. PRIDE focuses on enabling data reuse, reproducibility, and transparency in proteomics research.
 
 ## Terminology and Historical Context
 
 ### ProteomeXchange Background: PARTIAL vs COMPLETE Submissions
 
-The [ProteomeXchange Consortium](http://www.proteomexchange.org/), of which PRIDE is a founding member, has historically classified submissions into two categories:
+The ProteomeXchange Consortium, of which PRIDE is a founding member, has historically classified submissions into two categories:
 
 - **PARTIAL Submissions**: Datasets containing raw data and tool-specific result files (native search engine outputs), but without standardized format files like mzIdentML or mzTab.
-- **COMPLETE Submissions**: Datasets that included, in addition to raw data and tool-specific files, standardized format files (mzIdentML or mzTab) that enable automated data validation and integration.
+- **COMPLETE Submissions**: Datasets that included, in addition to raw data and tool-specific files, standardized format files (mzIdentML or mzTab) that can enable automated data validation and integration.
 
-The term "PARTIAL" was a ProteomeXchange convention that, while technically accurate, often caused confusion among submitters. It was **not** related to the quality or completeness of the scientific dataset—a "PARTIAL" submission could contain a perfectly complete and high-quality proteomics experiment. The terminology simply indicated whether standardized format files were included.
+The term "PARTIAL" is a ProteomeXchange convention that, while technically accurate, has often caused confusion among submitters. This terminology is **not** related to the quality or completeness of the scientific dataset —a "PARTIAL" submission can contain a perfectly complete and high-quality proteomics experiment. The terminology simply indicated whether standard file formats were included.
 
 ### PRIDE's Approach: Focus on Analysis Outputs
 
@@ -65,10 +65,10 @@ These guidelines represent **PRIDE's submission framework**, designed to simplif
 
 **What this means for submitters:**
 
-Within the PRIDE submission process, we adopt a unified approach where **all datasets are simply "submissions"**. We no longer emphasize the PARTIAL/COMPLETE distinction during submission. Instead, we focus on what matters most: your raw data, the native outputs from your analysis tools (ANALYSIS files), and comprehensive metadata.
+Within the PRIDE submission process, we adopt a unified approach where **all datasets are simply "submissions"**. We no longer emphasize the PARTIAL/COMPLETE distinction during submission. Instead, we focus on ensuring that all the information/files required for a submission are available, no matter whether the processed results are in a standard format or not, and as a key point, capturing the native search engine outputs in a much more structured manner. For each submission the following components are mandatory: raw data, the processed results (the native outputs from your analysis tools (ANALYSIS files) or in a standard format (STANDARD files)), and comprehensive metadata.
 
 - **All submissions** require raw data and ANALYSIS files (native tool outputs from software like MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.).
-- **Submissions with STANDARD file formats** (mzIdentML, mzTab) benefit from enhanced interoperability and automated validation.
+- **Submissions with STANDARD file formats** (mzIdentML, mzTab) benefit from enhanced interoperability and automated validation (for instance for including them into subsets of PRIDE such as PRIDE CrossLinking for crosslinking datasets).
 - **Submissions without STANDARD file formats** are equally valid and scientifically complete. Modern analysis tools produce rich, well-structured output files that provide comprehensive information for data reuse.
 
 **ProteomeXchange Compliance:**
@@ -77,17 +77,17 @@ PRIDE remains fully compliant with ProteomeXchange guidelines. When your submiss
 
 **Why we emphasize ANALYSIS files:**
 
-We believe the native outputs from search engines and analysis pipelines deserve greater recognition. These files—such as MaxQuant's evidence.txt, DIA-NN's report.parquet, or FragPipe's psm.tsv files—contain the complete results of computational analyses in formats optimized by tool developers. By prioritizing these ANALYSIS files, we ensure that the rich information produced by modern proteomics software is fully captured and preserved for the research community.
+We believe the native outputs from search engines and analysis pipelines deserve a greater recognition in the PRIDE submission process. These files— such as MaxQuant's evidence.txt, DIA-NN's report.parquet, or FragPipe's psm.tsv files—contain the complete results of computational analyses in formats optimized by tool developers. By concentrating more efforts in supporting these ANALYSIS files, we aim to ensure that the rich information produced by modern proteomics software is fully captured and preserved for the research community.
 
 ## PRIDE Submission File Requirements
 
-This section describes the file types required for PRIDE submissions. The guidelines are coordinated between the PRIDE team and software producers/developers of computational proteomics tools to ensure data is well represented in PRIDE.
+This section describes the file types required for PRIDE submissions. The guidelines are coordinated between the PRIDE team and software producers/developers of computational proteomics tools to ensure data is well represented in PRIDE, and can be well maintained as tools evolve.
 
 ### Key File Format Definitions
 
 Before reviewing the file requirements, here are definitions of common file formats you will encounter:
 
-- **mzIdentML (.mzid)**: A standardized XML format developed by the Proteomics Standards Initiative (PSI) for reporting peptide and protein identifications from mass spectrometry data. It captures search engine results, including peptide-spectrum matches, protein inference, and associated scores.
+- **mzIdentML (.mzid)**: A standardized XML format developed by the PSI for reporting peptide and protein identifications. It captures search engine results, including peptide-spectrum matches, protein inference, and associated scores.
 
 - **mzTab (.mztab)**: A tab-delimited text format developed by the PSI for reporting identification and quantification results. It provides a simpler, more human-readable alternative to mzIdentML and is particularly useful for quantitative proteomics data.
 
@@ -97,7 +97,7 @@ Before reviewing the file requirements, here are definitions of common file form
 
 - **MGF (Mascot Generic Format, .mgf)**: A simple text-based format for storing processed peak lists (MS/MS spectra). Commonly used as input for database search engines.
 
-- **SDRF (.sdrf.tsv)**: Sample and Data Relationship Format—a tab-delimited file that describes the relationship between samples, experimental conditions, and data files. Essential for reproducibility and data reuse.
+- **SDRF (.sdrf.tsv)**: Sample and Data Relationship Format — a tab-delimited file that describes the relationship between samples, experimental conditions, and data files. Essential for reproducibility and data reuse.
 
 - **Parquet (.parquet)**: A columnar storage format optimized for efficient data processing. Used by DIA-NN for storing large result files with better compression and faster read times than TSV.
 
@@ -106,9 +106,9 @@ Before reviewing the file requirements, here are definitions of common file form
 | File Category | File Type/Format | Status | Notes |
 |--------------|------------------|--------|-------|
 | **Raw Data Files** | Raw instrument files (.raw, .mzML, .mzXML, .wiff, .baf, .tdf, .d folders) | **Mandatory** | Original unprocessed data from the mass spectrometer |
-| **ANALYSIS Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) | **Mandatory** | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.). Can be provided as individual files or grouped in a ZIP or TAR.GZ archive |
+| **ANALYSIS Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) | **Mandatory** - Recommended (if ANALYSIS files are present) | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.). Can be provided as individual files or grouped in a ZIP or TAR.GZ archive | 
 | **Peak List Files** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Processed peak lists extracted from raw data |
-| **STANDARD File Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended | Community-standard formats for identification and quantification results. Including these improves interoperability and enables automated validation |
+| **STANDARD File Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended (if ANALYSIS files are present) - **Mandatory** (if ANALYSIS files are not present)| Community-standard formats for identification and quantification results. Including these improves interoperability and enables automated validation |
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | **Mandatory** | Database used for search (or clear reference to a public database version) |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, .tsv, etc.) | Recommended (if applicable) | Required if used in the analysis workflow (e.g., library-based DIA searches) |
 | **Workflow Files** | Workflow description and parameters | Recommended | Tool-specific workflow and method files documenting the analysis pipeline |
@@ -117,6 +117,11 @@ Before reviewing the file requirements, here are definitions of common file form
 
 **Note:** If an mzTab file fails validation, you can upload it as an ANALYSIS file instead.
 
+### Supported Compression Formats
+
+- **Only ZIP (.zip), GZ (.gz), and TAR.GZ (.tar.gz) compression formats are supported**
+- **RAR (.rar) format is NOT accepted**
+
 Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE, _particularly for .d folders and large files_. The following rules apply to all file types:
 
 1. **Group Related Files**: 
@@ -124,7 +129,7 @@ Proper file compression is essential for efficient data storage and transmission
    - Use logical naming (e.g., `mascot_exp1.zip`, `maxquant_full_results.tar.gz`)
 
 2. **Size Considerations**:
-   - Try to keep individual compressed files under 50GB for easier upload
+   - Try to keep individual compressed files under 50 GB for easier upload
    - For very large datasets, split logically by experiment/fraction
 
 3. **Documentation**: 
@@ -137,13 +142,8 @@ Proper file compression is essential for efficient data storage and transmission
 
 5. **Directory Structure**:
    - Maintain a consistent directory structure across compressed files
-   - Use relative paths within archives
+   - Use relative paths within file paths.
 
-
-### Supported Compression Formats
-
-- **Only ZIP (.zip), GZ (.gz), and TAR.GZ (.tar.gz) compression formats are supported**
-- **RAR (.rar) format is NOT accepted**
 
 ### RAW Files Compression Rules
 
@@ -154,8 +154,8 @@ When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or
 - **Do NOT compress multiple runs together** into a single ZIP or GZ file
 
 **Why this matters:**
-- Each MS run in the SDRF (Sample to Data Relationship Format) must be properly linked to its specific raw file, even when compressed
-- Download statistics and links to other omics files are tracked accurately on a per-file (e.g., per MS run) basis
+- Each MS run in a SDRF (Sample to Data Relationship Format) must be properly linked to its specific raw file, even when compressed
+- Download statistics and links to other omics files can be tracked more accurately on a per-file (e.g., per MS run) basis
 - File-level metadata and associations remain intact
 
 **Exception:** This restriction does **NOT** apply to .d folders (Bruker and Agilent) representing MS Raw data, as these directory-based formats are typically associated with a single run per folder and should be compressed as complete folders.
@@ -174,7 +174,7 @@ zip all_runs.zip run1.mzML run2.mzML run3.mzML  # DO NOT DO THIS
 
 - Bruker `.d` folders and Agilent `.d` folders **must be compressed** (as `.zip` or `.tar.gz`) before submission
 - Compress the **entire folder** as a single archive, preserving the complete directory structure
-- These folders are typically associated with one run, so this is acceptable
+- These folders are typically associated with one MS run, so this is acceptable
 
 **Example:**
 ```bash
@@ -237,7 +237,18 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 | Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually |
 | mzML | .mzml | PSI Standard | Open XML-based standard format |
 
-**Important Notes for Raw Data:**
+
+| File Type | Recommended Compression | Notes |
+|-----------|-------------------------|-------|
+| Thermo RAW | No compression (maintain as .raw) | These are already in a compressed binary format |
+| Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf experiment1.d.tar.gz experiment1.d/` |
+| Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
+| Waters RAW | ZIP or TAR.GZ if directory-based; otherwise uncompressed | Compress directory-based .raw folders; single .raw files may remain uncompressed |
+| SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
+| mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
+
+
+**Important Notes for compressing Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
 - PRIDE accepts both uncompressed and compressed raw files
 - **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
@@ -279,7 +290,7 @@ If validation fails, you will be notified with specific error messages to help y
 
 | Tool | Recommended Compression | Strategy |
 |------|-------------------------|----------|
-| MaxQuant | ZIP or TAR.GZ the entire output folder | Group all txt files and the andromeda folder into a single archive named `maxquant_results.zip` |
+| MaxQuant | ZIP or TAR.GZ the entire output folder | Group all txt files and the Andromeda folder into a single archive named `maxquant_results.zip` |
 | Mascot | ZIP multiple .dat files together | Group by experiment/project |
 | DIA-NN | ZIP all output files | Include report.parquet/report.tsv and log files in one archive |
 | Spectronaut | ZIP all output files | Include all report files and settings in one archive |
@@ -474,31 +485,7 @@ Including comprehensive metadata greatly enhances the reusability of your data b
 - [ ] **QC metrics** (if available)
 - [ ] **README file** explaining file organization (recommended)
 
-## File Compression Strategies
 
-Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. **Important: PRIDE only accepts ZIP (.zip) and TAR.GZ (.tar.gz) compression formats. RAR (.rar) format is not supported.** Below are recommended compression strategies for different file types:
-
-### Raw Data Files
-
-| File Type | Recommended Compression | Notes |
-|-----------|-------------------------|-------|
-| Thermo RAW | No compression (maintain as .raw) | These are already in a compressed binary format |
-| Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf experiment1.d.tar.gz experiment1.d/` |
-| Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
-| Waters RAW | ZIP or TAR.GZ if directory-based; otherwise uncompressed | Compress directory-based .raw folders; single .raw files may remain uncompressed |
-| SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
-| mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
-
-**Important Notes for Raw Data:**
-- When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
-- PRIDE accepts both uncompressed and compressed raw files
-- **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
-- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
-  - Each msrun in the SDRF (Sample to Data Relationship Format) can be properly linked to its specific raw file, even when compressed
-  - Download statistics and links to other omics files can be tracked accurately on a per-run basis
-  - File-level metadata and associations remain intact
-- **Note:** This restriction does not apply to .d folders (Bruker and Agilent), as these directory-based formats are typically associated with a single run per folder
-- For very large datasets, consider splitting into multiple compressed archives of reasonable size (< 50GB each), but maintain the one-run-per-archive rule
 
 ## Contact and Support
 
