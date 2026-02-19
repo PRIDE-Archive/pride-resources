@@ -330,7 +330,7 @@ DIA-NN is an advanced software for Data-Independent Acquisition (DIA) proteomics
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | report.parquet (or report.tsv) | **Mandatory** | ANALYSIS | Main DIA-NN report file containing all identifications and quantifications |
-| Spectral library (.speclib, .parquet, .tsv, etc) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for library-based search. Required if library search was performed |
+| Spectral library (.speclib, .parquet, .tsv, etc.) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for library-based search. Required if library search was performed |
 | Log file (.log.txt) | **Mandatory** | OTHER | DIA-NN analysis log file documenting the processing steps and settings |
 | Site report (.site_report.parquet) | **Mandatory** (if produced by DIA-NN) | OTHER | PTM site localisation report, required if produced by DIA-NN |
 | Parameter configuration file (.pipeline.json or .pipeline) | Recommended | OTHER | DIA-NN pipeline file with search parameters |
