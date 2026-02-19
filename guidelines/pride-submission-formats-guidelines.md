@@ -281,7 +281,7 @@ If validation fails, you will be notified with specific error messages to help y
 |------|-------------------------|----------|
 | MaxQuant | ZIP or TAR.GZ the entire output folder | Group all txt files and the andromeda folder into a single archive named `maxquant_results.zip` |
 | Mascot | ZIP multiple .dat files together | Group by experiment/project |
-| DIA-NN | ZIP all output files | Include report.parquet/report.tsv and log files in one archive |
+| DIA-NN | ZIP all output files | Include all output files in one archive |
 | Spectronaut | ZIP all output files | Include all report files and settings in one archive |
 | Skyline | No compression for .sky/.skyd | These are already in a compressed format |
 | FragPipe | ZIP output .tsv and .csv files | Group by experiment/search |
@@ -330,9 +330,11 @@ DIA-NN is an advanced software for Data-Independent Acquisition (DIA) proteomics
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | report.parquet (or report.tsv) | **Mandatory** | ANALYSIS | Main DIA-NN report file containing all identifications and quantifications |
-| Spectral library (.blib, .sptxt, .tsv, etc.) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for library-based search. Required if library search was performed |
-| Log file (.log.txt) | **Mandatory** | OTHER | DIA-NN analysis log file documenting the processing steps |
-| Parameter configuration file | Recommended | OTHER | DIA-NN configuration file with search parameters |
+| Spectral library (.speclib, .parquet, .tsv, etc) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for library-based search. Required if library search was performed |
+| Log file (.log.txt) | **Mandatory** | OTHER | DIA-NN analysis log file documenting the processing steps and settings |
+| Site report (.site_report.parquet) | **Mandatory** (if produced by DIA-NN) | OTHER | PTM site localisation report, required if produced by DIA-NN |
+| Parameter configuration file (.pipeline.json or .pipeline) | Recommended | OTHER | DIA-NN pipeline file with search parameters |
+| Output empirical library (.parquet or .tsv) | Recommended | SPECTRAL_LIBRARY | Empirical library if produced by DIA-NN automatically as part of MBR |
 | pr_matrix.tsv | Recommended | ANALYSIS | Precursor-level quantification matrix |
 | pg_matrix.tsv | Recommended | ANALYSIS | Protein group-level quantification matrix |
 
@@ -344,7 +346,7 @@ Spectronaut is a commercial software platform for Data-Independent Acquisition (
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | Main report (.tsv, .csv, or .xls) | **Mandatory** | ANALYSIS | Primary Spectronaut report containing peptide/protein identifications and quantifications |
-| Spectral library (.kit or .tsv) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for analysis. Required if library-based search was performed |
+| Spectral library (.tsv or .xls) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for analysis. Required if library-based search was performed |
 | Analysis settings/parameters | **Mandatory** | OTHER | Spectronaut analysis settings file or exported parameters documenting the search configuration |
 | Protein group report | Recommended | ANALYSIS | Protein group-level quantification report |
 | Peptide report | Recommended | ANALYSIS | Peptide-level quantification report |
