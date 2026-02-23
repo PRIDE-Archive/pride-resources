@@ -154,7 +154,7 @@ When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or
 - **Do NOT compress multiple runs together** into a single ZIP or GZ file
 
 **Why this matters:**
-- Each MS run in a SDRF (Sample to Data Relationship Format) must be properly linked to its specific raw file, even when compressed
+- Each MS run in an SDRF (Sample to Data Relationship Format) must be properly linked to its specific raw file, even when compressed
 - Download statistics and links to other omics files can be tracked more accurately on a per-file (e.g., per MS run) basis
 - File-level metadata and associations remain intact
 
