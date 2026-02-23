@@ -6,6 +6,8 @@ Authors:
 - Yasset Perez-Riverol (EMBL-EBI)
 - Deepti Jaiswal Kundu (EMBL-EBI)
 - Fengchao Yu (University of Michigan)
+- Juan Antonio Vizcaino (EMBL-EBI)
+- Vadim Demichev (Charité - Universitätsmedizin Berlin)
 
 ## Table of Contents
 1. [Introduction](#introduction)
@@ -176,11 +178,11 @@ zip all_runs.zip run1.mzML run2.mzML run3.mzML  # DO NOT DO THIS
 - Compress the **entire folder** as a single archive, preserving the complete directory structure
 - These folders are typically associated with one MS run, so this is acceptable
 
-**Example:**
+**Example (one archive per MS run):**
 ```bash
-tar -czf experiment1.d.tar.gz experiment1.d/
+tar -czf run1.d.tar.gz run1.d/
 # or
-zip -r experiment1.d.zip experiment1.d/
+zip -r run1.d.zip run1.d/
 ```
 
 #### ANALYSIS Files Compression Rules
@@ -241,7 +243,7 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 | File Type | Recommended Compression | Notes |
 |-----------|-------------------------|-------|
 | Thermo RAW | No compression (maintain as .raw) | These are already in a compressed binary format |
-| Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf experiment1.d.tar.gz experiment1.d/` |
+| Agilent .d folders | ZIP or TAR.GZ the entire folder | `tar -czf run1.d.tar.gz run1.d/` |
 | Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
 | Waters RAW | ZIP or TAR.GZ if directory-based; otherwise uncompressed | Compress directory-based .raw folders; single .raw files may remain uncompressed |
 | SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
