@@ -106,7 +106,7 @@ Before reviewing the file requirements, here are definitions of common file form
 | File Category | File Type/Format | Status | Notes |
 |--------------|------------------|--------|-------|
 | **Raw Data Files** | Raw instrument files (.raw, .mzML, .mzXML, .wiff, .baf, .tdf, .d folders) | **Mandatory** | Original unprocessed data from the mass spectrometer |
-| **ANALYSIS Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) | **Mandatory** - Recommended (if ANALYSIS files are present) | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.). Can be provided as individual files or grouped in a ZIP or TAR.GZ archive | 
+| **ANALYSIS Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) | **Mandatory** | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.). Can be provided as individual files or grouped in a ZIP or TAR.GZ archive | 
 | **Peak List Files** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Processed peak lists extracted from raw data |
 | **STANDARD File Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended (if ANALYSIS files are present) - **Mandatory** (if ANALYSIS files are not present)| Community-standard formats for identification and quantification results. Including these improves interoperability and enables automated validation |
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | **Mandatory** | Database used for search (or clear reference to a public database version) |
