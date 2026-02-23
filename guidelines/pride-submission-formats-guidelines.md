@@ -32,7 +32,7 @@ Authors:
 
 ## Introduction
 
-This document provides comprehensive guidelines for submitting mass spectrometry(MS)-based proteomics data to the PRIDE (PRoteomics IDEntifications) database, focusing on the supported file formats and specific requirements for different search engines and analysis tools. Following these guidelines will ensure your data is properly documented, can be reused more effectively by the research community, and complies with journal data availability requirements.
+This document provides comprehensive guidelines for submitting mass spectrometry (MS)-based proteomics data to the PRIDE (PRoteomics IDEntifications) database, focusing on the supported file formats and specific requirements for different search engines and analysis tools. Following these guidelines will ensure your data is properly documented, can be reused more effectively by the research community, and complies with journal data availability requirements.
 
 ### What's New in This Version
 
