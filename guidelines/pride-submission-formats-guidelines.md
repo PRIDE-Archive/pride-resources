@@ -46,7 +46,7 @@ This terminology change reflects our increased focus on the actual file outputs 
 
 ## Overview of PRIDE Database
 
-[PRIDE](https://www.ebi.ac.uk/pride) is a centralized repository for mass spectrometry (MS)-based proteomics data, including raw data, processed results, associated metadata and other data types (e.g. search database, spectral libraries, etc). It is a founding member of the [ProteomeXchange Consortium](http://www.proteomexchange.org/), which provides a coordinated submission and data dissemination process for proteomics repositories. PRIDE focuses on enabling data reuse, reproducibility, and transparency in proteomics research.
+[PRIDE](https://www.ebi.ac.uk/pride) is a centralized repository for mass spectrometry (MS)-based proteomics data, including raw data, processed results, associated metadata and other data types (e.g. search database, spectral libraries, etc.). It is a founding member of the [ProteomeXchange Consortium](http://www.proteomexchange.org/), which provides a coordinated submission and data dissemination process for proteomics repositories. PRIDE focuses on enabling data reuse, reproducibility, and transparency in proteomics research.
 
 ## Terminology and Historical Context
 
