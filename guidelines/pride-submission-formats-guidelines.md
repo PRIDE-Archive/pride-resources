@@ -362,8 +362,6 @@ The following sections detail the specific file formats and requirements for eac
 
 MaxQuant is a software suite for quantitative proteomics that supports both Data-Dependent Acquisition (DDA) and Data-Independent Acquisition (DIA) workflows.
 
-> **Note:** Even though MaxQuant can export an mzTab file, the native ANALYSIS files listed below (evidence.txt, peptides.txt, proteinGroups.txt, etc.) are **always required**. The mzTab export is an added-value STANDARD format and does not replace any of the mandatory ANALYSIS files.
-
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | sdrf.tsv | **Mandatory** | METADATA | SDRF metadata file describing samples and experimental design |
@@ -379,7 +377,6 @@ MaxQuant is a software suite for quantitative proteomics that supports both Data
 | msmsScans.txt | Recommended | ANALYSIS | MS/MS scan information and fragment ion matches for identifications |
 | Oxidation (M)Sites.txt | Recommended | ANALYSIS | Oxidation modification site identifications |
 | modificationSpecificPeptides.txt | Recommended | ANALYSIS | Modified peptide identifications |
-| mzTab (.mztab) | Recommended | STANDARD | mzTab export of identification and quantification results. Provided as added value for interoperability; does **not** replace the mandatory ANALYSIS files above |
 | msms.txt | Optional | ANALYSIS | All MS/MS scans processed |
 | ms3Scans.txt | Optional | ANALYSIS | MS3 scan information and fragment ion matches |
 | fragment.txt | Optional | ANALYSIS | Fragment information |
