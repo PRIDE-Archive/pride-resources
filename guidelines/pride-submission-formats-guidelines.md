@@ -1,6 +1,6 @@
 # PRIDE Database Submission Guidelines
 
-Document version: v2.0.0
+Document version: v2.2.0
 
 Authors:
 - Yasset Perez-Riverol (EMBL-EBI)
@@ -14,6 +14,7 @@ Authors:
 2. [Overview of PRIDE Database](#overview-of-pride-database)
 3. [Terminology and Historical Context](#terminology-and-historical-context)
 4. [PRIDE Submission File Requirements](#pride-submission-file-requirements)
+   - [FASTA Database Requirements](#fasta-database-requirements)
 5. [Supported Raw Data Formats](#supported-raw-data-formats)
 6. [Search Engine and Analysis Tool Requirements](#search-engine-and-analysis-tool-requirements)
    - [MaxQuant](#maxquant)
@@ -45,6 +46,11 @@ In this version of the guidelines, we have updated the terminology to better ref
 - **STANDARD File Formats** (previously called "RESULT files"): These are community-standard (PSI, Proteomics Standards Initiative) data formats like mzIdentML (.mzid) and mzTab (.mztab) that provide representations of identification and quantification data in open standard formats. We renamed this category to emphasize that these formats are standardized representations rather than the primary analysis outputs.
 
 This terminology change reflects our increased focus on the actual file outputs from search engines and analysis pipelines. The ANALYSIS files are the direct outputs of computational workflows— they contain the complete analysis data in the format native to each tool. STANDARD file formats, while valuable for improving interoperability, are derived representations of these results.
+
+**Important clarification on STANDARD file formats:** mzIdentML and mzTab are **not mandatory** for most submissions. They represent an **added value** when provided alongside the native ANALYSIS files, improving interoperability and enabling automated validation. There are two distinct cases:
+
+- **Tools where mzIdentML/mzTab is the native output** (e.g., MS-GF+): In these cases, the STANDARD format file is the primary result and is therefore **mandatory**. No additional ANALYSIS files are required beyond what the tool natively produces.
+- **Tools where mzIdentML/mzTab is an optional export** (e.g., MaxQuant, Mascot, Proteome Discoverer): In these cases, providing STANDARD format files is **recommended** as added value, but the native ANALYSIS files are **always required**. The STANDARD format files do not replace the ANALYSIS files.
 
 ## Overview of PRIDE Database
 
@@ -111,13 +117,46 @@ Before reviewing the file requirements, here are definitions of common file form
 | **ANALYSIS Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) | **Mandatory** | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.). Can be provided as individual files or grouped in a ZIP or TAR.GZ archive | 
 | **Peak List Files** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Processed peak lists extracted from raw data |
 | **STANDARD File Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended (if ANALYSIS files are present) - **Mandatory** (if ANALYSIS files are not present)| Community-standard formats for identification and quantification results. Including these improves interoperability and enables automated validation |
-| **FASTA Database** | Protein sequence database (.fasta, .fa) | **Mandatory** | Database used for search (or clear reference to a public database version) |
+| **FASTA Database** | Protein sequence database (.fasta, .fa) | **Mandatory** (for metaproteomics and proteogenomics) — **Conditional** (for standard proteomics, see note below) | Database used for search. See the [FASTA Database Requirements](#fasta-database-requirements) section for case-by-case guidance |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, .tsv, etc.) | Recommended (if applicable) | Required if used in the analysis workflow (e.g., library-based DIA searches) |
 | **Workflow Files** | Workflow description and parameters | Recommended | Tool-specific workflow and method files documenting the analysis pipeline |
 | **Metadata** | Sample to Data Relationship Format (.sdrf.tsv) | **Recommended** | Comprehensive metadata describing samples, experimental design, and data acquisition |
 | **OTHER** | Supplementary files (.pdf, .doc, .docx, figures, images, etc.) | Optional | Additional documentation, figures, and supplementary materials |
 
 **Note:** If an mzTab file fails validation, you can upload it as an ANALYSIS file instead.
+
+### FASTA Database Requirements
+
+The requirement to provide a FASTA sequence database depends on the type of experiment and the nature of the database used. The key principle is **reproducibility**: if a third party cannot obtain the exact same database independently, you must provide it.
+
+#### Case 1: Well-known public databases (e.g., UniProt Swiss-Prot, UniProt TrEMBL, RefSeq) — Reference only
+
+If the search database is a **standard, publicly available database** such as UniProt Swiss-Prot, UniProt TrEMBL, Ensembl, or NCBI RefSeq, you do **not** need to upload the FASTA file. Provide the database name and version in the data protocol description (e.g., "UniProtKB Swiss-Prot, release 2024_01").
+
+#### Case 2: Databases containing personal or sensitive data (e.g., patient SNPs, individual variant databases) — Not required
+
+If the search database was derived from **personal or sensitive data** — for example, a patient-specific variant database containing single nucleotide polymorphisms (SNPs) or individual-level genomic variants — you are **not required** to provide it. Sharing such databases may violate patient privacy or data protection regulations (e.g., GDPR).
+
+In this case:
+- Provide as much information as possible about how the database was constructed (reference genome, variant calling pipeline, population databases used) in the parameter files or metadata.
+- Do **not** upload the database file itself.
+- Note in the submission metadata that the database cannot be shared due to privacy constraints.
+
+#### Case 3: Metaproteomics and proteogenomics — Mandatory
+
+For **metaproteomics** and **proteogenomics** studies, the sequence database is essential for reproducing the analysis and interpreting the results. In these cases, uploading the FASTA file is **mandatory**:
+
+- **Metaproteomics**: The database is typically derived from a specific metagenome assembly or community-level sequencing data that is unique to the study. Without the exact database, identifications cannot be reproduced or validated.
+- **Proteogenomics**: Custom databases built from genomic or transcriptomic data (e.g., incorporating novel open reading frames, splice variants, or mutation-specific peptides) are study-specific and must be provided for reproducibility.
+
+In both cases, upload the FASTA database file(s) used for the search directly as part of your PRIDE submission.
+
+| Scenario | Database required? | Action |
+|----------|--------------------|--------|
+| Standard public database (UniProt Swiss-Prot, RefSeq, etc.) | No (reference only) | Provide exact name, version, and URL in metadata |
+| Patient-specific / personal variant database (SNPs, individual variants) | No (privacy) | Document construction method; note privacy constraint in metadata |
+| Metaproteomics (metagenome-derived database) | **Yes — Mandatory** | Upload FASTA file with submission |
+| Proteogenomics (custom genomic/transcriptomic database) | **Yes — Mandatory** | Upload FASTA file with submission |
 
 ### Supported Compression Formats
 
@@ -308,6 +347,10 @@ The following sections detail the specific file formats and requirements for eac
 
 **Note:** MS Raw Data Files and Peak Lists are common requirements for all tools and are covered in the [File Requirements](#file-requirements) table above. The tables below focus on the tool-specific ANALYSIS files that differ between analysis tools.
 
+**STANDARD file formats (mzIdentML/mzTab) — general policy:**
+- For tools where mzIdentML or mzTab is the **native output** (e.g., MS-GF+), the STANDARD format file is **mandatory** and serves as the primary analysis result.
+- For all other tools, mzIdentML and mzTab are **recommended** as added value to improve interoperability, but they **never replace the mandatory ANALYSIS files**. Always provide the native tool outputs regardless of whether STANDARD format files are also included.
+
 ### MaxQuant
 
 MaxQuant is a software suite for quantitative proteomics that supports both Data-Dependent Acquisition (DDA) and Data-Independent Acquisition (DIA) workflows.
@@ -315,7 +358,6 @@ MaxQuant is a software suite for quantitative proteomics that supports both Data
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | sdrf.tsv | **Mandatory** | METADATA | SDRF metadata file describing samples and experimental design |
-| mzTab.mzTab | **Mandatory** | ANALYSIS | mzTab output containing identification and quantification data |
 | evidence.txt | **Mandatory** | ANALYSIS | Evidence table with peptide identifications and quantifications at the PSM level |
 | peptides.txt | **Mandatory** | ANALYSIS | Peptide-level identification and quantification results |
 | proteinGroups.txt | **Mandatory** | ANALYSIS | Protein group identification and quantification results |
@@ -439,6 +481,8 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for proteomic
 
 MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein sequence databases. It supports mzML input and outputs mzIdentML format natively, making it well-suited for standardized submissions.
 
+> **Note:** MS-GF+ natively produces mzIdentML as its primary output. Because mzIdentML is the standard output of this tool, it is **mandatory** and is sufficient as the result file — no separate ANALYSIS file in a different format is required (the TSV export is only an optional alternative).
+
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | Result files (.mzid) | **Mandatory** | STANDARD | MS-GF+ search results in mzIdentML format (preferred and native output) |
@@ -483,7 +527,7 @@ Including comprehensive metadata greatly enhances the reusability of your data b
 - [ ] **STANDARD file formats** (mzIdentML/mzTab) when available
 - [ ] **Peak list files** (MGF, etc.) if applicable
 - [ ] **Parameter files** for all search engines/tools used
-- [ ] **FASTA database files** or precise references to public databases
+- [ ] **FASTA database files** — mandatory for metaproteomics/proteogenomics; for standard public databases (UniProt Swiss-Prot, RefSeq, etc.) a precise reference (name, version, URL) is sufficient; not required if the database contains personal/sensitive data (e.g., patient SNPs)
 - [ ] **Spectral libraries** if used in the analysis
 - [ ] **Complete metadata** (SDRF file)
 - [ ] **QC metrics** (if available)
