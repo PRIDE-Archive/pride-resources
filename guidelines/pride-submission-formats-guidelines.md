@@ -131,14 +131,7 @@ The requirement to provide a FASTA sequence database depends on the type of expe
 
 #### Case 1: Well-known public databases (e.g., UniProt Swiss-Prot, UniProt TrEMBL, RefSeq) — Reference only
 
-If the search database is a **standard, publicly available database** such as UniProt Swiss-Prot, UniProt TrEMBL, Ensembl, or NCBI RefSeq, you do **not** need to upload the FASTA file. Instead, provide a **precise reference** in your metadata that allows the exact database version to be retrieved:
-
-- Database name (e.g., "UniProtKB Swiss-Prot")
-- Version or release date (e.g., "release 2024_01")
-- URL or accession (e.g., `https://ftp.uniprot.org/pub/databases/uniprot/previous_releases/release-2024_01/`)
-- Any species filter applied (e.g., "Homo sapiens, reviewed entries only")
-
-This reference should be included in your SDRF metadata file and/or parameter files. Including the FASTA file itself is still encouraged for convenience but not required.
+If the search database is a **standard, publicly available database** such as UniProt Swiss-Prot, UniProt TrEMBL, Ensembl, or NCBI RefSeq, you do **not** need to upload the FASTA file. Provide the database name and version in the data protocol description (e.g., "UniProtKB Swiss-Prot, release 2024_01").
 
 #### Case 2: Databases containing personal or sensitive data (e.g., patient SNPs, individual variant databases) — Not required
 
