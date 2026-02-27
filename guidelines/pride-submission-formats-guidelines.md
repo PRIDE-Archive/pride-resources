@@ -1,6 +1,6 @@
 # PRIDE Database Submission Guidelines
 
-Document version: v2.0.0
+Document version: v2.1.0
 
 Authors:
 - Yasset Perez-Riverol (EMBL-EBI)
@@ -45,6 +45,11 @@ In this version of the guidelines, we have updated the terminology to better ref
 - **STANDARD File Formats** (previously called "RESULT files"): These are community-standard (PSI, Proteomics Standards Initiative) data formats like mzIdentML (.mzid) and mzTab (.mztab) that provide representations of identification and quantification data in open standard formats. We renamed this category to emphasize that these formats are standardized representations rather than the primary analysis outputs.
 
 This terminology change reflects our increased focus on the actual file outputs from search engines and analysis pipelines. The ANALYSIS files are the direct outputs of computational workflows— they contain the complete analysis data in the format native to each tool. STANDARD file formats, while valuable for improving interoperability, are derived representations of these results.
+
+**Important clarification on STANDARD file formats:** mzIdentML and mzTab are **not mandatory** for most submissions. They represent an **added value** when provided alongside the native ANALYSIS files, improving interoperability and enabling automated validation. There are two distinct cases:
+
+- **Tools where mzIdentML/mzTab is the native output** (e.g., MS-GF+): In these cases, the STANDARD format file is the primary result and is therefore **mandatory**. No additional ANALYSIS files are required beyond what the tool natively produces.
+- **Tools where mzIdentML/mzTab is an optional export** (e.g., MaxQuant, Mascot, Proteome Discoverer): In these cases, providing STANDARD format files is **recommended** as added value, but the native ANALYSIS files are **always required**. The STANDARD format files do not replace the ANALYSIS files.
 
 ## Overview of PRIDE Database
 
@@ -308,14 +313,19 @@ The following sections detail the specific file formats and requirements for eac
 
 **Note:** MS Raw Data Files and Peak Lists are common requirements for all tools and are covered in the [File Requirements](#file-requirements) table above. The tables below focus on the tool-specific ANALYSIS files that differ between analysis tools.
 
+**STANDARD file formats (mzIdentML/mzTab) — general policy:**
+- For tools where mzIdentML or mzTab is the **native output** (e.g., MS-GF+), the STANDARD format file is **mandatory** and serves as the primary analysis result.
+- For all other tools, mzIdentML and mzTab are **recommended** as added value to improve interoperability, but they **never replace the mandatory ANALYSIS files**. Always provide the native tool outputs regardless of whether STANDARD format files are also included.
+
 ### MaxQuant
 
 MaxQuant is a software suite for quantitative proteomics that supports both Data-Dependent Acquisition (DDA) and Data-Independent Acquisition (DIA) workflows.
 
+> **Note:** Even though MaxQuant can export an mzTab file, the native ANALYSIS files listed below (evidence.txt, peptides.txt, proteinGroups.txt, etc.) are **always required**. The mzTab export is an added-value STANDARD format and does not replace any of the mandatory ANALYSIS files.
+
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | sdrf.tsv | **Mandatory** | METADATA | SDRF metadata file describing samples and experimental design |
-| mzTab.mzTab | **Mandatory** | ANALYSIS | mzTab output containing identification and quantification data |
 | evidence.txt | **Mandatory** | ANALYSIS | Evidence table with peptide identifications and quantifications at the PSM level |
 | peptides.txt | **Mandatory** | ANALYSIS | Peptide-level identification and quantification results |
 | proteinGroups.txt | **Mandatory** | ANALYSIS | Protein group identification and quantification results |
@@ -328,6 +338,7 @@ MaxQuant is a software suite for quantitative proteomics that supports both Data
 | msmsScans.txt | Recommended | ANALYSIS | MS/MS scan information and fragment ion matches for identifications |
 | Oxidation (M)Sites.txt | Recommended | ANALYSIS | Oxidation modification site identifications |
 | modificationSpecificPeptides.txt | Recommended | ANALYSIS | Modified peptide identifications |
+| mzTab (.mztab) | Recommended | STANDARD | mzTab export of identification and quantification results. Provided as added value for interoperability; does **not** replace the mandatory ANALYSIS files above |
 | msms.txt | Optional | ANALYSIS | All MS/MS scans processed |
 | ms3Scans.txt | Optional | ANALYSIS | MS3 scan information and fragment ion matches |
 | fragment.txt | Optional | ANALYSIS | Fragment information |
@@ -438,6 +449,8 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for proteomic
 ### MS-GF+
 
 MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein sequence databases. It supports mzML input and outputs mzIdentML format natively, making it well-suited for standardized submissions.
+
+> **Note:** MS-GF+ natively produces mzIdentML as its primary output. Because mzIdentML is the standard output of this tool, it is **mandatory** and is sufficient as the result file — no separate ANALYSIS file in a different format is required (the TSV export is only an optional alternative).
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
