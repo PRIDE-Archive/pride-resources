@@ -8,6 +8,8 @@ Authors:
 - Fengchao Yu (University of Michigan)
 - Juan Antonio Vizcaino (EMBL-EBI)
 - Vadim Demichev (Charité - Universitätsmedizin Berlin)
+- Orhun Kok (Northeastern University)
+- Nikolai Slavov (Northeastern University & Parallel Squared Technology Institute)
 
 ## Table of Contents
 1. [Introduction](#introduction)
