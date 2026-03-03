@@ -9,6 +9,8 @@ Authors:
 - Juan Antonio Vizcaino (EMBL-EBI)
 - Vadim Demichev (Charité - Universitätsmedizin Berlin)
 - Jinqiu Xiao (Max Planck Institute of Biochemistry)
+- Orhun Kok (Northeastern University)
+- Nikolai Slavov (Northeastern University & Parallel Squared Technology Institute)
 
 ## Table of Contents
 1. [Introduction](#introduction)
