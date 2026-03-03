@@ -8,6 +8,7 @@ Authors:
 - Fengchao Yu (University of Michigan)
 - Juan Antonio Vizcaino (EMBL-EBI)
 - Vadim Demichev (Charité - Universitätsmedizin Berlin)
+- Jinqiu Xiao (Max Planck Institute of Biochemistry)
 - Orhun Kok (Northeastern University)
 - Nikolai Slavov (Northeastern University & Parallel Squared Technology Institute)
 
@@ -333,7 +334,7 @@ If validation fails, you will be notified with specific error messages to help y
 
 | Tool | Recommended Compression | Strategy |
 |------|-------------------------|----------|
-| MaxQuant | ZIP or TAR.GZ the entire output folder | Group all txt files and the Andromeda folder into a single archive named `maxquant_results.zip` |
+| MaxQuant | ZIP or TAR.GZ the entire output folder | Group all txt files into a single archive named `maxquant_results.zip` |
 | Mascot | ZIP multiple .dat files together | Group by experiment/project |
 | DIA-NN | ZIP all output files | Include all output files in one archive |
 | Spectronaut | ZIP all output files | Include all report files and settings in one archive |
@@ -359,24 +360,23 @@ MaxQuant is a software suite for quantitative proteomics that supports both Data
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| sdrf.tsv | **Mandatory** | METADATA | SDRF metadata file describing samples and experimental design |
 | evidence.txt | **Mandatory** | ANALYSIS | Evidence table with peptide identifications and quantifications at the PSM level |
 | peptides.txt | **Mandatory** | ANALYSIS | Peptide-level identification and quantification results |
 | proteinGroups.txt | **Mandatory** | ANALYSIS | Protein group identification and quantification results |
 | parameters.txt | **Mandatory** | OTHER | Processing parameters used in the analysis |
 | summary.txt | **Mandatory** | OTHER | Summary statistics of the MaxQuant run |
 | mqpar.xml | **Mandatory** | OTHER | MaxQuant parameter file containing all search settings |
+| sdrf.tsv | Recommended | METADATA | SDRF metadata file describing samples and experimental design (exported by default since MaxQuant 2.7.0) |
+| mzTab.mzTab | Recommended | STANDARD | mzTab output containing identification and quantification data |
 | allPeptides.txt | Recommended | ANALYSIS | All peptide-like features detected in the data |
-| matchedFeatures.txt | Recommended | ANALYSIS | Matched peptide-like features between runs |
 | msScans.txt | Recommended | ANALYSIS | MS scan information |
 | msmsScans.txt | Recommended | ANALYSIS | MS/MS scan information and fragment ion matches for identifications |
 | Oxidation (M)Sites.txt | Recommended | ANALYSIS | Oxidation modification site identifications |
 | modificationSpecificPeptides.txt | Recommended | ANALYSIS | Modified peptide identifications |
 | msms.txt | Optional | ANALYSIS | All MS/MS scans processed |
 | ms3Scans.txt | Optional | ANALYSIS | MS3 scan information and fragment ion matches |
-| fragment.txt | Optional | ANALYSIS | Fragment information |
-| fragmentQuant.txt | Optional | ANALYSIS | Fragment quantification data |
-| mzRange.txt | Optional | ANALYSIS | Isotope patterns in the data |
+| mzRange.txt | Optional | ANALYSIS | Information per m/z range |
+| matchedFeatures.txt | Optional | ANALYSIS | Matched peptide-like features across samples by "Match between runs" |
 | dependentPeptides.txt | Optional | ANALYSIS | Dependent peptide analysis results |
 
 
