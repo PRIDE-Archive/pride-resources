@@ -8,6 +8,7 @@ Authors:
 - Fengchao Yu (University of Michigan)
 - Juan Antonio Vizcaino (EMBL-EBI)
 - Vadim Demichev (Charité - Universitätsmedizin Berlin)
+- Timo Sachsenberg (University of Tübingen)
 - Jinqiu Xiao (Max Planck Institute of Biochemistry)
 - Orhun Kok (Northeastern University)
 - Nikolai Slavov (Northeastern University & Parallel Squared Technology Institute)
