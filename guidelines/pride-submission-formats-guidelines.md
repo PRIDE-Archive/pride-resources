@@ -346,7 +346,7 @@ Spectronaut is a commercial software platform for Data-Independent Acquisition (
 | Main report (.tsv, .csv, or .xls) | **Mandatory** | ANALYSIS | Primary Spectronaut report containing peptide/protein identifications and quantifications |
 | Spectral library (.kit or .tsv) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for analysis. Required if library-based search was performed |
 | Analysis settings/parameters | **Mandatory** | OTHER | Spectronaut analysis settings file or exported parameters documenting the search configuration |
-| Saved experiment (.sne) | Recommended | ANALYSIS | The full saved experiment file that can be loaded into the free Spectronuat Viewer version |
+| Saved experiment (.sne) | Recommended | ANALYSIS | The full saved experiment file that can be loaded into the free Spectronaut Viewer version |
 | Search Archive (.psar) | Recommended | ANALYSIS | Search archives generated during library generation or directDIA (if available) |
 | Protein group report | Recommended | ANALYSIS | Protein group-level quantification report |
 | Peptide report | Recommended | ANALYSIS | Peptide-level quantification report |
