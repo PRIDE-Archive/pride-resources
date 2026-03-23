@@ -12,6 +12,7 @@ Authors:
 - Jinqiu Xiao (Max Planck Institute of Biochemistry)
 - Orhun Kok (Northeastern University)
 - Nikolai Slavov (Northeastern University & Parallel Squared Technology Institute)
+- Oliver M. Bernhardt (Biognosys AG, Switzerland)
 
 ## Table of Contents
 1. [Introduction](#introduction)
