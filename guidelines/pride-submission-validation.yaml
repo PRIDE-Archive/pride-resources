@@ -1,3 +1,56 @@
+# ==============================================================================
+# PRIDE Submission Validation Rules
+# ==============================================================================
+#
+# This file is the machine-readable source of truth for PRIDE submission
+# validation. It defines which files are required, recommended, or optional
+# for each supported analysis tool, along with compression rules, raw format
+# specifications, and cross-file validation checks.
+#
+# Consumers:
+#   - PRIDE Submission Tool (Java) — validates submissions at upload time
+#   - Python validator scripts — standalone CLI validation of dataset folders
+#   - Documentation generators — auto-generate markdown/HTML guidelines
+#
+# Structure:
+#   version          — Schema version (semver)
+#   file_categories  — Valid category values for file entries
+#   compression      — Global compression rules (supported/rejected formats)
+#   limits           — Hard upper bounds (e.g., max file size)
+#   raw_formats      — Accepted raw data formats by vendor/instrument
+#   condition_flags  — Flags a submission declares to activate conditional rules
+#   common_files     — Shared file definitions reused across tool profiles
+#   tools            — Self-contained validation profiles, one per analysis tool
+#
+# File entry fields:
+#   name        — File name or logical identifier
+#   status      — mandatory | recommended | optional
+#   category    — One of the file_categories values
+#   extensions  — Accepted file extensions
+#   description — Human-readable description
+#   columns     — (optional) Expected column names for tabular files
+#   conditional — (optional) true if this file is only required when a
+#                 condition_flag is active
+#   condition_flag — (optional) Which flag activates this requirement
+#
+# Cross-file rule types:
+#   reference_check        — Files in one category must appear in a target file
+#   column_reference_check — Column values must match submitted filenames
+#   file_count             — Min/max number of files in a category
+#   archive_content        — Required contents inside compressed archives
+#
+# YAML anchors (&name / *name):
+#   This file uses YAML anchors to avoid repeating identical file definitions.
+#   An anchor is defined with & (e.g., &common_raw_files) and referenced with
+#   * (e.g., *common_raw_files). The referenced block is inserted as-is.
+#   All anchors are defined in the common_files section. When a tool needs
+#   different values (e.g., MaxQuant requires SDRF as mandatory), the entry
+#   is written inline instead of using the anchor.
+#   YAML anchors are standard YAML 1.2 and supported by all major parsers
+#   (Java SnakeYAML, Python PyYAML/ruamel, JavaScript js-yaml).
+#
+# ==============================================================================
+
 version: "1.0.0"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
