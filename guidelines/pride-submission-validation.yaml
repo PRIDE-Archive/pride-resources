@@ -1,0 +1,74 @@
+version: "1.0.0"
+description: "PRIDE submission validation rules — machine-readable source of truth"
+
+compression:
+  supported_formats: [zip, gz, tar.gz]
+  rejected_formats: [rar]
+  max_archive_size_gb: 50
+
+raw_formats:
+  - id: thermo_raw
+    extensions: [.raw]
+    vendor: "Thermo Fisher Scientific"
+    compression_required: false
+    one_run_per_archive: true
+    directory_based: false
+
+  - id: bruker_d
+    extensions: [.d, .baf, .tdf, .fid]
+    vendor: "Bruker"
+    compression_required: true
+    one_run_per_archive: false
+    directory_based: true
+
+  - id: sciex_wiff
+    extensions: [.wiff, .wiff2, .scan]
+    vendor: "SCIEX"
+    compression_required: false
+    one_run_per_archive: true
+    directory_based: false
+
+  - id: agilent_d
+    extensions: [.d]
+    vendor: "Agilent"
+    compression_required: true
+    one_run_per_archive: false
+    directory_based: true
+
+  - id: waters_raw
+    extensions: [.raw]
+    vendor: "Waters"
+    compression_required: false
+    one_run_per_archive: true
+    directory_based: false
+
+  - id: mzml
+    extensions: [.mzML, .mzXML]
+    vendor: "PSI Standard"
+    compression_required: false
+    one_run_per_archive: true
+    directory_based: false
+
+condition_flags:
+  - id: library_search
+    description: "Spectral library was used in the analysis"
+  - id: dia_workflow
+    description: "Data-Independent Acquisition workflow"
+  - id: custom_modifications
+    description: "Custom modifications were used"
+  - id: quantification_performed
+    description: "Quantification analysis was performed"
+  - id: ms3_acquired
+    description: "MS3 spectra were acquired"
+
+file_categories:
+  - ANALYSIS
+  - RAW
+  - PEAK
+  - STANDARD
+  - SPECTRAL_LIBRARY
+  - FASTA
+  - METADATA
+  - OTHER
+
+tools: []
