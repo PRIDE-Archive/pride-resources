@@ -578,3 +578,475 @@ tools:
         source_column: "Spectrum File"
         target_category: RAW
         description: "Spectrum File column in psm.tsv must match submitted raw filenames"
+
+  - id: skyline
+    name: "Skyline"
+    description: "Open-source application for targeted proteomics (SRM/MRM/PRM/DIA)"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: skyline_document
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.sky]
+        description: "Skyline document with method, target definitions, and analysis results"
+
+      - name: skyline_data
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.skyd]
+        description: "Skyline data file with extracted chromatographic data"
+
+      - name: exported_reports
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.csv, .tsv]
+        description: "Exported quantification reports"
+
+      - name: spectral_library
+        status: recommended
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib]
+        description: "Spectral library used for method development"
+
+      - name: acquisition_method
+        status: recommended
+        category: OTHER
+        extensions: [.method]
+        description: "Instrument acquisition method file"
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML, .dta, .pkl]
+        description: "Processed peak lists extracted from raw data"
+
+    compression:
+      analysis_grouping: no_compression
+      recommended_name: null
+      strategy: "Skyline .sky and .skyd files are already in compressed format — do not compress"
+
+    cross_file_rules:
+      - id: sky_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: sky_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+  - id: openms
+    name: "OpenMS"
+    description: "Open-source C++ library with Python bindings for LC/MS data analysis"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: idxml_results
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.idxml]
+        description: "OpenMS identification results in idXML format"
+
+      - name: quantification_results
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.consensusXML, .featureXML]
+        description: "Quantification results from OpenMS"
+        conditional: true
+        condition_flag: quantification_performed
+
+      - name: workflow_description
+        status: mandatory
+        category: OTHER
+        extensions: [.toppas, .knwf, .py]
+        description: "TOPP workflow, KNIME workflow, or pyOpenMS script"
+
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Standard format export of identification results"
+
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mztab]
+        description: "Standard format export of identification and quantification results"
+
+      - name: topp_parameter_files
+        status: recommended
+        category: OTHER
+        extensions: [.ini, .xml]
+        description: "Parameter files for individual TOPP tools used in the workflow"
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML, .dta, .pkl]
+        description: "Processed peak lists extracted from raw data"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "openms_results.zip"
+      strategy: "ZIP all OpenMS output XML files together"
+
+    cross_file_rules:
+      - id: oms_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: oms_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+  - id: mascot
+    name: "Mascot"
+    description: "Search engine for protein identification by matching MS data to peptide sequence databases"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: dat_files
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.dat]
+        description: "Mascot search result files in DAT format"
+
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Results exported in mzIdentML standard format (strongly recommended)"
+
+      - name: parameter_file
+        status: mandatory
+        category: OTHER
+        extensions: [.xml]
+        description: "Mascot search parameter file"
+
+      - name: mgf_files
+        status: recommended
+        category: PEAK
+        extensions: [.mgf]
+        description: "MGF peak list files used for the Mascot search"
+
+      - name: custom_modifications
+        status: recommended
+        category: OTHER
+        extensions: [.txt, .xml]
+        description: "List of custom modifications used"
+        conditional: true
+        condition_flag: custom_modifications
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "mascot_results.zip"
+      strategy: "ZIP multiple .dat files grouped by experiment/project"
+
+    cross_file_rules:
+      - id: mascot_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: mascot_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+  - id: proteome_discoverer
+    name: "Proteome Discoverer"
+    description: "Thermo Scientific flexible software suite for proteomics research"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: pdresult_file
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.pdresult]
+        description: "Proteome Discoverer result file containing all analysis data"
+
+      - name: psms_export
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Exported PSM (Peptide Spectrum Match) results"
+
+      - name: peptides_export
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Exported peptide-level identification and quantification results"
+
+      - name: proteins_export
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Exported protein-level identification and quantification results"
+
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Standard format export of identification results (strongly recommended)"
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML, .dta, .pkl]
+        description: "Processed peak lists extracted from raw data"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "proteome_discoverer_results.zip"
+      strategy: "ZIP all Proteome Discoverer output files together"
+
+    cross_file_rules:
+      - id: pd_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: pd_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+  - id: msgfplus
+    name: "MS-GF+"
+    description: "Peptide identification tool matching MS/MS spectra to protein sequence databases"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: mzid_results
+        status: mandatory
+        category: STANDARD
+        extensions: [.mzid]
+        description: "MS-GF+ search results in mzIdentML format (native output)"
+
+      - name: tsv_results
+        status: optional
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "MS-GF+ search results in TSV format (alternative to mzIdentML)"
+
+      - name: parameter_file
+        status: recommended
+        category: OTHER
+        extensions: [.txt, .params]
+        description: "MS-GF+ search parameter file"
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML]
+        description: "Peak list files used for the search"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "msgfplus_results.zip"
+      strategy: "ZIP all MS-GF+ output files together"
+
+    cross_file_rules:
+      - id: msgf_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: msgf_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+  - id: generic
+    name: "Other Tools"
+    description: "Generic profile for tools not explicitly listed — requires RAW data, FASTA, and at least one ANALYSIS file"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: analysis_files
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid, .mztab]
+        description: "Search results in native format from the analysis tool"
+
+      - name: standard_format
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid, .mztab]
+        description: "Results converted to community standard formats when possible"
+
+      - name: parameter_files
+        status: recommended
+        category: OTHER
+        extensions: [.txt, .xml, .params, .cfg, .json]
+        description: "Parameter files or detailed documentation of settings"
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML, .dta, .pkl]
+        description: "Processed peak lists used for searching"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib, .sptxt, .tsv]
+        description: "Spectral library used for library-based search"
+        conditional: true
+        condition_flag: library_search
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "analysis_results.zip"
+      strategy: "ZIP or TAR.GZ all analysis output files from a single analysis into one archive"
+
+    cross_file_rules:
+      - id: gen_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: gen_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+      - id: gen_analysis_file_count
+        rule_type: file_count
+        category: ANALYSIS
+        min: 1
+        description: "At least one ANALYSIS file must be submitted"
+
+      - id: gen_d_folder_bruker
+        rule_type: archive_content
+        applies_to_extensions: [.d.zip, .d.tar.gz]
+        required_contents:
+          - pattern: "*/analysis.tdf"
+            vendor: bruker_tdf
+        description: "Bruker .d folders must contain analysis.tdf"
+
+      - id: gen_d_folder_agilent
+        rule_type: archive_content
+        applies_to_extensions: [.d.zip, .d.tar.gz]
+        required_contents:
+          - pattern: "*/AcqData/*"
+            vendor: agilent
+        description: "Agilent .d folders must contain AcqData directory"
