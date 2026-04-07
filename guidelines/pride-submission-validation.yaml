@@ -120,11 +120,13 @@ raw_formats:
 
   - id: mzml
     category: RAW
-    extensions: [.mzML, .mzXML]
-    vendor: "PSI Standard"
+    extensions: [.mzML]
+    standard: "PSI"
+    format_type: open_standard
     compression_required: false
     one_run_per_archive: true
     directory_based: false
+    notes: "Open XML-based format — accepted as an alternative to vendor raw files, not a vendor format"
 
 condition_flags:
   - id: library_search
@@ -135,8 +137,8 @@ common_files:
     name: raw_files
     status: mandatory
     category: RAW
-    extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .wiff.scan, .d]
-    description: "Original unprocessed data from the mass spectrometer"
+    extensions: [.raw, .mzML, .wiff, .wiff2, .wiff.scan, .d]
+    description: "Raw data files from the mass spectrometer (vendor formats or mzML)"
 
   fasta_database: &common_fasta_database
     name: fasta_database
@@ -156,7 +158,7 @@ common_files:
     name: peak_lists
     status: recommended
     category: PEAK
-    extensions: [.mgf, .mzML, .mzXML, .dta, .pkl]
+    extensions: [.mgf, .mzML, .dta, .pkl]
     description: "Processed peak lists extracted from raw data"
 
 tools:
@@ -904,7 +906,7 @@ tools:
       - name: peak_lists
         status: recommended
         category: PEAK
-        extensions: [.mzML, .mzXML, .mgf]
+        extensions: [.mzML, .mgf]
         description: "Peak list files used for the search (MS-GF+ primarily accepts mzML input)"
 
     compression:

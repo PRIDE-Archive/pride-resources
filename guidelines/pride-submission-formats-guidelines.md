@@ -105,9 +105,9 @@ Before reviewing the file requirements, here are definitions of common file form
 
 | File Category | File Type/Format | Status | Notes |
 |--------------|------------------|--------|-------|
-| **Raw Data Files** | Raw instrument files (.raw, .mzML, .mzXML, .wiff, .baf, .tdf, .d folders) | **Mandatory** | Original unprocessed data from the mass spectrometer |
+| **Raw Data Files** | Raw instrument files (.raw, .mzML, .wiff, .baf, .tdf, .d folders) | **Mandatory** | Original unprocessed data from the mass spectrometer (vendor formats or mzML) |
 | **ANALYSIS Files** | Search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) | **Mandatory** | Native output from analysis tools (MaxQuant, DIA-NN, FragPipe, Spectronaut, etc.). Can be provided as individual files or grouped in a ZIP or TAR.GZ archive |
-| **Peak List Files** | Peak list files (.mgf, .mzML, .mzXML, .dta, .pkl, etc.) | Recommended | Processed peak lists extracted from raw data |
+| **Peak List Files** | Peak list files (.mgf, .mzML, .dta, .pkl, etc.) | Recommended | Processed peak lists extracted from raw data |
 | **STANDARD File Formats** | mzIdentML (.mzid) or mzTab (.mztab) | Recommended | Community-standard formats for identification and quantification results. Including these improves interoperability and enables automated validation |
 | **FASTA Database** | Protein sequence database (.fasta, .fa) | **Mandatory** | Database used for search (or clear reference to a public database version) |
 | **Spectral Libraries** | Spectral library files (.blib, .sptxt, .tsv, etc.) | Recommended (if applicable) | Required if used in the analysis workflow (e.g., library-based DIA searches) |
@@ -150,7 +150,7 @@ Proper file compression is essential for efficient data storage and transmission
 
 **Critical: One run per compressed file (for .d folders, one folder per compressed file)**
 
-When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression:
+When compressing RAW files (e.g., .raw, .mzML, .wiff files) using ZIP or GZ compression:
 - **Only one MS run should be included per compressed archive**
 - **Do NOT compress multiple runs together** into a single ZIP or GZ file
 
@@ -225,7 +225,7 @@ RAW files store the raw, unprocessed mass spectrometry data, including:
 ### Why RAW Files Are Important
 
 - They are the starting point for downstream data analysis, such as peptide/protein identification and quantification.
-- Tools like ThermoRawFileParser and MSConvert (from ProteoWizard) can read these files directly or convert them into open formats like mzML or mzXML for interoperability with a wider range of software tools.
+- Tools like ThermoRawFileParser and MSConvert (from ProteoWizard) can read these files directly or convert them into the open mzML format for interoperability with a wider range of software tools.
 
 Raw data files contain the unprocessed data directly from the mass spectrometer. PRIDE accepts the following formats by instrument/vendor:
 
@@ -237,13 +237,12 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 | Agilent D | .d folder | Agilent | Format for Agilent instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives |
 | Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually |
 | mzML | .mzML | PSI Standard | Open XML-based standard format |
-| mzXML | .mzXML | ISB/SPC | Legacy open format for MS data |
 
 **Important Notes for Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
 - PRIDE accepts both uncompressed and compressed raw files
 - **Only ZIP (.zip), GZ (.gz), and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
-- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP, GZ, or TAR.GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
+- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .wiff files) using ZIP, GZ, or TAR.GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
   - Each msrun in the SDRF (Sample to Data Relationship Format) can be properly linked to its specific raw file, even when compressed
   - Download statistics and links to other omics files can be tracked accurately on a per-run basis
   - File-level metadata and associations remain intact
@@ -492,13 +491,13 @@ Proper file compression is essential for efficient data storage and transmission
 | Bruker .d folders | ZIP or TAR.GZ the entire folder | Include all subfolders and files |
 | Waters RAW | ZIP or TAR.GZ if directory-based; otherwise uncompressed | Compress directory-based .raw folders; single .raw files may remain uncompressed |
 | SCIEX WIFF | No compression (maintain as .wiff/.wiff2) | These are already efficiently stored |
-| mzML/mzXML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
+| mzML | GZ compression (one file per archive) | `gzip large_file.mzML` to create `large_file.mzML.gz`. **Important:** Only compress one run per file—do not compress multiple runs together |
 
 **Important Notes for Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
 - PRIDE accepts both uncompressed and compressed raw files
 - **Only ZIP (.zip), GZ (.gz), and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
-- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP, GZ, or TAR.GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
+- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .wiff files) using ZIP, GZ, or TAR.GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
   - Each msrun in the SDRF (Sample to Data Relationship Format) can be properly linked to its specific raw file, even when compressed
   - Download statistics and links to other omics files can be tracked accurately on a per-run basis
   - File-level metadata and associations remain intact
