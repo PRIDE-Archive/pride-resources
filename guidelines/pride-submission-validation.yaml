@@ -76,14 +76,6 @@ raw_formats:
 condition_flags:
   - id: library_search
     description: "Spectral library was used in the analysis"
-  - id: dia_workflow
-    description: "Data-Independent Acquisition workflow"
-  - id: custom_modifications
-    description: "Custom modifications were used"
-  - id: quantification_performed
-    description: "Quantification analysis was performed"
-  - id: ms3_acquired
-    description: "MS3 spectra were acquired"
 
 common_files:
   raw_files: &common_raw_files
@@ -212,8 +204,6 @@ tools:
         category: ANALYSIS
         extensions: [.txt]
         description: "MS3 scan information and fragment ion matches"
-        conditional: true
-        condition_flag: ms3_acquired
 
       - name: fragment.txt
         status: optional
@@ -656,12 +646,10 @@ tools:
         description: "OpenMS identification results in idXML format"
 
       - name: quantification_results
-        status: mandatory
+        status: recommended
         category: ANALYSIS
         extensions: [.consensusXML, .featureXML]
-        description: "Quantification results from OpenMS"
-        conditional: true
-        condition_flag: quantification_performed
+        description: "Quantification results from OpenMS (if quantification was performed)"
 
       - name: workflow_description
         status: mandatory
@@ -746,9 +734,7 @@ tools:
         status: recommended
         category: OTHER
         extensions: [.txt, .xml]
-        description: "List of custom modifications used"
-        conditional: true
-        condition_flag: custom_modifications
+        description: "List of custom modifications used (if applicable)"
 
     compression:
       analysis_grouping: single_archive
