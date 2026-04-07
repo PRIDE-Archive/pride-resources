@@ -125,6 +125,7 @@ Proper file compression is essential for efficient data storage and transmission
 
 2. **Size Considerations**:
    - Try to keep individual compressed files under 50GB for easier upload
+   - Individual RAW data files (single run, whether uncompressed or as a single-run archive) must be **≤ 1000GB (1TB)**
    - For very large datasets, split logically by experiment/fraction
 
 3. **Documentation**: 
@@ -232,7 +233,7 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 |--------|-----------|---------------|-------------|
 | Thermo RAW | .raw | Thermo Fisher Scientific | Binary format for Thermo instruments |
 | Bruker BAF/TDF | .baf, .tdf, .d folder, .fid | Bruker | Format for Bruker instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
-| SCIEX WIFF | .wiff, .wiff2, .scan | SCIEX | Format for SCIEX instruments |
+| SCIEX WIFF | .wiff, .wiff2, .wiff.scan | SCIEX | Format for SCIEX instruments |
 | Agilent D | .d folder | Agilent | Format for Agilent instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives |
 | Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually |
 | mzML | .mzml | PSI Standard | Open XML-based standard format |
@@ -240,8 +241,8 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 **Important Notes for Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
 - PRIDE accepts both uncompressed and compressed raw files
-- **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
-- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
+- **Only ZIP (.zip), GZ (.gz), and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
+- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP, GZ, or TAR.GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
   - Each msrun in the SDRF (Sample to Data Relationship Format) can be properly linked to its specific raw file, even when compressed
   - Download statistics and links to other omics files can be tracked accurately on a per-run basis
   - File-level metadata and associations remain intact
@@ -283,7 +284,7 @@ If validation fails, you will be notified with specific error messages to help y
 | Mascot | ZIP multiple .dat files together | Group by experiment/project |
 | DIA-NN | ZIP all output files | Include report.parquet/report.tsv and log files in one archive |
 | Spectronaut | ZIP all output files | Include all report files and settings in one archive |
-| Skyline | No compression for .sky/.skyd | These are already in a compressed format |
+| Skyline | Use File > Share to produce .sky.zip | .sky is XML, .skyd is binary cache — use Skyline's Share Document feature |
 | FragPipe | ZIP output .tsv and .csv files | Group by experiment/search |
 | TPP | ZIP all output XML files | Combine pepXML, protXML, and other outputs |
 | General ANALYSIS Files | ZIP or TAR.GZ all ANALYSIS files together | Group all search engine output files (.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, etc.) from a single analysis into one archive |
@@ -302,7 +303,7 @@ MaxQuant is a software suite for quantitative proteomics that supports both Data
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | sdrf.tsv | **Mandatory** | METADATA | SDRF metadata file describing samples and experimental design |
-| mzTab.mzTab | **Mandatory** | ANALYSIS | mzTab output containing identification and quantification data |
+| mzTab.mzTab | Recommended | ANALYSIS | mzTab output containing identification and quantification data (must be enabled in MaxQuant settings) |
 | evidence.txt | **Mandatory** | ANALYSIS | Evidence table with peptide identifications and quantifications at the PSM level |
 | peptides.txt | **Mandatory** | ANALYSIS | Peptide-level identification and quantification results |
 | proteinGroups.txt | **Mandatory** | ANALYSIS | Protein group identification and quantification results |
@@ -310,7 +311,6 @@ MaxQuant is a software suite for quantitative proteomics that supports both Data
 | summary.txt | **Mandatory** | OTHER | Summary statistics of the MaxQuant run |
 | mqpar.xml | **Mandatory** | OTHER | MaxQuant parameter file containing all search settings |
 | allPeptides.txt | Recommended | ANALYSIS | All peptide-like features detected in the data |
-| matchedFeatures.txt | Recommended | ANALYSIS | Matched peptide-like features between runs |
 | msScans.txt | Recommended | ANALYSIS | MS scan information |
 | msmsScans.txt | Recommended | ANALYSIS | MS/MS scan information and fragment ion matches for identifications |
 | Oxidation (M)Sites.txt | Recommended | ANALYSIS | Oxidation modification site identifications |
@@ -330,11 +330,13 @@ DIA-NN is an advanced software for Data-Independent Acquisition (DIA) proteomics
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
 | report.parquet (or report.tsv) | **Mandatory** | ANALYSIS | Main DIA-NN report file containing all identifications and quantifications |
-| Spectral library (.blib, .sptxt, .tsv, etc.) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for library-based search. Required if library search was performed |
+| Spectral library (.speclib, .blib, .sptxt, .tsv, etc.) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for library-based search. Required if library search was performed |
 | Log file (.log.txt) | **Mandatory** | OTHER | DIA-NN analysis log file documenting the processing steps |
 | Parameter configuration file | Recommended | OTHER | DIA-NN configuration file with search parameters |
 | pr_matrix.tsv | Recommended | ANALYSIS | Precursor-level quantification matrix |
 | pg_matrix.tsv | Recommended | ANALYSIS | Protein group-level quantification matrix |
+| gg_matrix.tsv | Recommended | ANALYSIS | Gene group-level quantification matrix |
+| stats.tsv | Recommended | ANALYSIS | Per-run statistics from DIA-NN analysis |
 
 
 ### Spectronaut
@@ -343,9 +345,9 @@ Spectronaut is a commercial software platform for Data-Independent Acquisition (
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| Main report (.tsv, .csv, or .xls) | **Mandatory** | ANALYSIS | Primary Spectronaut report containing peptide/protein identifications and quantifications |
-| Spectral library (.kit or .tsv) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for analysis. Required if library-based search was performed |
-| Analysis settings/parameters | **Mandatory** | OTHER | Spectronaut analysis settings file or exported parameters documenting the search configuration |
+| Main report (.tsv, .csv, or .xlsx) | **Mandatory** | ANALYSIS | Primary Spectronaut report containing peptide/protein identifications and quantifications |
+| Spectral library (.kit, .speclib, .tsv, or .csv) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for analysis. Required if library-based search was performed |
+| Analysis settings/parameters | **Mandatory** | OTHER | Spectronaut analysis settings file exported as JSON |
 | Protein group report | Recommended | ANALYSIS | Protein group-level quantification report |
 | Peptide report | Recommended | ANALYSIS | Peptide-level quantification report |
 | Fragment report | Optional | ANALYSIS | Fragment-level quantification data |
@@ -362,6 +364,7 @@ FragPipe is a versatile platform for MS proteomics analysis, offering both a gra
 | Protein inference results (protein.tsv) | **Mandatory** | ANALYSIS | Protein-level identification and inference results |
 | FragPipe parameter files (fragpipe.workflow) | **Mandatory** | OTHER | FragPipe configuration and parameter files |
 | FragPipe manifest files (fragpipe-files.fp-manifest) | **Mandatory** | OTHER | FragPipe manifest files |
+| pepXML files (.pep.xml) | Recommended | ANALYSIS | Peptide identification results in pepXML format (from MSFragger/PeptideProphet) |
 | combined_ion.tsv | Recommended | ANALYSIS | Combined ion-level results across experiments |
 | combined_modified_peptide.tsv | Recommended | ANALYSIS | Combined peptidoform-level results across experiments |
 | combined_peptide.tsv | Recommended | ANALYSIS | Combined peptide-level results across experiments |
@@ -377,8 +380,9 @@ Skyline is a free, open-source Windows application designed for creating and ana
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| Skyline document (.sky) | **Mandatory** | ANALYSIS | Skyline document containing method, target definitions, and analysis results |
-| Skyline data file (.skyd) | **Mandatory** | ANALYSIS | Skyline data file with extracted chromatographic data |
+| Skyline shared document (.sky.zip) | **Recommended** | ANALYSIS | Skyline shared document archive (File > Share) — preferred format for submission |
+| Skyline document (.sky) | **Mandatory** | ANALYSIS | Skyline document in XML format containing method, target definitions, and analysis results |
+| Skyline data file (.skyd) | **Mandatory** | ANALYSIS | Skyline binary cache file with extracted chromatographic data |
 | Exported reports (.csv or .tsv) | **Mandatory** | ANALYSIS | Exported quantification reports in CSV or TSV format |
 | Spectral library (.blib) | Recommended | SPECTRAL_LIBRARY | Spectral library used for method development |
 | Acquisition method (.method) | Recommended | OTHER | Instrument acquisition method file (if relevant) |
@@ -414,10 +418,10 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for proteomic
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| Proteome Discoverer result file (.pdresult) | **Mandatory** | ANALYSIS | Proteome Discoverer result file containing all analysis data |
-| PSMs export (.txt) | **Mandatory** | ANALYSIS | Exported PSM (Peptide Spectrum Match) results |
-| Peptides export (.txt) | **Mandatory** | ANALYSIS | Exported peptide-level identification and quantification results |
-| Proteins export (.txt) | **Mandatory** | ANALYSIS | Exported protein-level identification and quantification results |
+| Proteome Discoverer result file (.pdresult, .msf) | **Mandatory** | ANALYSIS | Proteome Discoverer result file containing all analysis data (PD 2.x+ uses .pdresult, PD 1.x uses .msf) |
+| PSMs export (.txt, .xlsx) | **Mandatory** | ANALYSIS | Exported PSM (Peptide Spectrum Match) results |
+| Peptides export (.txt, .xlsx) | **Mandatory** | ANALYSIS | Exported peptide-level identification and quantification results |
+| Proteins export (.txt, .xlsx) | **Mandatory** | ANALYSIS | Exported protein-level identification and quantification results |
 | mzIdentML export (.mzid) | Recommended | STANDARD | Standard format export of identification results (strongly recommended) |
 
 ### MS-GF+
@@ -476,7 +480,7 @@ Including comprehensive metadata greatly enhances the reusability of your data b
 
 ## File Compression Strategies
 
-Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. **Important: PRIDE only accepts ZIP (.zip) and TAR.GZ (.tar.gz) compression formats. RAR (.rar) format is not supported.** Below are recommended compression strategies for different file types:
+Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE. **Important: PRIDE only accepts ZIP (.zip), GZ (.gz), and TAR.GZ (.tar.gz) compression formats. RAR (.rar) format is not supported.** Below are recommended compression strategies for different file types:
 
 ### Raw Data Files
 
@@ -492,8 +496,8 @@ Proper file compression is essential for efficient data storage and transmission
 **Important Notes for Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
 - PRIDE accepts both uncompressed and compressed raw files
-- **Only ZIP (.zip) and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
-- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP or GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
+- **Only ZIP (.zip), GZ (.gz), and TAR.GZ (.tar.gz) compression formats are supported. RAR (.rar) format is not accepted.**
+- **Critical: One run per compressed file** - When compressing RAW files (e.g., .raw, .mzML, .mzXML, .wiff files) using ZIP, GZ, or TAR.GZ compression, **only one run should be included per compressed archive**. Do not compress multiple runs together into a single ZIP or GZ file. This requirement ensures that:
   - Each msrun in the SDRF (Sample to Data Relationship Format) can be properly linked to its specific raw file, even when compressed
   - Download statistics and links to other omics files can be tracked accurately on a per-run basis
   - File-level metadata and associations remain intact
