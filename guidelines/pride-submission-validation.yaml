@@ -82,7 +82,7 @@ common_files:
     name: raw_files
     status: mandatory
     category: RAW
-    extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+    extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .wiff.scan, .d]
     description: "Original unprocessed data from the mass spectrometer"
 
   fasta_database: &common_fasta_database
@@ -116,7 +116,11 @@ tools:
 
       - *common_fasta_database
 
-      - *common_sdrf
+      - name: sdrf.tsv
+        status: mandatory
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
 
       - name: evidence.txt
         status: mandatory
@@ -576,19 +580,19 @@ tools:
         status: recommended
         category: ANALYSIS
         extensions: [.sky.zip]
-        description: "Skyline shared document archive (File > Share) — preferred submission format containing .sky, .skyd, libraries, and FASTA"
+        description: "Skyline shared document archive (File > Share) — preferred format, contains .sky, .skyd, libraries, and FASTA in one archive"
 
       - name: skyline_document
         status: mandatory
         category: ANALYSIS
         extensions: [.sky]
-        description: "Skyline document with method, target definitions, and analysis results (XML format)"
+        description: "Skyline document (XML) — required if not submitting .sky.zip"
 
       - name: skyline_data
         status: mandatory
         category: ANALYSIS
         extensions: [.skyd]
-        description: "Skyline data file with extracted chromatographic data (binary cache)"
+        description: "Skyline data file (binary cache) — required if not submitting .sky.zip"
 
       - name: exported_reports
         status: mandatory
@@ -613,7 +617,7 @@ tools:
     compression:
       analysis_grouping: single_archive
       recommended_name: "skyline_document.sky.zip"
-      strategy: "Use Skyline File > Share Document to produce a .sky.zip archive. Do not separately compress individual .sky and .skyd files."
+      strategy: "Preferred: use Skyline File > Share Document to produce a .sky.zip archive. Alternative: submit .sky and .skyd files individually."
 
     cross_file_rules:
       - id: sky_raw_file_count
@@ -646,10 +650,10 @@ tools:
         description: "OpenMS identification results in idXML format"
 
       - name: quantification_results
-        status: recommended
+        status: mandatory
         category: ANALYSIS
         extensions: [.consensusXML, .featureXML]
-        description: "Quantification results from OpenMS (if quantification was performed)"
+        description: "Quantification results from OpenMS (mandatory if quantification was performed)"
 
       - name: workflow_description
         status: mandatory
@@ -666,7 +670,7 @@ tools:
       - name: mztab_export
         status: recommended
         category: STANDARD
-        extensions: [.mztab]
+        extensions: [.mzTab]
         description: "Standard format export of identification and quantification results"
 
       - name: topp_parameter_files
@@ -882,13 +886,13 @@ tools:
       - name: analysis_files
         status: mandatory
         category: ANALYSIS
-        extensions: [.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid, .mztab]
+        extensions: [.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid, .mzTab]
         description: "Search results in native format from the analysis tool"
 
       - name: standard_format
         status: recommended
         category: STANDARD
-        extensions: [.mzid, .mztab]
+        extensions: [.mzid, .mzTab]
         description: "Results converted to community standard formats when possible"
 
       - name: parameter_files
@@ -936,7 +940,7 @@ tools:
         applies_to_extensions: [.d.zip, .d.tar.gz]
         required_contents:
           - pattern: "*/analysis.tdf"
-            vendor: bruker_tdf
+            vendor: bruker_d
         description: "Bruker .d folders must contain analysis.tdf"
 
       - id: gen_d_folder_agilent
@@ -944,5 +948,5 @@ tools:
         applies_to_extensions: [.d.zip, .d.tar.gz]
         required_contents:
           - pattern: "*/AcqData/*"
-            vendor: agilent
+            vendor: agilent_d
         description: "Agilent .d folders must contain AcqData directory"

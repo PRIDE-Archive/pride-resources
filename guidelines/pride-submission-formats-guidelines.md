@@ -236,7 +236,8 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 | SCIEX WIFF | .wiff, .wiff2, .wiff.scan | SCIEX | Format for SCIEX instruments |
 | Agilent D | .d folder | Agilent | Format for Agilent instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives |
 | Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually |
-| mzML | .mzml | PSI Standard | Open XML-based standard format |
+| mzML | .mzML | PSI Standard | Open XML-based standard format |
+| mzXML | .mzXML | ISB/SPC | Legacy open format for MS data |
 
 **Important Notes for Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure
@@ -380,9 +381,9 @@ Skyline is a free, open-source Windows application designed for creating and ana
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| Skyline shared document (.sky.zip) | **Recommended** | ANALYSIS | Skyline shared document archive (File > Share) — preferred format for submission |
-| Skyline document (.sky) | **Mandatory** | ANALYSIS | Skyline document in XML format containing method, target definitions, and analysis results |
-| Skyline data file (.skyd) | **Mandatory** | ANALYSIS | Skyline binary cache file with extracted chromatographic data |
+| Skyline shared document (.sky.zip) | **Recommended** | ANALYSIS | Skyline shared document archive (File > Share) — preferred format, contains .sky, .skyd, libraries, and FASTA |
+| Skyline document (.sky) | **Mandatory** | ANALYSIS | Skyline document (XML) — required if not submitting .sky.zip |
+| Skyline data file (.skyd) | **Mandatory** | ANALYSIS | Skyline data file (binary cache) — required if not submitting .sky.zip |
 | Exported reports (.csv or .tsv) | **Mandatory** | ANALYSIS | Exported quantification reports in CSV or TSV format |
 | Spectral library (.blib) | Recommended | SPECTRAL_LIBRARY | Spectral library used for method development |
 | Acquisition method (.method) | Recommended | OTHER | Instrument acquisition method file (if relevant) |
