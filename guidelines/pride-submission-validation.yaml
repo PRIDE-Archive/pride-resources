@@ -71,4 +71,510 @@ file_categories:
   - METADATA
   - OTHER
 
-tools: []
+tools:
+  - id: maxquant
+    name: "MaxQuant"
+    description: "Software suite for quantitative proteomics (DDA and DIA)"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: mandatory
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: evidence.txt
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Evidence table with peptide identifications and quantifications at PSM level"
+        columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Leading razor protein, Type, Score, MS/MS count]
+
+      - name: peptides.txt
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Peptide-level identification and quantification results"
+        columns: [Sequence, Proteins, Intensity, Score, PEP, Unique (Groups), Unique (Proteins)]
+
+      - name: proteinGroups.txt
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Protein group identification and quantification results"
+        columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Q-value, Score]
+
+      - name: mzTab.mzTab
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.mzTab]
+        description: "mzTab output containing identification and quantification data"
+
+      - name: parameters.txt
+        status: mandatory
+        category: OTHER
+        extensions: [.txt]
+        description: "Processing parameters used in the analysis"
+
+      - name: summary.txt
+        status: mandatory
+        category: OTHER
+        extensions: [.txt]
+        description: "Summary statistics of the MaxQuant run"
+
+      - name: mqpar.xml
+        status: mandatory
+        category: OTHER
+        extensions: [.xml]
+        description: "MaxQuant parameter file containing all search settings"
+
+      - name: allPeptides.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "All peptide-like features detected in the data"
+
+      - name: matchedFeatures.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Matched peptide-like features between runs"
+
+      - name: msScans.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "MS scan information"
+
+      - name: msmsScans.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "MS/MS scan information and fragment ion matches"
+
+      - name: "Oxidation (M)Sites.txt"
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Oxidation modification site identifications"
+
+      - name: modificationSpecificPeptides.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Modified peptide identifications"
+
+      - name: msms.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "All MS/MS scans processed"
+
+      - name: ms3Scans.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "MS3 scan information and fragment ion matches"
+        conditional: true
+        condition_flag: ms3_acquired
+
+      - name: fragment.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Fragment information"
+
+      - name: fragmentQuant.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Fragment quantification data"
+
+      - name: mzRange.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Isotope patterns in the data"
+
+      - name: dependentPeptides.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Dependent peptide analysis results"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib, .sptxt, .tsv]
+        description: "Spectral library used for library-based search"
+        conditional: true
+        condition_flag: library_search
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML, .dta, .pkl]
+        description: "Processed peak lists extracted from raw data"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "maxquant_results.zip"
+      strategy: "ZIP or TAR.GZ the entire MaxQuant output folder including txt files and andromeda folder"
+
+    cross_file_rules:
+      - id: mq_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: mq_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+      - id: mq_raw_sdrf_match
+        rule_type: reference_check
+        source_category: RAW
+        target_file: sdrf.tsv
+        description: "Each raw file must be referenced in the SDRF file"
+
+      - id: mq_evidence_raw_match
+        rule_type: column_reference_check
+        source_file: evidence.txt
+        source_column: "Raw file"
+        target_category: RAW
+        description: "Raw file column in evidence.txt must match submitted raw filenames"
+
+  - id: diann
+    name: "DIA-NN"
+    description: "Advanced software for DIA proteomics using neural networks"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: report
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.parquet, .tsv]
+        description: "Main DIA-NN report file with all identifications and quantifications"
+        columns: [File.Name, Protein.Group, Protein.Ids, Protein.Names, Genes, Precursor.Id, Modified.Sequence, Stripped.Sequence, Precursor.Charge, Q.Value, PG.Q.Value, Global.Q.Value, Precursor.Quantity, RT]
+
+      - name: log_file
+        status: mandatory
+        category: OTHER
+        extensions: [.log.txt, .txt]
+        description: "DIA-NN analysis log file documenting processing steps"
+
+      - name: parameter_config
+        status: recommended
+        category: OTHER
+        extensions: [.cfg, .txt]
+        description: "DIA-NN configuration file with search parameters"
+
+      - name: pr_matrix.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Precursor-level quantification matrix"
+
+      - name: pg_matrix.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Protein group-level quantification matrix"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib, .sptxt, .tsv]
+        description: "Spectral library used for library-based search"
+        conditional: true
+        condition_flag: library_search
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML, .dta, .pkl]
+        description: "Processed peak lists extracted from raw data"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "diann_results.zip"
+      strategy: "ZIP all DIA-NN output files including report and log files"
+
+    cross_file_rules:
+      - id: diann_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: diann_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+      - id: diann_report_raw_match
+        rule_type: column_reference_check
+        source_file: report
+        source_column: "File.Name"
+        target_category: RAW
+        description: "File.Name column in report must match submitted raw filenames"
+
+  - id: spectronaut
+    name: "Spectronaut"
+    description: "Commercial DIA proteomics analysis platform by Biognosys"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: main_report
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xls]
+        description: "Primary Spectronaut report with peptide/protein identifications and quantifications"
+
+      - name: analysis_settings
+        status: mandatory
+        category: OTHER
+        extensions: [.txt, .xml, .json]
+        description: "Spectronaut analysis settings or exported parameters"
+
+      - name: protein_group_report
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xls]
+        description: "Protein group-level quantification report"
+
+      - name: peptide_report
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xls]
+        description: "Peptide-level quantification report"
+
+      - name: fragment_report
+        status: optional
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xls]
+        description: "Fragment-level quantification data"
+
+      - name: candidates_report
+        status: optional
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xls]
+        description: "All candidate identifications before filtering"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.kit, .tsv]
+        description: "Spectral library used for analysis"
+        conditional: true
+        condition_flag: library_search
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML, .dta, .pkl]
+        description: "Processed peak lists extracted from raw data"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "spectronaut_results.zip"
+      strategy: "ZIP all Spectronaut output files including reports and settings"
+
+    cross_file_rules:
+      - id: sn_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: sn_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+  - id: fragpipe
+    name: "FragPipe/MSFragger"
+    description: "Versatile MS proteomics analysis platform integrating MSFragger, Philosopher, IonQuant, and more"
+
+    files:
+      - name: raw_files
+        status: mandatory
+        category: RAW
+        extensions: [.raw, .mzML, .mzXML, .wiff, .wiff2, .d, .baf, .tdf]
+        description: "Original unprocessed data from the mass spectrometer"
+
+      - name: fasta_database
+        status: mandatory
+        category: FASTA
+        extensions: [.fasta, .fa]
+        description: "Protein sequence database used for search"
+
+      - name: sdrf.tsv
+        status: recommended
+        category: METADATA
+        extensions: [.sdrf.tsv]
+        description: "SDRF metadata file describing samples and experimental design"
+
+      - name: psm.tsv
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Peptide identification results at PSM level"
+        columns: [Spectrum, Spectrum File, Peptide, Modified Peptide, Charge, Retention, Protein, Mapped Proteins, Hyperscore, PeptideProphet Probability]
+
+      - name: protein.tsv
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Protein-level identification and inference results"
+        columns: [Protein, Protein ID, Entry Name, Gene, Protein Probability, Combined Total Peptides, Total Spectral Count]
+
+      - name: fragpipe.workflow
+        status: mandatory
+        category: OTHER
+        extensions: [.workflow]
+        description: "FragPipe configuration and parameter files"
+
+      - name: fragpipe-files.fp-manifest
+        status: mandatory
+        category: OTHER
+        extensions: [.fp-manifest]
+        description: "FragPipe manifest files"
+
+      - name: combined_ion.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Combined ion-level results across experiments"
+
+      - name: combined_modified_peptide.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Combined peptidoform-level results across experiments"
+
+      - name: combined_peptide.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Combined peptide-level results across experiments"
+
+      - name: combined_protein.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Combined protein-level results across experiments"
+
+      - name: combined_ion_label_quant.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Combined ion-level results from isotopic labeling quantification"
+
+      - name: combined_modified_peptide_label_quant.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Combined peptidoform-level results from isotopic labeling quantification"
+
+      - name: combined_protein_label_quant.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "Combined protein-level results from isotopic labeling quantification"
+
+      - name: tmt_report_folder
+        status: recommended
+        category: ANALYSIS
+        extensions: [.zip, .tar.gz]
+        description: "Combined results from isobaric labeling quantification"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib, .sptxt, .tsv]
+        description: "Spectral library used for library-based search"
+        conditional: true
+        condition_flag: library_search
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mgf, .mzML, .mzXML, .dta, .pkl, .pep.xml]
+        description: "Processed peak lists or pepXML files"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "fragpipe_results.zip"
+      strategy: "ZIP output .tsv and .csv files grouped by experiment/search"
+
+    cross_file_rules:
+      - id: fp_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        description: "At least one raw file must be submitted"
+
+      - id: fp_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        description: "At least one FASTA database must be submitted"
+
+      - id: fp_psm_raw_match
+        rule_type: column_reference_check
+        source_file: psm.tsv
+        source_column: "Spectrum File"
+        target_category: RAW
+        description: "Spectrum File column in psm.tsv must match submitted raw filenames"
