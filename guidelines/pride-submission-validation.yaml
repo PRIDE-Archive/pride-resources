@@ -119,71 +119,45 @@ severity_levels: [error, warning, info]
 # ------------------------------------------------------------------------------
 # Validation workflow
 # ------------------------------------------------------------------------------
-# Step-by-step description of how a validator should process a submission
-# folder. Any language (Python, Java, JavaScript, etc.) can implement this
-# by loading this YAML, iterating through the steps, and applying the rules
-# referenced in each step.
+# How to validate a PRIDE submission using this file, in 6 steps.
 #
-# Each step has:
-#   id          – Unique step identifier
-#   description – What the step does (human-readable)
-#   inputs      – Which sections of this YAML the step reads
-#   severity_on_fail – Default severity when a check in this step fails
-#                      (individual rules can override)
+# A validator loads this YAML once, then processes each submission folder
+# through these steps in order. Each step says WHAT to check, WHERE to find
+# the rules in this file, and WHAT severity to report on failure.
+#
+# Step 1 — Detect the analysis tool
+#   Look at the ANALYSIS archive(s). For each tool profile in "tools",
+#   check if the archive contains the files listed in tool_detection.marker_files.
+#   First match wins. No match → use the "generic" profile.
+#
+# Step 2 — Check that required files are present
+#   Walk the matched tool's "files" list. For each entry, look for a
+#   matching file in the submission (see file_classification for how).
+#   Missing mandatory file → error. Missing recommended → warning.
+#   Missing optional → info.
+#
+# Step 3 — Verify RAW file formats
+#   For every RAW file, find its format in "raw_formats" by extension.
+#   Run the format_verification check (magic bytes, archive contents, etc.).
+#   Failed → error (file may be corrupted or misnamed).
+#
+# Step 4 — Verify ANALYSIS file contents
+#   For each ANALYSIS file that has a content_verification block, run it.
+#   Tabular files → read header, check required columns exist.
+#   Binary files → open and check schema/signature.
+#   Missing column → error or warning (as specified per file).
+#
+# Step 5 — Cross-file consistency
+#   Run the cross_file_rules for the matched tool profile.
+#   These check relationships between files, e.g.:
+#     "Raw file" column in evidence.txt must match submitted RAW filenames.
+#   Each rule declares its own severity.
+#
+# Step 6 — Global limits
+#   Check file sizes against "limits" and archive sizes against
+#   "compression.recommended_max_archive_size_gb".
+#   Reject any archive in a format listed in compression.rejected_formats.
 # ------------------------------------------------------------------------------
-validation_workflow:
-  - id: step_1_detect_tool
-    description: >
-      Scan the ANALYSIS archive(s) in the submission. Match filenames against
-      each tool profile's tool_detection.marker_files list. The first profile
-      where ALL marker files are found becomes the active profile. If no
-      profile matches, fall back to the "generic" profile.
-    inputs: [tools.*.tool_detection]
-    severity_on_fail: warning
-
-  - id: step_2_check_file_presence
-    description: >
-      Using the active tool profile, iterate over its files list. For each
-      entry check whether a matching file exists in the submission (by name
-      or extension). Report missing files at the severity dictated by their
-      status: mandatory → error, recommended → warning, optional → info.
-    inputs: [tools.*.files]
-    severity_on_fail: error
-
-  - id: step_3_verify_raw_formats
-    description: >
-      For every file in the RAW category, match its extension to a
-      raw_formats entry. Run the format_verification check for that format
-      (magic_bytes, required_files, companion_files, or xml_root_element).
-      A failed check means the file may be corrupted or misnamed.
-    inputs: [raw_formats.*.format_verification]
-    severity_on_fail: error
-
-  - id: step_4_verify_analysis_content
-    description: >
-      For each ANALYSIS file that has a content_verification block, run
-      the specified checks. For tabular files (TSV/CSV/TXT) this typically
-      means reading the header line and verifying expected columns exist.
-      For binary formats (parquet, .pdresult) this means verifying the file
-      can be opened and checking schema/column names.
-    inputs: [tools.*.files.*.content_verification]
-    severity_on_fail: warning
-
-  - id: step_5_cross_file_rules
-    description: >
-      Run the cross_file_rules for the active tool profile. These check
-      relationships between files (e.g. raw filenames referenced in
-      evidence.txt must match actual submitted raw files).
-    inputs: [tools.*.cross_file_rules]
-    severity_on_fail: error
-
-  - id: step_6_check_limits
-    description: >
-      Verify global constraints: file sizes against limits, archive sizes
-      against compression.recommended_max_archive_size_gb, and rejected
-      compression formats.
-    inputs: [limits, compression]
-    severity_on_fail: error
 
 # ------------------------------------------------------------------------------
 # File classification algorithm
