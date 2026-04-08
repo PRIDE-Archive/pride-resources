@@ -87,11 +87,32 @@ raw_formats:
   - id: bruker_d
     category: RAW
     extensions: [.d]
-    internal_files: [analysis.tdf, analysis.tdf_bin, .baf, .fid]
     vendor: "Bruker"
     compression_required: true
     one_run_per_archive: true
     directory_based: true
+    # Bruker .d folders contain different internal formats depending on the instrument.
+    # A valid .d folder must contain ONE of these format sets:
+    sub_formats:
+      - id: tdf
+        description: "timsTOF with ion mobility (timsTOF Pro/HT/SCP/fleX TIMS mode)"
+        required_files: [analysis.tdf, analysis.tdf_bin]
+        optional_files: [calibration.sqlite, chromatography-data.sqlite]
+      - id: tsf
+        description: "timsTOF without ion mobility (MALDI-qTOF mode)"
+        required_files: [analysis.tsf, analysis.tsf_bin]
+        optional_files: [calibration.sqlite]
+      - id: baf
+        description: "Bruker QTOF (maXis, impact, micrOTOF)"
+        required_files: [analysis.baf]
+        optional_files: [analysis.baf_idx, analysis.baf_xtr, calibration.sqlite]
+      - id: yep
+        description: "Older Bruker/Agilent ion traps"
+        required_files: [analysis.yep]
+      - id: fid
+        description: "MALDI-TOF flex series (rapifleX, ultrafleXtreme, autoflex)"
+        required_files: [fid, acqu]
+        notes: "FID data uses a hierarchical directory structure with spot coordinates"
 
   - id: sciex_wiff
     category: RAW
@@ -993,10 +1014,23 @@ tools:
       - id: gen_d_folder_bruker
         rule_type: archive_content
         applies_to_extensions: [.d.zip, .d.tar.gz]
-        required_contents:
+        vendor: bruker_d
+        # A valid Bruker .d archive must contain at least one of these format sets
+        one_of:
           - pattern: "*/analysis.tdf"
-            vendor: bruker_d
-        description: "Bruker .d folders must contain analysis.tdf"
+            also_required: "*/analysis.tdf_bin"
+            sub_format: tdf
+          - pattern: "*/analysis.tsf"
+            also_required: "*/analysis.tsf_bin"
+            sub_format: tsf
+          - pattern: "*/analysis.baf"
+            sub_format: baf
+          - pattern: "*/analysis.yep"
+            sub_format: yep
+          - pattern: "**/fid"
+            also_required: "**/acqu"
+            sub_format: fid
+        description: "Bruker .d folders must contain a valid data format (TDF, TSF, BAF, YEP, or FID)"
 
       - id: gen_d_folder_agilent
         rule_type: archive_content

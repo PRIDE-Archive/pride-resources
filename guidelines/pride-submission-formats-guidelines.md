@@ -255,8 +255,13 @@ When compressing `.d` folders, **include the entire folder with all its contents
 
 **Bruker .d folders** (timsTOF and other Bruker instruments):
 - Compress the entire `.d` folder as-is
-- Key files include `analysis.tdf` (metadata database) and `analysis.tdf_bin` (spectral data) for timsTOF instruments
-- Older Bruker formats may contain `.baf` or `.fid` files instead
+- The internal data format depends on the instrument type:
+  - **TDF** (timsTOF Pro/HT/SCP/fleX with TIMS): `analysis.tdf` + `analysis.tdf_bin`
+  - **TSF** (timsTOF MALDI without TIMS): `analysis.tsf` + `analysis.tsf_bin`
+  - **BAF** (maXis, impact, micrOTOF): `analysis.baf`
+  - **YEP** (older Bruker ion traps): `analysis.yep`
+  - **FID** (MALDI-TOF flex series — rapifleX, ultrafleXtreme): `fid` + `acqu` files in a hierarchical directory structure
+- Additional files such as `calibration.sqlite` and method files (`.m/` subdirectory) should be included when present
 
 **Agilent .d folders**:
 - Compress the entire `.d` folder as-is
@@ -270,7 +275,7 @@ PRIDE performs automated validation on submitted raw data files to ensure they a
 
 - **File integrity checks**: Compressed archives are verified to ensure they are not corrupted and can be extracted successfully.
 - **Format validation**: Raw files are checked to confirm they contain valid mass spectrometry data and can be read by standard tools.
-- **Structure verification**: For directory-based formats (.d folders), the pipeline verifies that essential files are present (e.g., `analysis.tdf` for Bruker timsTOF, `AcqData/` for Agilent).
+- **Structure verification**: For directory-based formats (.d folders), the pipeline verifies that essential files are present (e.g., `analysis.tdf` + `analysis.tdf_bin` for Bruker timsTOF, `analysis.baf` for Bruker QTOF, `AcqData/` for Agilent).
 
 If validation fails, you will be notified with specific error messages to help you identify and resolve the issue before resubmitting. Common issues include incomplete .d folder compression, corrupted files, or unsupported format versions.
 
