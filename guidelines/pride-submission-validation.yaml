@@ -145,6 +145,44 @@ limits:
 #                           and per-run download statistics work correctly.
 #   directory_based       – If true, the raw data is a folder (e.g. Bruker .d,
 #                           Waters .raw) that must be archived as a whole.
+#
+# Format verification
+# ~~~~~~~~~~~~~~~~~~~
+# Each format includes a `format_verification` block that tells validators
+# how to confirm a file is genuinely that format — not just named correctly.
+# The block uses a uniform structure so any reader (Java, Python, etc.) can
+# implement the checks without format-specific knowledge:
+#
+#   method        – The verification strategy. One of:
+#                     "magic_bytes"       → read N bytes from offset and compare
+#                     "required_files"    → list files/dirs that must exist inside
+#                                           the archive (for directory-based formats)
+#                     "companion_files"   → sibling files that must be present
+#                     "xml_root_element"  → parse XML and check the root tag name
+#
+#   For magic_bytes:
+#     offset      – Byte offset from start of file (usually 0)
+#     length      – Number of bytes to read
+#     hex_value   – Expected hex string (case-insensitive)
+#     description – Human-readable explanation of what the signature means
+#
+#   For required_files (directory-based formats):
+#     one_of      – List of sub-format options. The archive is valid if it
+#                   matches ANY one of them.
+#       id              – Sub-format identifier
+#       description     – Instruments / modes that produce this layout
+#       required_files  – Files that MUST be present
+#       optional_files  – Files that MAY be present
+#
+#   For companion_files:
+#     pairs       – List of companion file rules
+#       primary_ext     – The extension of the main file
+#       companion_ext   – The extension that must accompany it
+#       required        – true / false
+#
+#   For xml_root_element:
+#     accepted_roots – List of valid root element names
+#     namespace      – Expected XML namespace URI
 # ------------------------------------------------------------------------------
 raw_formats:
   - id: thermo_raw
@@ -154,10 +192,18 @@ raw_formats:
     compression_required: false
     one_run_per_archive: true
     directory_based: false
-    format_type: binary
-    binary_signature: "D0CF11E0A1B11AE1"
-    internal_compression: "LZF"
-    notes: "OLE2 compound document format. Already compressed internally (LZF) — additional gzip provides minimal benefit. Single file per run."
+    format_verification:
+      method: magic_bytes
+      # The first 8 bytes of every Thermo .raw file are the OLE2 Compound
+      # Document signature. Reading these bytes is the fastest way to confirm
+      # the file is a genuine Thermo .raw and not a misnamed or corrupted file.
+      offset: 0
+      length: 8
+      hex_value: "D0CF11E0A1B11AE1"
+      description: >
+        OLE2 Compound Document signature (same container as legacy .doc/.xls).
+        Thermo .raw files store spectral data inside this container with
+        internal LZF compression — additional gzip provides minimal benefit.
 
   - id: bruker_d
     category: RAW
@@ -166,28 +212,35 @@ raw_formats:
     compression_required: true
     one_run_per_archive: true
     directory_based: true
-    # Bruker .d folders contain different internal formats depending on the instrument.
-    # A valid .d folder must contain ONE of these format sets:
-    sub_formats:
-      - id: tdf
-        description: "timsTOF with ion mobility (timsTOF Pro/HT/SCP/fleX TIMS mode)"
-        required_files: [analysis.tdf, analysis.tdf_bin]
-        optional_files: [calibration.sqlite, chromatography-data.sqlite]
-      - id: tsf
-        description: "timsTOF without ion mobility (MALDI-qTOF mode)"
-        required_files: [analysis.tsf, analysis.tsf_bin]
-        optional_files: [calibration.sqlite]
-      - id: baf
-        description: "Bruker QTOF (maXis, impact, micrOTOF)"
-        required_files: [analysis.baf]
-        optional_files: [analysis.baf_idx, analysis.baf_xtr, calibration.sqlite]
-      - id: yep
-        description: "Older Bruker/Agilent ion traps"
-        required_files: [analysis.yep]
-      - id: fid
-        description: "MALDI-TOF flex series (rapifleX, ultrafleXtreme, autoflex)"
-        required_files: [fid, acqu]
-        notes: "FID data uses a hierarchical directory structure with spot coordinates"
+    format_verification:
+      method: required_files
+      # After extracting the archive, look for the .d/ root folder and check
+      # that it contains at least one recognised sub-format. The archive is
+      # valid if ANY one of the sub-format checks passes.
+      description: >
+        Bruker .d folders contain different internal files depending on the
+        instrument and acquisition mode. A valid archive must match at least
+        one of the sub-format sets below.
+      one_of:
+        - id: tdf
+          description: "timsTOF with ion mobility (timsTOF Pro/HT/SCP/fleX TIMS mode)"
+          required_files: [analysis.tdf, analysis.tdf_bin]
+          optional_files: [calibration.sqlite, chromatography-data.sqlite]
+        - id: tsf
+          description: "timsTOF without ion mobility (MALDI-qTOF mode)"
+          required_files: [analysis.tsf, analysis.tsf_bin]
+          optional_files: [calibration.sqlite]
+        - id: baf
+          description: "Bruker QTOF (maXis, impact, micrOTOF)"
+          required_files: [analysis.baf]
+          optional_files: [analysis.baf_idx, analysis.baf_xtr, calibration.sqlite]
+        - id: yep
+          description: "Older Bruker/Agilent ion traps"
+          required_files: [analysis.yep]
+        - id: fid
+          description: "MALDI-TOF flex series (rapifleX, ultrafleXtreme, autoflex)"
+          required_files: [fid, acqu]
+          notes: "FID data uses a hierarchical directory structure with spot coordinates"
 
   - id: sciex_wiff
     category: RAW
@@ -196,15 +249,25 @@ raw_formats:
     compression_required: false
     one_run_per_archive: true
     directory_based: false
-    # .wiff/.wiff2 files ALWAYS require a companion .wiff.scan file containing
-    # the actual spectral (X-Y) data. The .wiff/.wiff2 file contains metadata only.
-    # A single .wiff can contain multiple samples — PRIDE requires one run per file.
-    # SCIEX OS v2.1+ generates both .wiff and .wiff2 simultaneously.
-    companion_files:
-      - extension: .wiff.scan
-        required: true
-        description: "Spectral data file — always paired with .wiff or .wiff2"
-    notes: "Both .wiff and .wiff.scan are required for a valid submission. A single .wiff can contain multiple samples — ensure one run per file for PRIDE."
+    format_verification:
+      method: companion_files
+      # A .wiff or .wiff2 file on its own contains only metadata. The actual
+      # spectral (X-Y) data lives in the companion .wiff.scan file. Both must
+      # be present for the data to be usable.
+      # SCIEX OS v2.1+ generates both .wiff and .wiff2 simultaneously.
+      description: >
+        SCIEX .wiff/.wiff2 files always require a companion .wiff.scan file.
+        A single .wiff can hold multiple samples — PRIDE requires one run
+        per file.
+      pairs:
+        - primary_ext: .wiff
+          companion_ext: .wiff.scan
+          required: true
+          description: "Spectral data file — always paired with .wiff"
+        - primary_ext: .wiff2
+          companion_ext: .wiff.scan
+          required: true
+          description: "Spectral data file — always paired with .wiff2"
 
   - id: agilent_d
     category: RAW
@@ -213,16 +276,21 @@ raw_formats:
     compression_required: true
     one_run_per_archive: true
     directory_based: true
-    # Agilent .d folders contain AcqData/ with binary data files and Method/ with acquisition parameters.
-    required_contents:
-      - directory: AcqData
-        required_files: [MSScan.bin, MSProfile.bin]
-        optional_files: [MSMassCal.bin, MSPeak.bin, MSScan.xsd, MSTS.xml]
-        description: "Acquisition data — binary spectral data and metadata"
-    optional_contents:
-      - directory: Method
-        description: "Acquisition and analysis method files"
-    internal_compression: "LZF (in MSProfile.bin)"
+    format_verification:
+      method: required_files
+      # After extracting the archive, look for the .d/ root folder containing
+      # an AcqData/ subdirectory with the binary spectral data files.
+      description: >
+        Agilent .d folders must contain an AcqData/ directory with at least
+        MSScan.bin (scan records) and MSProfile.bin (profile spectral data).
+      required_contents:
+        - directory: AcqData
+          required_files: [MSScan.bin, MSProfile.bin]
+          optional_files: [MSMassCal.bin, MSPeak.bin, MSScan.xsd, MSTS.xml]
+          description: "Acquisition data — binary spectral data and metadata"
+      optional_contents:
+        - directory: Method
+          description: "Acquisition and analysis method files"
 
   - id: waters_raw
     category: RAW
@@ -231,36 +299,49 @@ raw_formats:
     compression_required: true
     one_run_per_archive: true
     directory_based: true
-    # Waters .raw is ALWAYS a directory produced by MassLynx. Each .raw folder
-    # contains one run. Compress the entire folder before submission.
-    required_contents:
-      - file: _HEADER.TXT
-        description: "Run metadata (date, vial position)"
-      - file: _FUNC001.DAT
-        description: "Spectral data for first acquisition function"
-      - file: _FUNC001.IDX
-        description: "Index for first acquisition function data"
-    optional_contents:
-      - file: _extern.inf
-        description: "Hardware operations and function type mapping (e.g., lockmass)"
-      - file: _functns.inf
-        description: "Information on acquired functions"
-      - pattern: "_FUNC*.DAT/_FUNC*.IDX"
-        description: "Additional acquisition functions (MS, UV, lockmass)"
-    notes: "Waters .raw is always a directory — compress as .raw.zip or .raw.tar.gz. Synapt/IMS instruments use the same structure."
+    format_verification:
+      method: required_files
+      # Waters .raw is ALWAYS a directory produced by MassLynx. Each .raw
+      # folder represents one run. After extracting the archive, check for
+      # the header and at least the first acquisition function data file.
+      description: >
+        Waters .raw directories must contain _HEADER.TXT (run metadata) and
+        at least _FUNC001.DAT + _FUNC001.IDX (first acquisition function).
+        Synapt/IMS instruments use the same directory structure.
+      required_contents:
+        - file: _HEADER.TXT
+          description: "Run metadata (date, vial position)"
+        - file: _FUNC001.DAT
+          description: "Spectral data for first acquisition function"
+        - file: _FUNC001.IDX
+          description: "Index for first acquisition function data"
+      optional_contents:
+        - file: _extern.inf
+          description: "Hardware operations and function type mapping (e.g., lockmass)"
+        - file: _functns.inf
+          description: "Information on acquired functions"
+        - pattern: "_FUNC*.DAT/_FUNC*.IDX"
+          description: "Additional acquisition functions (MS, UV, lockmass)"
 
   - id: mzml
     category: RAW
     extensions: [.mzML.gz]
     standard: "PSI"
-    format_type: open_standard
     schema_version: "1.1.1"
     compression_required: true
     one_run_per_archive: true
     directory_based: false
-    # Both indexed and non-indexed mzML are accepted. Indexed mzML wraps the
-    # document in <indexedmzML> with byte-offset indices for random access.
-    notes: "PSI open standard XML format — accepted as alternative to vendor raw files. Schema 1.1.1. Both indexed and non-indexed accepted. GZ compression is mandatory (.mzML.gz) — one run per compressed file."
+    format_verification:
+      method: xml_root_element
+      # After decompressing the .gz, parse the XML header and check the root
+      # element. Both <mzML> (plain) and <indexedmzML> (with byte-offset
+      # indices for random access) are valid.
+      description: >
+        Valid mzML files must have either <mzML> or <indexedmzML> as the XML
+        root element, under the PSI-MS namespace. Schema version 1.1.1.
+        GZ compression is mandatory — one run per compressed file.
+      accepted_roots: [mzML, indexedmzML]
+      namespace: "http://psi.hupo.org/ms/mzml"
 
 # ------------------------------------------------------------------------------
 # Raw data validation
