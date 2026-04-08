@@ -351,6 +351,18 @@ tools:
         extensions: [.txt]
         description: "Dependent peptide analysis results"
 
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Standard format export of identification results"
+
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "Standard format export of quantification results"
+
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
@@ -417,7 +429,7 @@ tools:
         description: "DIA-NN analysis log file documenting processing steps"
 
       - name: parameter_config
-        status: recommended
+        status: mandatory
         category: OTHER
         extensions: [.cfg, .txt]
         description: "DIA-NN configuration file with search parameters"
@@ -446,6 +458,12 @@ tools:
         extensions: [.tsv]
         description: "Per-run statistics from DIA-NN analysis"
 
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "Standard format export of quantification results"
+
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
@@ -473,6 +491,12 @@ tools:
         category: FASTA
         min: 1
         description: "At least one FASTA database must be submitted"
+
+      - id: diann_raw_sdrf_match
+        rule_type: reference_check
+        source_category: RAW
+        target_file: sdrf.tsv
+        description: "Each raw file must be referenced in the SDRF file"
 
       - id: diann_report_raw_match
         rule_type: column_reference_check
@@ -528,6 +552,12 @@ tools:
         category: ANALYSIS
         extensions: [.tsv, .csv, .xlsx]
         description: "All candidate identifications before filtering"
+
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "Standard format export of quantification results"
 
       - name: spectral_library
         status: mandatory
@@ -656,6 +686,12 @@ tools:
         extensions: [.pep.xml]
         description: "PepXML identification results from MSFragger/PeptideProphet"
 
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Standard format export of identification results (via Philosopher)"
+
       - *common_peak_lists
 
     compression:
@@ -675,6 +711,12 @@ tools:
         category: FASTA
         min: 1
         description: "At least one FASTA database must be submitted"
+
+      - id: fp_raw_sdrf_match
+        rule_type: reference_check
+        source_category: RAW
+        target_file: sdrf.tsv
+        description: "Each raw file must be referenced in the SDRF file"
 
       - id: fp_psm_raw_match
         rule_type: column_reference_check
@@ -717,6 +759,12 @@ tools:
         category: ANALYSIS
         extensions: [.csv, .tsv]
         description: "Exported quantification reports"
+
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "Standard format export of quantification results"
 
       - name: spectral_library
         status: recommended
@@ -852,6 +900,8 @@ tools:
         extensions: [.mgf]
         description: "MGF peak list files used for the Mascot search"
 
+      - *common_peak_lists
+
       - name: custom_modifications
         status: recommended
         category: OTHER
@@ -898,6 +948,7 @@ tools:
         category: ANALYSIS
         extensions: [.txt, .xlsx]
         description: "Exported PSM (Peptide Spectrum Match) results"
+        columns: [Confidence, Sequence, Modifications, Charge, m/z, "MH+ [Da]", Spectrum File]
 
       - name: peptides_export
         status: mandatory
@@ -910,6 +961,12 @@ tools:
         category: ANALYSIS
         extensions: [.txt, .xlsx]
         description: "Exported protein-level identification and quantification results"
+
+      - name: workflow_template
+        status: recommended
+        category: OTHER
+        extensions: [.pdStudy, .pdProcessingWF, .pdConsensusWF]
+        description: "Proteome Discoverer workflow template or study file"
 
       - name: mzidentml_export
         status: recommended
@@ -959,9 +1016,10 @@ tools:
         category: ANALYSIS
         extensions: [.tsv]
         description: "MS-GF+ search results in TSV format (alternative to mzIdentML)"
+        columns: [SpecID, ScanNum, FragMethod, Precursor, Charge, PepQValue, Peptide, Protein]
 
       - name: parameter_file
-        status: recommended
+        status: mandatory
         category: OTHER
         extensions: [.params, .txt]
         description: "MS-GF+ search parameter file (.params is native format)"

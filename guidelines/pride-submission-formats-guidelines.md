@@ -326,6 +326,8 @@ MaxQuant is a software suite for quantitative proteomics that supports both Data
 | fragmentQuant.txt | Optional | ANALYSIS | Fragment quantification data |
 | mzRange.txt | Optional | ANALYSIS | Isotope patterns in the data |
 | dependentPeptides.txt | Optional | ANALYSIS | Dependent peptide analysis results |
+| mzIdentML export (.mzid) | Recommended | STANDARD | Standard format export of identification results |
+| mzTab export (.mzTab) | Recommended | STANDARD | Standard format export of quantification results |
 
 
 ### DIA-NN
@@ -337,7 +339,8 @@ DIA-NN is an advanced software for Data-Independent Acquisition (DIA) proteomics
 | report.parquet (or report.tsv) | **Mandatory** | ANALYSIS | Main DIA-NN report file containing all identifications and quantifications |
 | Spectral library (.speclib, .blib, .sptxt, .tsv, etc.) | **Mandatory** (if used) | SPECTRAL_LIBRARY | Spectral library used for library-based search. Required if library search was performed |
 | Log file (.log.txt) | **Mandatory** | OTHER | DIA-NN analysis log file documenting the processing steps |
-| Parameter configuration file | Recommended | OTHER | DIA-NN configuration file with search parameters |
+| Parameter configuration file | **Mandatory** | OTHER | DIA-NN configuration file with search parameters |
+| mzTab export (.mzTab) | Recommended | STANDARD | Standard format export of quantification results |
 | pr_matrix.tsv | Recommended | ANALYSIS | Precursor-level quantification matrix |
 | pg_matrix.tsv | Recommended | ANALYSIS | Protein group-level quantification matrix |
 | gg_matrix.tsv | Recommended | ANALYSIS | Gene group-level quantification matrix |
@@ -357,6 +360,7 @@ Spectronaut is a commercial software platform for Data-Independent Acquisition (
 | Peptide report | Recommended | ANALYSIS | Peptide-level quantification report |
 | Fragment report | Optional | ANALYSIS | Fragment-level quantification data |
 | Candidates report | Optional | ANALYSIS | All candidate identifications before filtering |
+| mzTab export (.mzTab) | Recommended | STANDARD | Standard format export of quantification results |
 
 
 ### FragPipe/MSFragger
@@ -378,6 +382,7 @@ FragPipe is a versatile platform for MS proteomics analysis, offering both a gra
 | combined_modified_peptide_label_quant.tsv | Recommended | ANALYSIS | Combined peptidoform-level results from isotopic labeling quantification |
 | combined_protein_label_quant.tsv | Recommended | ANALYSIS | Combined protein-level results from isotopic labeling quantification |
 | the whole tmt-report folder | Recommended | ANALYSIS | Combined results from isobaric labeling quantification |
+| mzIdentML export (.mzid) | Recommended | STANDARD | Standard format export of identification results (via Philosopher) |
 
 ### Skyline
 
@@ -391,6 +396,7 @@ Skyline is a free, open-source Windows application designed for creating and ana
 | Exported reports (.csv or .tsv) | **Mandatory** | ANALYSIS | Exported quantification reports in CSV or TSV format |
 | Spectral library (.blib) | Recommended | SPECTRAL_LIBRARY | Spectral library used for method development |
 | Acquisition method (.method) | Recommended | OTHER | Instrument acquisition method file (if relevant) |
+| mzTab export (.mzTab) | Recommended | STANDARD | Standard format export of quantification results |
 
 ### OpenMS
 
@@ -402,7 +408,7 @@ OpenMS is an open-source C++ library with Python bindings for managing, analyzin
 | Quantification results (.consensusXML, .featureXML) | **Mandatory** | ANALYSIS | Quantification results (if quantification was performed) |
 | TOPP workflow or KNIME workflow description | **Mandatory** | OTHER | Workflow description file documenting the analysis pipeline |
 | mzIdentML export (.mzid) | Recommended | STANDARD | Standard format export of identification results |
-| mzTab export (.mztab) | Recommended | STANDARD | Standard format export of identification and quantification results |
+| mzTab export (.mzTab) | Recommended | STANDARD | Standard format export of identification and quantification results |
 | Parameter files for individual TOPP tools | Recommended | OTHER | Parameter files for each TOPP tool used in the workflow |
 
 ### Mascot
@@ -427,6 +433,7 @@ Thermo Scientific Proteome Discoverer is a flexible software suite for proteomic
 | PSMs export (.txt, .xlsx) | **Mandatory** | ANALYSIS | Exported PSM (Peptide Spectrum Match) results |
 | Peptides export (.txt, .xlsx) | **Mandatory** | ANALYSIS | Exported peptide-level identification and quantification results |
 | Proteins export (.txt, .xlsx) | **Mandatory** | ANALYSIS | Exported protein-level identification and quantification results |
+| Workflow template (.pdStudy, .pdProcessingWF, .pdConsensusWF) | Recommended | OTHER | Proteome Discoverer workflow template or study file |
 | mzIdentML export (.mzid) | Recommended | STANDARD | Standard format export of identification results (strongly recommended) |
 
 ### MS-GF+
@@ -437,7 +444,7 @@ MS-GF+ is a peptide identification tool that matches MS/MS spectra to protein se
 |------|--------|---------------|-------------|
 | Result files (.mzid) | **Mandatory** | STANDARD | MS-GF+ search results in mzIdentML format (preferred and native output) |
 | Result files (.tsv) | Optional | ANALYSIS | MS-GF+ search results in TSV format (alternative to mzIdentML) |
-| Parameter file | Recommended | OTHER | MS-GF+ search parameter file |
+| Parameter file (.params) | **Mandatory** | OTHER | MS-GF+ search parameter file |
 | Converted peak lists | Recommended | PEAK | Peak list files used for the search (if conversion was performed) |
 
 ### Other Tools
