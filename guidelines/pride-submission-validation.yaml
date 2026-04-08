@@ -423,7 +423,7 @@ limits:
 #     namespace      – Expected XML namespace URI
 # ------------------------------------------------------------------------------
 raw_formats:
-  - id: thermo_raw
+  - id: thermo
     category: RAW
     extensions: [.raw]
     vendor: "Thermo Fisher Scientific"
@@ -443,7 +443,7 @@ raw_formats:
         Thermo .raw files store spectral data inside this container with
         internal LZF compression — additional gzip provides minimal benefit.
 
-  - id: bruker_d
+  - id: bruker
     category: RAW
     extensions: [.d.zip, .d.tar.gz]
     vendor: "Bruker"
@@ -480,7 +480,7 @@ raw_formats:
           required_files: [fid, acqu]
           notes: "FID data uses a hierarchical directory structure with spot coordinates"
 
-  - id: sciex_wiff
+  - id: sciex
     category: RAW
     extensions: [.wiff, .wiff2, .wiff.scan]
     vendor: "SCIEX"
@@ -511,7 +511,7 @@ raw_formats:
   # Validators MUST inspect archive contents (format_verification.required_files)
   # to distinguish them: Bruker → analysis.tdf/baf/tsf/yep/fid,
   # Agilent → AcqData/MSScan.bin. Extension alone is not sufficient.
-  - id: agilent_d
+  - id: agilent
     category: RAW
     extensions: [.d.zip, .d.tar.gz]
     vendor: "Agilent"
@@ -534,7 +534,7 @@ raw_formats:
         - directory: Method
           description: "Acquisition and analysis method files"
 
-  - id: waters_raw
+  - id: waters
     category: RAW
     extensions: [.raw.zip, .raw.tar.gz]
     vendor: "Waters"
@@ -1909,7 +1909,7 @@ tools:
       - id: gen_d_folder_bruker
         rule_type: archive_content
         applies_to_extensions: [.d.zip, .d.tar.gz]
-        vendor: bruker_d
+        vendor: bruker
         severity: error
         one_of:
           - pattern: "*/analysis.tdf"
@@ -1930,7 +1930,7 @@ tools:
       - id: gen_d_folder_agilent
         rule_type: archive_content
         applies_to_extensions: [.d.zip, .d.tar.gz]
-        vendor: agilent_d
+        vendor: agilent
         severity: error
         required_contents:
           - pattern: "*/AcqData/MSScan.bin"
