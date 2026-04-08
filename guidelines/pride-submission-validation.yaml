@@ -32,12 +32,42 @@
 #   conditional — (optional) true if this file is only required when a
 #                 condition_flag is active
 #   condition_flag — (optional) Which flag activates this requirement
+#   content_verification — (optional) How to verify the file's contents are
+#                          valid (see verification methods below)
+#
+# Content verification methods (content_verification.method):
+#   tsv_header      — Read the header line, split by separator, check that
+#                     all required_columns are present (order-independent).
+#                     Fields: separator, required_columns,
+#                             severity_on_missing_column, min_data_rows,
+#                             severity_on_empty
+#   parquet_schema  — Open the parquet file, read the schema, check column
+#                     names. Fields: required_columns,
+#                             severity_on_missing_column, min_data_rows,
+#                             severity_on_empty
+#   auto_detect     — Choose the verification method based on the file
+#                     extension. Fields: formats (map of ext → method block)
+#   xml_root_element — Parse XML, check root element name and namespace.
+#                     Fields: accepted_roots, namespace, severity_on_fail
+#   magic_bytes     — Read N bytes at an offset, compare hex.
+#                     Fields: offset, length, hex_value, severity_on_fail
+#   text_starts_with — Read the first line and check for a known prefix.
+#                     Fields: expected_prefix, alternative_prefix,
+#                             severity_on_fail
+#   file_not_empty  — Check the file has size > 0 bytes.
+#                     Fields: severity_on_empty
+#
+# Severity values: error | warning | info
+#   error   — Submission CANNOT proceed (mandatory file missing, corrupt, etc.)
+#   warning — Submission CAN proceed but issue should be reviewed
+#   info    — Informational note, never blocks submission
 #
 # Cross-file rule types:
 #   reference_check        — Files in one category must appear in a target file
 #   column_reference_check — Column values must match submitted filenames
 #   file_count             — Min/max number of files in a category
 #   archive_content        — Required contents inside compressed archives
+#   All cross-file rules include a severity field.
 #
 # YAML anchors (&name / *name):
 #   This file uses YAML anchors to avoid repeating identical file definitions.
@@ -51,8 +81,95 @@
 #
 # ==============================================================================
 
-version: "1.0.0"
+version: "2.0.0"
 description: "PRIDE submission validation rules — machine-readable source of truth"
+
+# ------------------------------------------------------------------------------
+# Severity levels
+# ------------------------------------------------------------------------------
+# Every validation rule produces a result at one of these severity levels.
+# Validators MUST report the severity alongside the message so consumers
+# (submission tool UI, CI scripts, review dashboards) can decide what to
+# block vs. warn about.
+#
+#   error   – Submission CANNOT proceed. A mandatory file is missing, a file
+#             is corrupted, or a hard constraint is violated.
+#   warning – Submission CAN proceed but the issue should be reviewed.
+#             A recommended file is missing, a column header doesn't match,
+#             or a soft size limit is exceeded.
+#   info    – Informational note. An optional file is missing or a best-
+#             practice suggestion. Never blocks submission.
+# ------------------------------------------------------------------------------
+severity_levels: [error, warning, info]
+
+# ------------------------------------------------------------------------------
+# Validation workflow
+# ------------------------------------------------------------------------------
+# Step-by-step description of how a validator should process a submission
+# folder. Any language (Python, Java, JavaScript, etc.) can implement this
+# by loading this YAML, iterating through the steps, and applying the rules
+# referenced in each step.
+#
+# Each step has:
+#   id          – Unique step identifier
+#   description – What the step does (human-readable)
+#   inputs      – Which sections of this YAML the step reads
+#   severity_on_fail – Default severity when a check in this step fails
+#                      (individual rules can override)
+# ------------------------------------------------------------------------------
+validation_workflow:
+  - id: step_1_detect_tool
+    description: >
+      Scan the ANALYSIS archive(s) in the submission. Match filenames against
+      each tool profile's tool_detection.marker_files list. The first profile
+      where ALL marker files are found becomes the active profile. If no
+      profile matches, fall back to the "generic" profile.
+    inputs: [tools.*.tool_detection]
+    severity_on_fail: warning
+
+  - id: step_2_check_file_presence
+    description: >
+      Using the active tool profile, iterate over its files list. For each
+      entry check whether a matching file exists in the submission (by name
+      or extension). Report missing files at the severity dictated by their
+      status: mandatory → error, recommended → warning, optional → info.
+    inputs: [tools.*.files]
+    severity_on_fail: error
+
+  - id: step_3_verify_raw_formats
+    description: >
+      For every file in the RAW category, match its extension to a
+      raw_formats entry. Run the format_verification check for that format
+      (magic_bytes, required_files, companion_files, or xml_root_element).
+      A failed check means the file may be corrupted or misnamed.
+    inputs: [raw_formats.*.format_verification]
+    severity_on_fail: error
+
+  - id: step_4_verify_analysis_content
+    description: >
+      For each ANALYSIS file that has a content_verification block, run
+      the specified checks. For tabular files (TSV/CSV/TXT) this typically
+      means reading the header line and verifying expected columns exist.
+      For binary formats (parquet, .pdresult) this means verifying the file
+      can be opened and checking schema/column names.
+    inputs: [tools.*.files.*.content_verification]
+    severity_on_fail: warning
+
+  - id: step_5_cross_file_rules
+    description: >
+      Run the cross_file_rules for the active tool profile. These check
+      relationships between files (e.g. raw filenames referenced in
+      evidence.txt must match actual submitted raw files).
+    inputs: [tools.*.cross_file_rules]
+    severity_on_fail: error
+
+  - id: step_6_check_limits
+    description: >
+      Verify global constraints: file sizes against limits, archive sizes
+      against compression.recommended_max_archive_size_gb, and rejected
+      compression formats.
+    inputs: [limits, compression]
+    severity_on_fail: error
 
 # ------------------------------------------------------------------------------
 # File categories
@@ -478,6 +595,13 @@ tools:
     name: "MaxQuant"
     description: "Software suite for quantitative proteomics (DDA and DIA)"
 
+    # How to detect that an ANALYSIS archive was produced by MaxQuant.
+    # A validator scans the archive listing for these marker files.
+    # If ALL marker_files are found, this profile is activated.
+    tool_detection:
+      marker_files: [evidence.txt, mqpar.xml, proteinGroups.txt]
+      description: "MaxQuant output folders always contain these three files"
+
     files:
       - *common_raw_files
 
@@ -491,6 +615,16 @@ tools:
         extensions: [.txt]
         description: "Evidence table with peptide identifications and quantifications at PSM level"
         columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Leading razor protein, Type, Score, MS/MS count]
+        content_verification:
+          method: tsv_header
+          # Read the first line of the file, split by tab, and check that
+          # ALL listed columns are present (order does not matter).
+          # Additional columns produced by newer MaxQuant versions are allowed.
+          separator: "\t"
+          required_columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Score]
+          severity_on_missing_column: error
+          min_data_rows: 1
+          severity_on_empty: error
 
       - name: peptides.txt
         status: mandatory
@@ -498,6 +632,13 @@ tools:
         extensions: [.txt]
         description: "Peptide-level identification and quantification results"
         columns: [Sequence, Proteins, Intensity, Score, PEP, Unique (Groups), Unique (Proteins)]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Sequence, Proteins, Intensity, Score, PEP]
+          severity_on_missing_column: error
+          min_data_rows: 1
+          severity_on_empty: error
 
       - name: proteinGroups.txt
         status: mandatory
@@ -505,6 +646,13 @@ tools:
         extensions: [.txt]
         description: "Protein group identification and quantification results"
         columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Score, PEP, Reverse, Potential contaminant]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Score]
+          severity_on_missing_column: error
+          min_data_rows: 1
+          severity_on_empty: error
 
       - name: mzTab.mzTab
         status: recommended
@@ -517,18 +665,28 @@ tools:
         category: OTHER
         extensions: [.txt]
         description: "Processing parameters used in the analysis"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: summary.txt
         status: mandatory
         category: OTHER
         extensions: [.txt]
         description: "Summary statistics of the MaxQuant run"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: mqpar.xml
         status: mandatory
         category: OTHER
         extensions: [.xml]
         description: "MaxQuant parameter file containing all search settings"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [MaxQuantParams]
+          severity_on_fail: error
 
       - name: allPeptides.txt
         status: recommended
@@ -634,18 +792,21 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: mq_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
       - id: mq_raw_sdrf_match
         rule_type: reference_check
         source_category: RAW
         target_file: sdrf.tsv
+        severity: warning
         description: "Each raw file must be referenced in the SDRF file"
 
       - id: mq_evidence_raw_match
@@ -653,12 +814,18 @@ tools:
         source_file: evidence.txt
         source_column: "Raw file"
         target_category: RAW
+        severity: error
         description: "Raw file column in evidence.txt must match submitted raw filenames"
 
   # ---- DIA-NN ----
   - id: diann
     name: "DIA-NN"
     description: "Advanced software for DIA proteomics using neural networks"
+
+    tool_detection:
+      marker_files: [report.parquet, report.tsv]
+      match_any: true
+      description: "DIA-NN always produces a report file (parquet since 1.8+, tsv in older versions)"
 
     files:
       - *common_raw_files
@@ -673,12 +840,32 @@ tools:
         extensions: [.parquet, .tsv]
         description: "Main DIA-NN report file with all identifications and quantifications"
         columns: [File.Name, Protein.Group, Protein.Ids, Protein.Names, Genes, Precursor.Id, Modified.Sequence, Stripped.Sequence, Precursor.Charge, Q.Value, PG.Q.Value, Global.Q.Value, Precursor.Quantity, RT]
+        content_verification:
+          # DIA-NN report can be parquet or TSV. Check format based on extension.
+          method: auto_detect
+          formats:
+            parquet:
+              method: parquet_schema
+              required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
+              severity_on_missing_column: error
+              min_data_rows: 1
+              severity_on_empty: error
+            tsv:
+              method: tsv_header
+              separator: "\t"
+              required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
+              severity_on_missing_column: error
+              min_data_rows: 1
+              severity_on_empty: error
 
       - name: log_file
         status: mandatory
         category: OTHER
         extensions: [.log.txt, .txt]
         description: "DIA-NN analysis log file documenting processing steps"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: site_report
         status: mandatory
@@ -750,18 +937,21 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: diann_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
       - id: diann_raw_sdrf_match
         rule_type: reference_check
         source_category: RAW
         target_file: sdrf.tsv
+        severity: warning
         description: "Each raw file must be referenced in the SDRF file"
 
       - id: diann_report_raw_match
@@ -769,12 +959,23 @@ tools:
         source_file: report
         source_column: "File.Name"
         target_category: RAW
+        severity: error
         description: "File.Name column in report must match submitted raw filenames"
 
   # ---- Spectronaut ----
   - id: spectronaut
     name: "Spectronaut"
     description: "Commercial DIA proteomics analysis platform by Biognosys"
+
+    tool_detection:
+      # Spectronaut reports use a characteristic column naming convention
+      # with dotted prefixes (R., PG., EG., FG.). Detect by checking for
+      # these columns in the header, or by the presence of .sne/.psar files.
+      marker_files: []
+      header_fingerprint:
+        any_file_with_ext: [.tsv, .csv]
+        contains_columns: [R.FileName, PG.ProteinAccessions, EG.PrecursorId]
+      description: "Spectronaut reports use R./PG./EG./FG. column prefixes"
 
     files:
       - *common_raw_files
@@ -789,6 +990,13 @@ tools:
         extensions: [.tsv, .csv, .xlsx]
         description: "Primary Spectronaut report with peptide/protein identifications and quantifications"
         columns: [R.FileName, PG.ProteinAccessions, PG.ProteinNames, PG.Quantity, PG.Qvalue, EG.PrecursorId, EG.ModifiedSequence, EG.Qvalue, FG.Quantity]
+        content_verification:
+          method: tsv_header
+          separator: auto_detect
+          required_columns: [R.FileName, PG.ProteinAccessions, EG.PrecursorId, EG.ModifiedSequence]
+          severity_on_missing_column: error
+          min_data_rows: 1
+          severity_on_empty: error
 
       - name: analysis_settings
         status: mandatory
@@ -858,18 +1066,24 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: sn_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
   # ---- FragPipe / MSFragger ----
   - id: fragpipe
     name: "FragPipe/MSFragger"
     description: "Versatile MS proteomics analysis platform integrating MSFragger, Philosopher, IonQuant, and more"
+
+    tool_detection:
+      marker_files: [psm.tsv, fragpipe.workflow]
+      description: "FragPipe always produces psm.tsv and the workflow file"
 
     files:
       - *common_raw_files
@@ -884,6 +1098,13 @@ tools:
         extensions: [.tsv]
         description: "Peptide identification results at PSM level"
         columns: [Spectrum, Spectrum File, Peptide, Modified Peptide, Charge, Retention, Protein, Mapped Proteins, Hyperscore, PeptideProphet Probability]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Spectrum, Spectrum File, Peptide, Modified Peptide, Charge, Protein]
+          severity_on_missing_column: error
+          min_data_rows: 1
+          severity_on_empty: error
 
       - name: protein.tsv
         status: mandatory
@@ -891,18 +1112,31 @@ tools:
         extensions: [.tsv]
         description: "Protein-level identification and inference results"
         columns: [Protein, Protein ID, Entry Name, Gene, Protein Probability, Combined Total Peptides, Total Spectral Count]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Protein, Protein ID, Gene, Protein Probability]
+          severity_on_missing_column: error
+          min_data_rows: 1
+          severity_on_empty: error
 
       - name: fragpipe.workflow
         status: mandatory
         category: OTHER
         extensions: [.workflow]
         description: "FragPipe configuration and parameter files"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: fragpipe-files.fp-manifest
         status: mandatory
         category: OTHER
         extensions: [.fp-manifest]
         description: "FragPipe manifest files"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: combined_ion.tsv
         status: recommended
@@ -984,18 +1218,21 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: fp_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
       - id: fp_raw_sdrf_match
         rule_type: reference_check
         source_category: RAW
         target_file: sdrf.tsv
+        severity: warning
         description: "Each raw file must be referenced in the SDRF file"
 
       - id: fp_psm_raw_match
@@ -1003,12 +1240,18 @@ tools:
         source_file: psm.tsv
         source_column: "Spectrum File"
         target_category: RAW
+        severity: error
         description: "Spectrum File column in psm.tsv must match submitted raw filenames"
 
   # ---- Skyline ----
   - id: skyline
     name: "Skyline"
     description: "Open-source application for targeted proteomics (SRM/MRM/PRM/DIA)"
+
+    tool_detection:
+      marker_files: [.sky, .skyd]
+      match_any: true
+      description: "Skyline documents always include .sky (XML) and/or .skyd (binary cache), or a .sky.zip shared archive"
 
     files:
       - *common_raw_files
@@ -1028,18 +1271,28 @@ tools:
         category: ANALYSIS
         extensions: [.sky]
         description: "Skyline document (XML) — required if not submitting .sky.zip"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [SrmDocument]
+          severity_on_fail: error
 
       - name: skyline_data
         status: mandatory
         category: ANALYSIS
         extensions: [.skyd]
         description: "Skyline data file (binary cache) — required if not submitting .sky.zip"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: exported_reports
         status: mandatory
         category: ANALYSIS
         extensions: [.csv, .tsv]
         description: "Exported quantification reports"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: mztab_export
         status: recommended
@@ -1071,18 +1324,25 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: sky_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
   # ---- OpenMS ----
   - id: openms
     name: "OpenMS"
     description: "Open-source C++ library with Python bindings for LC/MS data analysis"
+
+    tool_detection:
+      marker_files: [.idxml]
+      match_any: true
+      description: "OpenMS identification results use the idXML format"
 
     files:
       - *common_raw_files
@@ -1096,18 +1356,29 @@ tools:
         category: ANALYSIS
         extensions: [.idxml]
         description: "OpenMS identification results in idXML format"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [IdXML]
+          severity_on_fail: error
 
       - name: quantification_results
         status: mandatory
         category: ANALYSIS
         extensions: [.consensusXML, .featureXML]
         description: "Quantification results from OpenMS (mandatory if quantification was performed)"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [consensusXML, featureXML]
+          severity_on_fail: error
 
       - name: workflow_description
         status: mandatory
         category: OTHER
         extensions: [.toppas, .knwf, .py]
         description: "TOPP workflow, KNIME workflow, or pyOpenMS script"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: mzidentml_export
         status: recommended
@@ -1139,18 +1410,25 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: oms_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
   # ---- Mascot ----
   - id: mascot
     name: "Mascot"
     description: "Search engine for protein identification by matching MS data to peptide sequence databases"
+
+    tool_detection:
+      marker_files: [.dat]
+      match_any: true
+      description: "Mascot search results are .dat files with a characteristic MIME-like header"
 
     files:
       - *common_raw_files
@@ -1164,6 +1442,14 @@ tools:
         category: ANALYSIS
         extensions: [.dat]
         description: "Mascot search result files in DAT format"
+        content_verification:
+          # Mascot .dat files are MIME-encoded text. The first line is always
+          # a MIME boundary marker. Reading the first few lines and checking
+          # for "MIME-Version:" or the boundary is sufficient.
+          method: text_starts_with
+          expected_prefix: "MIME-Version:"
+          alternative_prefix: "--gc0p4Jq0M2Yt08jU534c0p"
+          severity_on_fail: warning
 
       - name: mzidentml_export
         status: recommended
@@ -1201,18 +1487,25 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: mascot_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
   # ---- Proteome Discoverer ----
   - id: proteome_discoverer
     name: "Proteome Discoverer"
     description: "Thermo Scientific flexible software suite for proteomics research"
+
+    tool_detection:
+      marker_files: [.pdresult]
+      match_any: true
+      description: "Proteome Discoverer produces .pdresult (PD 2.x+) or .msf (PD 1.x) SQLite databases"
 
     files:
       - *common_raw_files
@@ -1226,6 +1519,14 @@ tools:
         category: ANALYSIS
         extensions: [.pdresult, .msf]
         description: "Proteome Discoverer result file (.pdresult for PD 2.x+, .msf for PD 1.x)"
+        content_verification:
+          # Both .pdresult and .msf are SQLite databases. Check the magic bytes.
+          method: magic_bytes
+          offset: 0
+          length: 16
+          hex_value: "53514C69746520666F726D6174203300"
+          description: "SQLite database header ('SQLite format 3\\0')"
+          severity_on_fail: error
 
       - name: psms_export
         status: mandatory
@@ -1233,18 +1534,31 @@ tools:
         extensions: [.txt, .xlsx]
         description: "Exported PSM (Peptide Spectrum Match) results"
         columns: [Confidence, Sequence, Modifications, Charge, m/z, "MH+ [Da]", Spectrum File]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Confidence, Sequence, Modifications, Charge, Spectrum File]
+          severity_on_missing_column: error
+          min_data_rows: 1
+          severity_on_empty: error
 
       - name: peptides_export
         status: mandatory
         category: ANALYSIS
         extensions: [.txt, .xlsx]
         description: "Exported peptide-level identification and quantification results"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: proteins_export
         status: mandatory
         category: ANALYSIS
         extensions: [.txt, .xlsx]
         description: "Exported protein-level identification and quantification results"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: workflow_template
         status: recommended
@@ -1270,12 +1584,14 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: pd_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
   # ---- MS-GF+ ----
@@ -1284,6 +1600,13 @@ tools:
   - id: msgfplus
     name: "MS-GF+"
     description: "Peptide identification tool matching MS/MS spectra to protein sequence databases"
+
+    tool_detection:
+      # MS-GF+ outputs .mzid files. Since mzIdentML is shared with other tools,
+      # additionally look for the MS-GF+ parameter file (.params) or check that
+      # the mzid contains MS-GF+ specific scores.
+      marker_files: [.mzid, .params]
+      description: "MS-GF+ produces .mzid natively, usually alongside a .params file"
 
     files:
       - *common_raw_files
@@ -1297,6 +1620,11 @@ tools:
         category: STANDARD
         extensions: [.mzid]
         description: "MS-GF+ search results in mzIdentML format (native output)"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [MzIdentML, indexedmzIdentML]
+          namespace: "http://psidev.info/psi/pi/mzIdentML/1.1"
+          severity_on_fail: error
 
       - name: tsv_results
         status: optional
@@ -1304,12 +1632,22 @@ tools:
         extensions: [.tsv]
         description: "MS-GF+ search results in TSV format (alternative to mzIdentML)"
         columns: [SpecID, ScanNum, FragMethod, Precursor, Charge, PepQValue, Peptide, Protein]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [SpecID, ScanNum, Peptide, Protein, PepQValue]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: warning
 
       - name: parameter_file
         status: mandatory
         category: OTHER
         extensions: [.params, .txt]
         description: "MS-GF+ search parameter file (.params is native format)"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: peak_lists
         status: recommended
@@ -1327,16 +1665,19 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: msgf_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
   # ---- Generic / Other Tools ----
   # Catch-all profile for any tool not explicitly listed above.
+  # No tool_detection block — this profile is used when no other matches.
   - id: generic
     name: "Other Tools"
     description: "Generic profile for tools not explicitly listed — requires RAW data, FASTA, and at least one ANALYSIS file"
@@ -1353,6 +1694,9 @@ tools:
         category: ANALYSIS
         extensions: [.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid, .mzTab]
         description: "Search results in native format from the analysis tool"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
 
       - name: standard_format
         status: recommended
@@ -1386,25 +1730,28 @@ tools:
         rule_type: file_count
         category: RAW
         min: 1
+        severity: error
         description: "At least one raw file must be submitted"
 
       - id: gen_fasta_file_count
         rule_type: file_count
         category: FASTA
         min: 1
+        severity: error
         description: "At least one FASTA database must be submitted"
 
       - id: gen_analysis_file_count
         rule_type: file_count
         category: ANALYSIS
         min: 1
+        severity: error
         description: "At least one ANALYSIS file must be submitted"
 
       - id: gen_d_folder_bruker
         rule_type: archive_content
         applies_to_extensions: [.d.zip, .d.tar.gz]
         vendor: bruker_d
-        # A valid Bruker .d archive must contain at least one of these format sets
+        severity: error
         one_of:
           - pattern: "*/analysis.tdf"
             also_required: "*/analysis.tdf_bin"
@@ -1425,6 +1772,7 @@ tools:
         rule_type: archive_content
         applies_to_extensions: [.d.zip, .d.tar.gz]
         vendor: agilent_d
+        severity: error
         required_contents:
           - pattern: "*/AcqData/MSScan.bin"
             description: "Scan record data"
