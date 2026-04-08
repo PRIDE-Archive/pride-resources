@@ -307,7 +307,7 @@ MaxQuant is a software suite for quantitative proteomics that supports both Data
 
 | File | Status | File Category | Description |
 |------|--------|---------------|-------------|
-| sdrf.tsv | **Mandatory** | METADATA | SDRF metadata file describing samples and experimental design |
+| sdrf.tsv | Recommended | METADATA | SDRF metadata file describing samples and experimental design |
 | mzTab.mzTab | Recommended | ANALYSIS | mzTab output containing identification and quantification data (must be enabled in MaxQuant settings) |
 | evidence.txt | **Mandatory** | ANALYSIS | Evidence table with peptide identifications and quantifications at the PSM level |
 | peptides.txt | **Mandatory** | ANALYSIS | Peptide-level identification and quantification results |

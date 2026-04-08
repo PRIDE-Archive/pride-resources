@@ -234,11 +234,7 @@ tools:
 
       - *common_fasta_database
 
-      - name: sdrf.tsv
-        status: mandatory
-        category: METADATA
-        extensions: [.sdrf.tsv]
-        description: "SDRF metadata file describing samples and experimental design"
+      - *common_sdrf
 
       - name: evidence.txt
         status: mandatory
