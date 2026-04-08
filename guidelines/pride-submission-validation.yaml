@@ -69,6 +69,18 @@ compression:
   rejected_formats: [rar]
   max_archive_size_gb: 50
 
+# A single PRIDE submission can contain multiple analyses (e.g., the same raw
+# data searched with different tools or different parameters). Each analysis
+# should be packaged as a separate archive with a descriptive name:
+#   maxquant_analysis1.zip, maxquant_analysis2.zip, diann_results.zip
+# Each archive is validated independently against its tool profile.
+# The raw data and FASTA files are shared across analyses and submitted once.
+multiple_analyses:
+  allowed: true
+  archive_naming: "one archive per analysis, named by tool and/or analysis description"
+  shared_files: [RAW, FASTA, METADATA]
+  per_analysis_files: [ANALYSIS, STANDARD, OTHER, SPECTRAL_LIBRARY, PEAK]
+
 limits:
   # Hard upper bounds to prevent pathological single-file uploads.
   # NOTE: This is per *individual* RAW data file (uncompressed or compressed as a single run).

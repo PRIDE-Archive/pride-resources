@@ -117,11 +117,21 @@ Before reviewing the file requirements, here are definitions of common file form
 
 **Note:** If an mzTab file fails validation, you can upload it as an ANALYSIS file instead.
 
+### Multiple Analyses per Submission
+
+A single PRIDE submission can contain **multiple analyses** of the same raw data — for example, searching with different tools (MaxQuant and DIA-NN), or running the same tool with different parameters. When submitting multiple analyses:
+
+- **Package each analysis separately**: Create one archive per analysis run (e.g., `maxquant_analysis1.zip`, `maxquant_analysis2.zip`, `diann_results.zip`)
+- **Raw data and FASTA files are shared**: Submit them once — they do not need to be duplicated per analysis
+- **Each analysis archive is validated independently** against its tool profile
+- **Name archives descriptively** so reviewers can distinguish between analyses
+
 Proper file compression is essential for efficient data storage and transmission when submitting to PRIDE, _particularly for .d folders and large files_. The following rules apply to all file types:
 
 1. **Group Related Files**: 
-   - Group all results from a single analysis tool together
+   - Group all results from a single analysis tool run together
    - Use logical naming (e.g., `mascot_exp1.zip`, `maxquant_full_results.tar.gz`)
+   - For multiple analyses, use distinct names (e.g., `maxquant_trypsin.zip`, `maxquant_chymotrypsin.zip`)
 
 2. **Size Considerations**:
    - Try to keep individual compressed files under 50GB for easier upload
