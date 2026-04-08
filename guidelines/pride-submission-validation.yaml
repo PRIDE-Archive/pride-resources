@@ -62,6 +62,17 @@
 #   warning — Submission CAN proceed but issue should be reviewed
 #   info    — Informational note, never blocks submission
 #
+# File matching strategy (how a validator maps files to entries):
+#   Each file entry can be matched by one or more of:
+#     1. filename_pattern — Glob or exact match on the filename (highest priority)
+#     2. extension        — Match by file extension (.tsv, .txt, etc.)
+#     3. header_fingerprint — For tabular files, read the header and look for
+#                            distinctive column names that identify the file
+#   When two entries share the same extension (e.g. MaxQuant's evidence.txt
+#   and parameters.txt are both .txt), the validator uses filename first,
+#   then header_fingerprint, then extension as a fallback.
+#   See the file_classification section for the full resolution algorithm.
+#
 # Cross-file rule types:
 #   reference_check        — Files in one category must appear in a target file
 #   column_reference_check — Column values must match submitted filenames
@@ -170,6 +181,88 @@ validation_workflow:
       compression formats.
     inputs: [limits, compression]
     severity_on_fail: error
+
+# ------------------------------------------------------------------------------
+# File classification algorithm
+# ------------------------------------------------------------------------------
+# When a validator encounters a file inside an ANALYSIS archive (e.g. a
+# maxquant_results.zip), it needs to decide:
+#   (a) WHICH file entry in the tool profile does this file match?
+#   (b) What CATEGORY does it belong to (ANALYSIS, OTHER, STANDARD, etc.)?
+#
+# Problem: many tools produce files with generic extensions (.txt, .tsv, .csv).
+# MaxQuant alone produces evidence.txt (ANALYSIS), parameters.txt (OTHER),
+# and summary.txt (OTHER) — all are .txt files but have different categories
+# and different validation rules.
+#
+# Resolution order (first match wins):
+#   1. filename_pattern — Exact filename or glob pattern match.
+#      Example: "evidence.txt" matches only evidence.txt, not parameters.txt.
+#   2. header_fingerprint — For tabular files (.tsv/.csv/.txt), read the
+#      first line and check if it contains distinctive column names.
+#      Example: a .tsv with columns [R.FileName, PG.ProteinAccessions, ...]
+#      is identified as a Spectronaut report even without filename matching.
+#   3. extension — Match by file extension alone (lowest priority, most
+#      ambiguous). Used as a last resort when filename and header don't match.
+#
+# If no match is found in the active tool profile, the file is classified
+# as OTHER with severity: info ("unrecognised file in archive").
+#
+# Example walkthrough — validating a maxquant_results.zip:
+#
+#   1. Extract archive → list files:
+#      evidence.txt, peptides.txt, proteinGroups.txt, parameters.txt,
+#      summary.txt, mqpar.xml, msms.txt, allPeptides.txt
+#
+#   2. Tool already detected as "maxquant" (step_1_detect_tool found
+#      evidence.txt + mqpar.xml + proteinGroups.txt as marker files).
+#
+#   3. For each file, walk the maxquant profile's files list:
+#      evidence.txt  →  filename match → ANALYSIS, mandatory
+#                   →  content_verification: read header, check columns
+#                      [Sequence, Modified sequence, Raw file, ...] → pass
+#      parameters.txt → filename match → OTHER, mandatory
+#                   →  content_verification: file_not_empty → pass
+#      mqpar.xml     → filename match → OTHER, mandatory
+#                   →  content_verification: xml_root_element = MaxQuantParams → pass
+#      msms.txt      → filename match → ANALYSIS, optional → severity: info
+#      unknown.txt   → no filename match → check header → no column match
+#                   →  extension fallback → unrecognised → OTHER, info
+#
+#   4. Check all mandatory files were found. Missing → severity: error.
+#      Missing recommended → severity: warning. Missing optional → info.
+# ------------------------------------------------------------------------------
+file_classification:
+  resolution_order:
+    - method: filename_pattern
+      description: >
+        Match the file's basename against the 'name' field in each file entry.
+        Supports exact match (e.g. "evidence.txt") and glob patterns
+        (e.g. "combined_*.tsv"). Case-insensitive on Windows, case-sensitive
+        on Linux/macOS.
+      priority: 1
+
+    - method: header_fingerprint
+      description: >
+        For tabular files (.tsv, .csv, .txt), read the first line (header),
+        split by the expected separator (tab or comma), and check if the
+        column names match any file entry's content_verification.required_columns.
+        A file is a match if ALL required_columns appear in the header
+        (extra columns are allowed, order does not matter).
+      priority: 2
+
+    - method: extension
+      description: >
+        Match by file extension alone. This is the most ambiguous method and
+        is only used when filename and header checks did not match. If
+        multiple entries share the same extension, the first entry with
+        status=mandatory takes precedence.
+      priority: 3
+
+  unmatched_file:
+    category: OTHER
+    severity: info
+    message: "File not recognised in the active tool profile — classified as OTHER"
 
 # ------------------------------------------------------------------------------
 # File categories
