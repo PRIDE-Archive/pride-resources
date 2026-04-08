@@ -915,8 +915,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
       - id: mq_raw_sdrf_match
         rule_type: reference_check
@@ -1066,8 +1075,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
       - id: diann_raw_sdrf_match
         rule_type: reference_check
@@ -1195,8 +1213,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
   # ---- FragPipe / MSFragger ----
   - id: fragpipe
@@ -1358,8 +1385,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
       - id: fp_raw_sdrf_match
         rule_type: reference_check
@@ -1464,8 +1500,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
   # ---- OpenMS ----
   - id: openms
@@ -1550,8 +1595,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
   # ---- Mascot ----
   - id: mascot
@@ -1627,8 +1681,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
   # ---- Proteome Discoverer ----
   - id: proteome_discoverer
@@ -1724,8 +1787,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
   # ---- MS-GF+ ----
   # NOTE: MS-GF+ natively outputs mzIdentML, so the STANDARD format file is
@@ -1805,8 +1877,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
   # ---- Generic / Other Tools ----
   # Catch-all profile for any tool not explicitly listed above.
@@ -1870,8 +1951,17 @@ tools:
         rule_type: file_count
         category: FASTA
         min: 1
-        severity: error
-        description: "At least one FASTA database must be submitted"
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: error
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics/proteogenomics,
+          reference-only for standard public databases, not required for
+          patient-specific databases.
 
       - id: gen_analysis_file_count
         rule_type: file_count
