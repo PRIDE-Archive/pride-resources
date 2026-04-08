@@ -196,16 +196,57 @@ raw_formats:
     standard: "PSI"
     format_type: open_standard
     schema_version: "1.1.1"
-    compression_required: false
+    compression_required: true
     one_run_per_archive: true
     directory_based: false
     # Both indexed and non-indexed mzML are accepted. Indexed mzML wraps the
     # document in <indexedmzML> with byte-offset indices for random access.
-    notes: "PSI open standard XML format — accepted as alternative to vendor raw files. Schema 1.1.1. Both indexed and non-indexed accepted. GZ compression recommended for large files (.mzML.gz)."
+    notes: "PSI open standard XML format — accepted as alternative to vendor raw files. Schema 1.1.1. Both indexed and non-indexed accepted. GZ compression is mandatory (.mzML.gz) — one run per compressed file."
+
+raw_data_validation:
+  description: "PRIDE performs automated validation on submitted raw data files"
+  checks:
+    - id: file_integrity
+      description: "Compressed archives are verified to ensure they are not corrupted and can be extracted"
+    - id: format_validation
+      description: "Raw files are checked to confirm they contain valid MS data and can be read by standard tools"
+    - id: structure_verification
+      description: "For directory-based formats (.d folders), essential files are verified (e.g., analysis.tdf for Bruker timsTOF, AcqData/ for Agilent)"
 
 condition_flags:
   - id: library_search
     description: "Spectral library was used in the analysis"
+
+  - id: metaproteomics
+    description: "Metaproteomics study — database derived from metagenome assembly"
+
+  - id: proteogenomics
+    description: "Proteogenomics study — custom database from genomic/transcriptomic data"
+
+  - id: patient_specific_database
+    description: "Database contains personal/sensitive data (e.g., patient SNPs) — FASTA not required for privacy"
+
+fasta_policy:
+  description: >
+    FASTA requirement depends on experiment type and database origin.
+    The key principle is reproducibility: if a third party cannot obtain
+    the exact same database independently, it must be provided.
+  rules:
+    - scenario: "Standard public database (UniProt Swiss-Prot, RefSeq, etc.)"
+      fasta_required: false
+      action: "Provide exact database name, version, and URL in metadata"
+    - scenario: "Patient-specific / personal variant database (SNPs, individual variants)"
+      fasta_required: false
+      condition_flag: patient_specific_database
+      action: "Document construction method; note privacy constraint in metadata"
+    - scenario: "Metaproteomics (metagenome-derived database)"
+      fasta_required: true
+      condition_flag: metaproteomics
+      action: "Upload FASTA file with submission"
+    - scenario: "Proteogenomics (custom genomic/transcriptomic database)"
+      fasta_required: true
+      condition_flag: proteogenomics
+      action: "Upload FASTA file with submission"
 
 common_files:
   raw_files: &common_raw_files
@@ -220,7 +261,18 @@ common_files:
     status: mandatory
     category: FASTA
     extensions: [.fasta, .fa]
-    description: "Protein sequence database used for search"
+    description: >
+      Protein sequence database used for search. Mandatory for metaproteomics
+      and proteogenomics. For standard public databases (UniProt, RefSeq),
+      providing name/version/URL in metadata is sufficient. Not required
+      when database contains personal/sensitive data (see fasta_policy).
+    conditional_override:
+      - condition_flag: patient_specific_database
+        status: not_required
+      - condition_flag: metaproteomics
+        status: mandatory
+      - condition_flag: proteogenomics
+        status: mandatory
 
   sdrf: &common_sdrf
     name: sdrf.tsv
@@ -271,7 +323,7 @@ tools:
 
       - name: mzTab.mzTab
         status: recommended
-        category: ANALYSIS
+        category: STANDARD
         extensions: [.mzTab]
         description: "mzTab output containing identification and quantification data (must be enabled in MaxQuant settings)"
 
@@ -352,6 +404,12 @@ tools:
         category: ANALYSIS
         extensions: [.txt]
         description: "Isotope patterns in the data"
+
+      - name: matchedFeatures.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        description: "Matched peptide-like features across samples by Match between runs"
 
       - name: dependentPeptides.txt
         status: optional
@@ -436,11 +494,19 @@ tools:
         extensions: [.log.txt, .txt]
         description: "DIA-NN analysis log file documenting processing steps"
 
-      - name: parameter_config
+      - name: site_report
         status: mandatory
+        category: ANALYSIS
+        extensions: [.site_report.parquet, .site_report.tsv]
+        description: "PTM site localisation report — mandatory if produced by DIA-NN"
+        conditional: true
+        condition_note: "Only required when DIA-NN produces a site report (PTM analysis)"
+
+      - name: parameter_config
+        status: recommended
         category: OTHER
-        extensions: [.cfg, .txt]
-        description: "DIA-NN configuration file with search parameters"
+        extensions: [.pipeline.json, .pipeline, .cfg, .txt]
+        description: "DIA-NN pipeline/configuration file with search parameters"
 
       - name: pr_matrix.tsv
         status: recommended
@@ -475,10 +541,16 @@ tools:
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
-        extensions: [.speclib, .tsv, .blib, .sptxt]
+        extensions: [.speclib, .parquet, .tsv, .blib, .sptxt]
         description: "Spectral library used for library-based search (DIA-NN 1.8+ uses .speclib format)"
         conditional: true
         condition_flag: library_search
+
+      - name: empirical_library
+        status: recommended
+        category: SPECTRAL_LIBRARY
+        extensions: [.parquet, .tsv]
+        description: "Empirical library produced by DIA-NN automatically as part of MBR (match-between-runs)"
 
       - *common_peak_lists
 
@@ -534,8 +606,20 @@ tools:
       - name: analysis_settings
         status: mandatory
         category: OTHER
-        extensions: [.json]
-        description: "Spectronaut analysis settings exported as JSON"
+        extensions: [.json, .txt, .properties]
+        description: "Spectronaut analysis settings file or exported parameters documenting the search configuration"
+
+      - name: saved_experiment
+        status: recommended
+        category: ANALYSIS
+        extensions: [.sne]
+        description: "Full saved experiment file — can be loaded into the free Spectronaut Viewer version"
+
+      - name: search_archive
+        status: recommended
+        category: ANALYSIS
+        extensions: [.psar]
+        description: "Search archives generated during library generation or directDIA (if available)"
 
       - name: protein_group_report
         status: recommended
