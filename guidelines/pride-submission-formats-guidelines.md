@@ -231,12 +231,12 @@ Raw data files contain the unprocessed data directly from the mass spectrometer.
 
 | Format | Extension | Vendor/Source | Description |
 |--------|-----------|---------------|-------------|
-| Thermo RAW | .raw | Thermo Fisher Scientific | Binary format for Thermo instruments |
-| Bruker BAF/TDF | .baf, .tdf, .d folder, .fid | Bruker | Format for Bruker instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives (see details below) |
-| SCIEX WIFF | .wiff, .wiff2, .wiff.scan | SCIEX | Format for SCIEX instruments |
-| Agilent D | .d folder | Agilent | Format for Agilent instruments. **Note:** .d folders must be provided as .zip or .tar.gz archives |
-| Waters RAW | .raw | Waters | Format for Waters instruments. **Note:** If RAW files are generated as a directory then you must compress them individually |
-| mzML | .mzML | PSI Standard | Open XML-based standard format |
+| Thermo RAW | .raw | Thermo Fisher Scientific | Single binary file (OLE2 format, internally LZF-compressed). One file per run. |
+| Bruker .d | .d folder | Bruker | Directory containing instrument-specific data files (TDF, TSF, BAF, YEP, or FID). **Must be compressed** as .zip or .tar.gz before submission. |
+| SCIEX WIFF | .wiff, .wiff2, .wiff.scan | SCIEX | Paired files: .wiff/.wiff2 (metadata) + .wiff.scan (spectral data). **Both files are required.** |
+| Agilent .d | .d folder | Agilent | Directory containing AcqData/ (MSScan.bin, MSProfile.bin) and Method/. **Must be compressed** as .zip or .tar.gz. |
+| Waters RAW | .raw | Waters | Directory containing _HEADER.TXT, _FUNC*.DAT, and _FUNC*.IDX files. **Must be compressed** as .zip or .tar.gz. |
+| mzML | .mzML | PSI Standard | Open XML format (schema 1.1.1). Accepted as alternative to vendor raw files. GZ compression recommended for large files. |
 
 **Important Notes for Raw Data:**
 - When compressing directory-based raw data (.d folders), ensure you preserve the directory structure

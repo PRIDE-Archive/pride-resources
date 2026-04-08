@@ -83,6 +83,10 @@ raw_formats:
     compression_required: false
     one_run_per_archive: true
     directory_based: false
+    format_type: binary
+    binary_signature: "D0CF11E0A1B11AE1"
+    internal_compression: "LZF"
+    notes: "OLE2 compound document format. Already compressed internally (LZF) — additional gzip provides minimal benefit. Single file per run."
 
   - id: bruker_d
     category: RAW
@@ -121,6 +125,15 @@ raw_formats:
     compression_required: false
     one_run_per_archive: true
     directory_based: false
+    # .wiff/.wiff2 files ALWAYS require a companion .wiff.scan file containing
+    # the actual spectral (X-Y) data. The .wiff/.wiff2 file contains metadata only.
+    # A single .wiff can contain multiple samples — PRIDE requires one run per file.
+    # SCIEX OS v2.1+ generates both .wiff and .wiff2 simultaneously.
+    companion_files:
+      - extension: .wiff.scan
+        required: true
+        description: "Spectral data file — always paired with .wiff or .wiff2"
+    notes: "Both .wiff and .wiff.scan are required for a valid submission. A single .wiff can contain multiple samples — ensure one run per file for PRIDE."
 
   - id: agilent_d
     category: RAW
@@ -129,25 +142,54 @@ raw_formats:
     compression_required: true
     one_run_per_archive: true
     directory_based: true
+    # Agilent .d folders contain AcqData/ with binary data files and Method/ with acquisition parameters.
+    required_contents:
+      - directory: AcqData
+        required_files: [MSScan.bin, MSProfile.bin]
+        optional_files: [MSMassCal.bin, MSPeak.bin, MSScan.xsd, MSTS.xml]
+        description: "Acquisition data — binary spectral data and metadata"
+    optional_contents:
+      - directory: Method
+        description: "Acquisition and analysis method files"
+    internal_compression: "LZF (in MSProfile.bin)"
 
   - id: waters_raw
     category: RAW
     extensions: [.raw]
     vendor: "Waters"
-    compression_required: false
+    compression_required: true
     one_run_per_archive: true
-    directory_based: false
-    notes: "Waters .raw can be directory-based on older instruments — compress directory-based .raw folders individually"
+    directory_based: true
+    # Waters .raw is ALWAYS a directory produced by MassLynx. Each .raw folder
+    # contains one run. Compress the entire folder before submission.
+    required_contents:
+      - file: _HEADER.TXT
+        description: "Run metadata (date, vial position)"
+      - file: _FUNC001.DAT
+        description: "Spectral data for first acquisition function"
+      - file: _FUNC001.IDX
+        description: "Index for first acquisition function data"
+    optional_contents:
+      - file: _extern.inf
+        description: "Hardware operations and function type mapping (e.g., lockmass)"
+      - file: _functns.inf
+        description: "Information on acquired functions"
+      - pattern: "_FUNC*.DAT/_FUNC*.IDX"
+        description: "Additional acquisition functions (MS, UV, lockmass)"
+    notes: "Waters .raw is always a directory — compress as .raw.zip or .raw.tar.gz. Synapt/IMS instruments use the same structure."
 
   - id: mzml
     category: RAW
     extensions: [.mzML]
     standard: "PSI"
     format_type: open_standard
+    schema_version: "1.1.1"
     compression_required: false
     one_run_per_archive: true
     directory_based: false
-    notes: "Open XML-based format — accepted as an alternative to vendor raw files, not a vendor format"
+    # Both indexed and non-indexed mzML are accepted. Indexed mzML wraps the
+    # document in <indexedmzML> with byte-offset indices for random access.
+    notes: "PSI open standard XML format — accepted as alternative to vendor raw files. Schema 1.1.1. Both indexed and non-indexed accepted. GZ compression recommended for large files (.mzML.gz)."
 
 condition_flags:
   - id: library_search
@@ -1035,7 +1077,10 @@ tools:
       - id: gen_d_folder_agilent
         rule_type: archive_content
         applies_to_extensions: [.d.zip, .d.tar.gz]
+        vendor: agilent_d
         required_contents:
-          - pattern: "*/AcqData/*"
-            vendor: agilent_d
-        description: "Agilent .d folders must contain AcqData directory"
+          - pattern: "*/AcqData/MSScan.bin"
+            description: "Scan record data"
+          - pattern: "*/AcqData/MSProfile.bin"
+            description: "Profile spectral data"
+        description: "Agilent .d folders must contain AcqData/ with MSScan.bin and MSProfile.bin"
