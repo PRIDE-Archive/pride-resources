@@ -41,6 +41,9 @@
 #                     Fields: separator, required_columns,
 #                             severity_on_missing_column, min_data_rows,
 #                             severity_on_empty
+#                     separator accepts: "\t", ",", or "auto_detect".
+#                     "auto_detect" infers from extension: .tsv/.txt → tab,
+#                     .csv → comma.
 #   parquet_schema  — Open the parquet file, read the schema, check column
 #                     names. Fields: required_columns,
 #                             severity_on_missing_column, min_data_rows,
@@ -504,6 +507,10 @@ raw_formats:
           required: true
           description: "Spectral data file — always paired with .wiff2"
 
+  # NOTE: Agilent .d and Bruker .d share the same extensions (.d.zip, .d.tar.gz).
+  # Validators MUST inspect archive contents (format_verification.required_files)
+  # to distinguish them: Bruker → analysis.tdf/baf/tsf/yep/fid,
+  # Agilent → AcqData/MSScan.bin. Extension alone is not sufficient.
   - id: agilent_d
     category: RAW
     extensions: [.d.zip, .d.tar.gz]
@@ -555,8 +562,10 @@ raw_formats:
           description: "Hardware operations and function type mapping (e.g., lockmass)"
         - file: _functns.inf
           description: "Information on acquired functions"
-        - pattern: "_FUNC*.DAT/_FUNC*.IDX"
-          description: "Additional acquisition functions (MS, UV, lockmass)"
+        - pattern: "_FUNC*.DAT"
+          description: "Additional acquisition function data files (MS, UV, lockmass)"
+        - pattern: "_FUNC*.IDX"
+          description: "Index files for additional acquisition functions"
 
   - id: mzml
     category: RAW
@@ -614,6 +623,9 @@ condition_flags:
 
   - id: patient_specific_database
     description: "Database contains personal/sensitive data (e.g., patient SNPs) — FASTA not required for privacy"
+
+  - id: ptm_analysis
+    description: "PTM (post-translational modification) analysis was performed — activates PTM-specific file requirements"
 
 # ------------------------------------------------------------------------------
 # FASTA database policy
@@ -902,12 +914,6 @@ tools:
         extensions: [.mzid]
         description: "Standard format export of identification results"
 
-      - name: mztab_export
-        status: recommended
-        category: STANDARD
-        extensions: [.mzTab]
-        description: "Standard format export of quantification results"
-
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
@@ -1008,9 +1014,10 @@ tools:
         status: mandatory
         category: ANALYSIS
         extensions: [.site_report.parquet, .site_report.tsv]
+        filename_patterns: ["{prefix}*.site_report.parquet", "{prefix}*.site_report.tsv"]
         description: "PTM site localisation report — mandatory if produced by DIA-NN"
         conditional: true
-        condition_note: "Only required when DIA-NN produces a site report (PTM analysis)"
+        condition_flag: ptm_analysis
 
       - name: parameter_config
         status: recommended
@@ -1267,6 +1274,7 @@ tools:
         status: mandatory
         category: OTHER
         extensions: [.workflow]
+        filename_patterns: ["{prefix}fragpipe.workflow"]
         description: "FragPipe configuration and parameter files"
         content_verification:
           method: file_not_empty
@@ -1276,6 +1284,7 @@ tools:
         status: mandatory
         category: OTHER
         extensions: [.fp-manifest]
+        filename_patterns: ["{prefix}fragpipe-files.fp-manifest"]
         description: "FragPipe manifest files"
         content_verification:
           method: file_not_empty
@@ -1399,7 +1408,7 @@ tools:
     description: "Open-source application for targeted proteomics (SRM/MRM/PRM/DIA)"
 
     tool_detection:
-      marker_files: [.sky, .skyd]
+      marker_files: ["*.sky", "*.skyd"]
       match_any: true
       description: "Skyline documents always include .sky (XML) and/or .skyd (binary cache), or a .sky.zip shared archive"
 
@@ -1490,7 +1499,7 @@ tools:
     description: "Open-source C++ library with Python bindings for LC/MS data analysis"
 
     tool_detection:
-      marker_files: [.idxml]
+      marker_files: ["*.idxml"]
       match_any: true
       description: "OpenMS identification results use the idXML format"
 
@@ -1576,7 +1585,7 @@ tools:
     description: "Search engine for protein identification by matching MS data to peptide sequence databases"
 
     tool_detection:
-      marker_files: [.dat]
+      marker_files: ["*.dat"]
       match_any: true
       description: "Mascot search results are .dat files with a characteristic MIME-like header"
 
@@ -1653,7 +1662,7 @@ tools:
     description: "Thermo Scientific flexible software suite for proteomics research"
 
     tool_detection:
-      marker_files: [.pdresult]
+      marker_files: ["*.pdresult", "*.msf"]
       match_any: true
       description: "Proteome Discoverer produces .pdresult (PD 2.x+) or .msf (PD 1.x) SQLite databases"
 
@@ -1755,7 +1764,7 @@ tools:
       # MS-GF+ outputs .mzid files. Since mzIdentML is shared with other tools,
       # additionally look for the MS-GF+ parameter file (.params) or check that
       # the mzid contains MS-GF+ specific scores.
-      marker_files: [.mzid, .params]
+      marker_files: ["*.mzid", "*.params"]
       description: "MS-GF+ produces .mzid natively, usually alongside a .params file"
 
     files:
