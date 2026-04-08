@@ -102,7 +102,7 @@ raw_formats:
 
   - id: bruker_d
     category: RAW
-    extensions: [.d]
+    extensions: [.d.zip, .d.tar.gz]
     vendor: "Bruker"
     compression_required: true
     one_run_per_archive: true
@@ -149,7 +149,7 @@ raw_formats:
 
   - id: agilent_d
     category: RAW
-    extensions: [.d]
+    extensions: [.d.zip, .d.tar.gz]
     vendor: "Agilent"
     compression_required: true
     one_run_per_archive: true
@@ -167,7 +167,7 @@ raw_formats:
 
   - id: waters_raw
     category: RAW
-    extensions: [.raw]
+    extensions: [.raw.zip, .raw.tar.gz]
     vendor: "Waters"
     compression_required: true
     one_run_per_archive: true
@@ -192,7 +192,7 @@ raw_formats:
 
   - id: mzml
     category: RAW
-    extensions: [.mzML]
+    extensions: [.mzML.gz]
     standard: "PSI"
     format_type: open_standard
     schema_version: "1.1.1"
@@ -253,7 +253,7 @@ common_files:
     name: raw_files
     status: mandatory
     category: RAW
-    extensions: [.raw, .mzML, .wiff, .wiff2, .wiff.scan, .d]
+    extensions: [.raw, .mzML.gz, .wiff, .wiff2, .wiff.scan, .d.zip, .d.tar.gz, .raw.zip, .raw.tar.gz]
     description: "Raw data files from the mass spectrometer (vendor formats or mzML)"
 
   fasta_database: &common_fasta_database
