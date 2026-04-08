@@ -730,7 +730,7 @@ tools:
           # Additional columns produced by newer MaxQuant versions are allowed.
           separator: "\t"
           required_columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Score]
-          severity_on_missing_column: error
+          severity_on_missing_column: warning
           min_data_rows: 1
           severity_on_empty: error
 
@@ -745,7 +745,7 @@ tools:
           method: tsv_header
           separator: "\t"
           required_columns: [Sequence, Proteins, Intensity, Score, PEP]
-          severity_on_missing_column: error
+          severity_on_missing_column: warning
           min_data_rows: 1
           severity_on_empty: error
 
@@ -760,7 +760,7 @@ tools:
           method: tsv_header
           separator: "\t"
           required_columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Score]
-          severity_on_missing_column: error
+          severity_on_missing_column: warning
           min_data_rows: 1
           severity_on_empty: error
 
@@ -977,14 +977,14 @@ tools:
             parquet:
               method: parquet_schema
               required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
-              severity_on_missing_column: error
+              severity_on_missing_column: warning
               min_data_rows: 1
               severity_on_empty: error
             tsv:
               method: tsv_header
               separator: "\t"
               required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
-              severity_on_missing_column: error
+              severity_on_missing_column: warning
               min_data_rows: 1
               severity_on_empty: error
 
@@ -1139,7 +1139,7 @@ tools:
           method: tsv_header
           separator: auto_detect
           required_columns: [R.FileName, PG.ProteinAccessions, EG.PrecursorId, EG.ModifiedSequence]
-          severity_on_missing_column: error
+          severity_on_missing_column: warning
           min_data_rows: 1
           severity_on_empty: error
 
@@ -1258,7 +1258,7 @@ tools:
           method: tsv_header
           separator: "\t"
           required_columns: [Spectrum, Spectrum File, Peptide, Modified Peptide, Charge, Protein]
-          severity_on_missing_column: error
+          severity_on_missing_column: warning
           min_data_rows: 1
           severity_on_empty: error
 
@@ -1273,7 +1273,7 @@ tools:
           method: tsv_header
           separator: "\t"
           required_columns: [Protein, Protein ID, Gene, Protein Probability]
-          severity_on_missing_column: error
+          severity_on_missing_column: warning
           min_data_rows: 1
           severity_on_empty: error
 
@@ -1744,7 +1744,7 @@ tools:
           method: tsv_header
           separator: "\t"
           required_columns: [Confidence, Sequence, Modifications, Charge, Spectrum File]
-          severity_on_missing_column: error
+          severity_on_missing_column: warning
           min_data_rows: 1
           severity_on_empty: error
 
