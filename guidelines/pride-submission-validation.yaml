@@ -218,28 +218,51 @@ validation_workflow:
 #      evidence.txt + mqpar.xml + proteinGroups.txt as marker files).
 #
 #   3. For each file, walk the maxquant profile's files list:
-#      evidence.txt  →  filename match → ANALYSIS, mandatory
-#                   →  content_verification: read header, check columns
-#                      [Sequence, Modified sequence, Raw file, ...] → pass
-#      parameters.txt → filename match → OTHER, mandatory
-#                   →  content_verification: file_not_empty → pass
-#      mqpar.xml     → filename match → OTHER, mandatory
-#                   →  content_verification: xml_root_element = MaxQuantParams → pass
-#      msms.txt      → filename match → ANALYSIS, optional → severity: info
-#      unknown.txt   → no filename match → check header → no column match
-#                   →  extension fallback → unrecognised → OTHER, info
+#      evidence.txt       →  pattern "{prefix}evidence.txt" → match → ANALYSIS
+#                         →  read header → [Sequence, Modified sequence, ...] → pass
+#      exp1_evidence.txt  →  pattern "{prefix}evidence.txt" → match → ANALYSIS
+#                         →  same header check → pass (prefix is fine)
+#      parameters.txt     →  pattern "{prefix}parameters.txt" → match → OTHER
+#                         →  file_not_empty → pass
+#      mqpar.xml          →  pattern "{prefix}mqpar.xml" → match → OTHER
+#                         →  xml root = MaxQuantParams → pass
+#      msms.txt           →  pattern "{prefix}msms.txt" → match → ANALYSIS, optional
+#      results.txt        →  no filename match → check header → has columns
+#                            [Sequence, Modified sequence, Raw file] → evidence.txt!
+#      unknown.txt        →  no filename match → header doesn't match anything
+#                         →  extension fallback → unrecognised → OTHER, info
 #
 #   4. Check all mandatory files were found. Missing → severity: error.
 #      Missing recommended → severity: warning. Missing optional → info.
 # ------------------------------------------------------------------------------
 file_classification:
+  # Users often add a prefix to all files from an analysis tool, for example
+  # when multiple analyses share the same folder:
+  #   experiment1_evidence.txt, experiment1_peptides.txt, ...
+  #   my_project_report.parquet, my_project_pg_matrix.tsv, ...
+  #
+  # To handle this, each file entry supports a filename_patterns list with
+  # glob-style patterns. The validator tries each pattern against the file's
+  # basename. The special token {prefix} matches any leading string
+  # (including empty), so "{prefix}evidence.txt" matches both "evidence.txt"
+  # and "experiment1_evidence.txt".
+  #
+  # Implementation note for validators:
+  #   Replace {prefix} with the regex ".*" (or glob "*") before matching.
+  #   Example: "{prefix}evidence.txt" → regex "^.*evidence\.txt$"
+
   resolution_order:
     - method: filename_pattern
       description: >
-        Match the file's basename against the 'name' field in each file entry.
-        Supports exact match (e.g. "evidence.txt") and glob patterns
-        (e.g. "combined_*.tsv"). Case-insensitive on Windows, case-sensitive
-        on Linux/macOS.
+        Match the file's basename against the filename_patterns list in each
+        file entry. Patterns support:
+          - Exact match: "evidence.txt"
+          - Glob wildcards: "combined_*.tsv"
+          - Prefix token: "{prefix}evidence.txt" matches "evidence.txt",
+            "exp1_evidence.txt", "myproject_evidence.txt", etc.
+        If a file entry has no filename_patterns, fall back to matching
+        against the 'name' field as an exact match.
+        Case-insensitive on Windows, case-sensitive on Linux/macOS.
       priority: 1
 
     - method: header_fingerprint
@@ -249,6 +272,8 @@ file_classification:
         column names match any file entry's content_verification.required_columns.
         A file is a match if ALL required_columns appear in the header
         (extra columns are allowed, order does not matter).
+        This is especially useful when users rename files — even if the
+        filename doesn't match, the column names uniquely identify the file.
       priority: 2
 
     - method: extension
@@ -692,8 +717,8 @@ tools:
     # A validator scans the archive listing for these marker files.
     # If ALL marker_files are found, this profile is activated.
     tool_detection:
-      marker_files: [evidence.txt, mqpar.xml, proteinGroups.txt]
-      description: "MaxQuant output folders always contain these three files"
+      marker_files: ["{prefix}evidence.txt", "{prefix}mqpar.xml", "{prefix}proteinGroups.txt"]
+      description: "MaxQuant output folders always contain these three files (possibly with a user-added prefix)"
 
     files:
       - *common_raw_files
@@ -706,6 +731,7 @@ tools:
         status: mandatory
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}evidence.txt"]
         description: "Evidence table with peptide identifications and quantifications at PSM level"
         columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Leading razor protein, Type, Score, MS/MS count]
         content_verification:
@@ -723,6 +749,7 @@ tools:
         status: mandatory
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}peptides.txt"]
         description: "Peptide-level identification and quantification results"
         columns: [Sequence, Proteins, Intensity, Score, PEP, Unique (Groups), Unique (Proteins)]
         content_verification:
@@ -737,6 +764,7 @@ tools:
         status: mandatory
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}proteinGroups.txt"]
         description: "Protein group identification and quantification results"
         columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Score, PEP, Reverse, Potential contaminant]
         content_verification:
@@ -757,6 +785,7 @@ tools:
         status: mandatory
         category: OTHER
         extensions: [.txt]
+        filename_patterns: ["{prefix}parameters.txt"]
         description: "Processing parameters used in the analysis"
         content_verification:
           method: file_not_empty
@@ -766,6 +795,7 @@ tools:
         status: mandatory
         category: OTHER
         extensions: [.txt]
+        filename_patterns: ["{prefix}summary.txt"]
         description: "Summary statistics of the MaxQuant run"
         content_verification:
           method: file_not_empty
@@ -775,6 +805,7 @@ tools:
         status: mandatory
         category: OTHER
         extensions: [.xml]
+        filename_patterns: ["{prefix}mqpar.xml"]
         description: "MaxQuant parameter file containing all search settings"
         content_verification:
           method: xml_root_element
@@ -785,72 +816,84 @@ tools:
         status: recommended
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}allPeptides.txt"]
         description: "All peptide-like features detected in the data"
 
       - name: msScans.txt
         status: recommended
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}msScans.txt"]
         description: "MS scan information"
 
       - name: msmsScans.txt
         status: recommended
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}msmsScans.txt"]
         description: "MS/MS scan information and fragment ion matches"
 
       - name: "Oxidation (M)Sites.txt"
         status: recommended
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}Oxidation (M)Sites.txt", "{prefix}*Sites.txt"]
         description: "Oxidation modification site identifications"
 
       - name: modificationSpecificPeptides.txt
         status: recommended
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}modificationSpecificPeptides.txt"]
         description: "Modified peptide identifications"
 
       - name: msms.txt
         status: optional
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}msms.txt"]
         description: "All MS/MS scans processed"
 
       - name: ms3Scans.txt
         status: optional
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}ms3Scans.txt"]
         description: "MS3 scan information and fragment ion matches"
 
       - name: fragment.txt
         status: optional
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}fragment.txt"]
         description: "Fragment information"
 
       - name: fragmentQuant.txt
         status: optional
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}fragmentQuant.txt"]
         description: "Fragment quantification data"
 
       - name: mzRange.txt
         status: optional
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}mzRange.txt"]
         description: "Isotope patterns in the data"
 
       - name: matchedFeatures.txt
         status: optional
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}matchedFeatures.txt"]
         description: "Matched peptide-like features across samples by Match between runs"
 
       - name: dependentPeptides.txt
         status: optional
         category: ANALYSIS
         extensions: [.txt]
+        filename_patterns: ["{prefix}dependentPeptides.txt"]
         description: "Dependent peptide analysis results"
 
       - name: mzidentml_export
@@ -916,7 +959,7 @@ tools:
     description: "Advanced software for DIA proteomics using neural networks"
 
     tool_detection:
-      marker_files: [report.parquet, report.tsv]
+      marker_files: ["{prefix}report.parquet", "{prefix}report.tsv"]
       match_any: true
       description: "DIA-NN always produces a report file (parquet since 1.8+, tsv in older versions)"
 
@@ -931,6 +974,7 @@ tools:
         status: mandatory
         category: ANALYSIS
         extensions: [.parquet, .tsv]
+        filename_patterns: ["{prefix}report.parquet", "{prefix}report.tsv"]
         description: "Main DIA-NN report file with all identifications and quantifications"
         columns: [File.Name, Protein.Group, Protein.Ids, Protein.Names, Genes, Precursor.Id, Modified.Sequence, Stripped.Sequence, Precursor.Charge, Q.Value, PG.Q.Value, Global.Q.Value, Precursor.Quantity, RT]
         content_verification:
@@ -978,24 +1022,28 @@ tools:
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}pr_matrix.tsv"]
         description: "Precursor-level quantification matrix"
 
       - name: pg_matrix.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}pg_matrix.tsv"]
         description: "Protein group-level quantification matrix"
 
       - name: gg_matrix.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}gg_matrix.tsv"]
         description: "Gene group-level quantification matrix"
 
       - name: stats.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}stats.tsv"]
         description: "Per-run statistics from DIA-NN analysis"
 
       - name: mztab_export
@@ -1175,7 +1223,7 @@ tools:
     description: "Versatile MS proteomics analysis platform integrating MSFragger, Philosopher, IonQuant, and more"
 
     tool_detection:
-      marker_files: [psm.tsv, fragpipe.workflow]
+      marker_files: ["{prefix}psm.tsv", "{prefix}fragpipe.workflow"]
       description: "FragPipe always produces psm.tsv and the workflow file"
 
     files:
@@ -1189,6 +1237,7 @@ tools:
         status: mandatory
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}psm.tsv"]
         description: "Peptide identification results at PSM level"
         columns: [Spectrum, Spectrum File, Peptide, Modified Peptide, Charge, Retention, Protein, Mapped Proteins, Hyperscore, PeptideProphet Probability]
         content_verification:
@@ -1203,6 +1252,7 @@ tools:
         status: mandatory
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}protein.tsv"]
         description: "Protein-level identification and inference results"
         columns: [Protein, Protein ID, Entry Name, Gene, Protein Probability, Combined Total Peptides, Total Spectral Count]
         content_verification:
@@ -1235,42 +1285,49 @@ tools:
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_ion.tsv"]
         description: "Combined ion-level results across experiments"
 
       - name: combined_modified_peptide.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_modified_peptide.tsv"]
         description: "Combined peptidoform-level results across experiments"
 
       - name: combined_peptide.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_peptide.tsv"]
         description: "Combined peptide-level results across experiments"
 
       - name: combined_protein.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_protein.tsv"]
         description: "Combined protein-level results across experiments"
 
       - name: combined_ion_label_quant.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_ion_label_quant.tsv"]
         description: "Combined ion-level results from isotopic labeling quantification"
 
       - name: combined_modified_peptide_label_quant.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_modified_peptide_label_quant.tsv"]
         description: "Combined peptidoform-level results from isotopic labeling quantification"
 
       - name: combined_protein_label_quant.tsv
         status: recommended
         category: ANALYSIS
         extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_protein_label_quant.tsv"]
         description: "Combined protein-level results from isotopic labeling quantification"
 
       - name: tmt_report_folder
