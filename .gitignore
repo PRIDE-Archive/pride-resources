@@ -139,3 +139,6 @@ dmypy.json
 .idea
 .cursor/
 .codacy
+
+# Superpowers design docs (local only)
+docs/superpowers/

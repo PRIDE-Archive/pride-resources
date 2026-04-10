@@ -1,0 +1,2017 @@
+# ==============================================================================
+# PRIDE Submission Validation Rules
+# ==============================================================================
+#
+# This file is the machine-readable source of truth for PRIDE submission
+# validation. It defines which files are required, recommended, or optional
+# for each supported analysis tool, along with compression rules, raw format
+# specifications, and cross-file validation checks.
+#
+# Consumers:
+#   - PRIDE Submission Tool (Java) — validates submissions at upload time
+#   - Python validator scripts — standalone CLI validation of dataset folders
+#   - Documentation generators — auto-generate markdown/HTML guidelines
+#
+# Structure:
+#   version          — Schema version (semver)
+#   file_categories  — Valid category values for file entries
+#   compression      — Global compression rules (supported/rejected formats)
+#   limits           — Hard upper bounds (e.g., max file size)
+#   raw_formats      — Accepted raw data formats by vendor/instrument
+#   condition_flags  — Flags a submission declares to activate conditional rules
+#   common_files     — Shared file definitions reused across tool profiles
+#   tools            — Self-contained validation profiles, one per analysis tool
+#
+# File entry fields:
+#   name        — File name or logical identifier
+#   status      — mandatory | recommended | optional
+#   category    — One of the file_categories values
+#   extensions  — Accepted file extensions
+#   description — Human-readable description
+#   columns     — (optional) Expected column names for tabular files
+#   conditional — (optional) true if this file is only required when a
+#                 condition_flag is active
+#   condition_flag — (optional) Which flag activates this requirement
+#   content_verification — (optional) How to verify the file's contents are
+#                          valid (see verification methods below)
+#
+# Content verification methods (content_verification.method):
+#   tsv_header      — Read the header line, split by separator, check that
+#                     all required_columns are present (order-independent).
+#                     Fields: separator, required_columns,
+#                             severity_on_missing_column, min_data_rows,
+#                             severity_on_empty
+#                     separator accepts: "\t", ",", or "auto_detect".
+#                     "auto_detect" infers from extension: .tsv/.txt → tab,
+#                     .csv → comma.
+#   parquet_schema  — Open the parquet file, read the schema, check column
+#                     names. Fields: required_columns,
+#                             severity_on_missing_column, min_data_rows,
+#                             severity_on_empty
+#   auto_detect     — Choose the verification method based on the file
+#                     extension. Fields: formats (map of ext → method block)
+#   xml_root_element — Parse XML, check root element name and namespace.
+#                     Fields: accepted_roots, namespace, severity_on_fail
+#   magic_bytes     — Read N bytes at an offset, compare hex.
+#                     Fields: offset, length, hex_value, severity_on_fail
+#   text_starts_with — Read the first line and check for a known prefix.
+#                     Fields: expected_prefix, alternative_prefix,
+#                             severity_on_fail
+#   file_not_empty  — Check the file has size > 0 bytes.
+#                     Fields: severity_on_empty
+#
+# Severity values: error | warning | info
+#   error   — Submission CANNOT proceed (mandatory file missing, corrupt, etc.)
+#   warning — Submission CAN proceed but issue should be reviewed
+#   info    — Informational note, never blocks submission
+#
+# File matching strategy (how a validator maps files to entries):
+#   Each file entry can be matched by one or more of:
+#     1. filename_pattern — Glob or exact match on the filename (highest priority)
+#     2. extension        — Match by file extension (.tsv, .txt, etc.)
+#     3. header_fingerprint — For tabular files, read the header and look for
+#                            distinctive column names that identify the file
+#   When two entries share the same extension (e.g. MaxQuant's evidence.txt
+#   and parameters.txt are both .txt), the validator uses filename first,
+#   then header_fingerprint, then extension as a fallback.
+#   See the file_classification section for the full resolution algorithm.
+#
+# Cross-file rule types:
+#   reference_check        — Files in one category must appear in a target file
+#   column_reference_check — Column values must match submitted filenames
+#   file_count             — Min/max number of files in a category
+#   archive_content        — Required contents inside compressed archives
+#   All cross-file rules include a severity field.
+#
+# YAML anchors (&name / *name):
+#   This file uses YAML anchors to avoid repeating identical file definitions.
+#   An anchor is defined with & (e.g., &common_raw_files) and referenced with
+#   * (e.g., *common_raw_files). The referenced block is inserted as-is.
+#   All anchors are defined in the common_files section. When a tool needs
+#   different values (e.g., MaxQuant requires SDRF as mandatory), the entry
+#   is written inline instead of using the anchor.
+#   YAML anchors are standard YAML 1.2 and supported by all major parsers
+#   (Java SnakeYAML, Python PyYAML/ruamel, JavaScript js-yaml).
+#
+# ==============================================================================
+
+version: "2.0.0"
+description: "PRIDE submission validation rules — machine-readable source of truth"
+
+# ------------------------------------------------------------------------------
+# Severity levels
+# ------------------------------------------------------------------------------
+# Every validation rule produces a result at one of these severity levels.
+# Validators MUST report the severity alongside the message so consumers
+# (submission tool UI, CI scripts, review dashboards) can decide what to
+# block vs. warn about.
+#
+#   error   – Submission CANNOT proceed. A mandatory file is missing, a file
+#             is corrupted, or a hard constraint is violated.
+#   warning – Submission CAN proceed but the issue should be reviewed.
+#             A recommended file is missing, a column header doesn't match,
+#             or a soft size limit is exceeded.
+#   info    – Informational note. An optional file is missing or a best-
+#             practice suggestion. Never blocks submission.
+# ------------------------------------------------------------------------------
+severity_levels: [error, warning, info]
+
+# ------------------------------------------------------------------------------
+# Validation workflow
+# ------------------------------------------------------------------------------
+# How to validate a PRIDE submission using this file, in 6 steps.
+#
+# A validator loads this YAML once, then processes each submission folder
+# through these steps in order. Each step says WHAT to check, WHERE to find
+# the rules in this file, and WHAT severity to report on failure.
+#
+# Step 1 — Detect the analysis tool
+#   Look at the ANALYSIS archive(s). For each tool profile in "tools",
+#   check if the archive contains the files listed in tool_detection.marker_files.
+#   First match wins. No match → use the "generic" profile.
+#
+# Step 2 — Check that required files are present
+#   Walk the matched tool's "files" list. For each entry, look for a
+#   matching file in the submission (see file_classification for how).
+#   Missing mandatory file → error. Missing recommended → warning.
+#   Missing optional → info.
+#
+# Step 3 — Verify RAW file formats
+#   For every RAW file, find its format in "raw_formats" by extension.
+#   Run the format_verification check (magic bytes, archive contents, etc.).
+#   Failed → error (file may be corrupted or misnamed).
+#
+# Step 4 — Verify ANALYSIS file contents
+#   For each ANALYSIS file that has a content_verification block, run it.
+#   Tabular files → read header, check required columns exist.
+#   Binary files → open and check schema/signature.
+#   Missing column → error or warning (as specified per file).
+#
+# Step 5 — Cross-file consistency
+#   Run the cross_file_rules for the matched tool profile.
+#   These check relationships between files, e.g.:
+#     "Raw file" column in evidence.txt must match submitted RAW filenames.
+#   Each rule declares its own severity.
+#
+# Step 6 — Global limits
+#   Check file sizes against "limits" and archive sizes against
+#   "compression.recommended_max_archive_size_gb".
+#   Reject any archive in a format listed in compression.rejected_formats.
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# File classification algorithm
+# ------------------------------------------------------------------------------
+# When a validator encounters a file inside an ANALYSIS archive (e.g. a
+# maxquant_results.zip), it needs to decide:
+#   (a) WHICH file entry in the tool profile does this file match?
+#   (b) What CATEGORY does it belong to (ANALYSIS, OTHER, STANDARD, etc.)?
+#
+# Problem: many tools produce files with generic extensions (.txt, .tsv, .csv).
+# MaxQuant alone produces evidence.txt (ANALYSIS), parameters.txt (OTHER),
+# and summary.txt (OTHER) — all are .txt files but have different categories
+# and different validation rules.
+#
+# Resolution order (first match wins):
+#   1. filename_pattern — Exact filename or glob pattern match.
+#      Example: "evidence.txt" matches only evidence.txt, not parameters.txt.
+#   2. header_fingerprint — For tabular files (.tsv/.csv/.txt), read the
+#      first line and check if it contains distinctive column names.
+#      Example: a .tsv with columns [R.FileName, PG.ProteinAccessions, ...]
+#      is identified as a Spectronaut report even without filename matching.
+#   3. extension — Match by file extension alone (lowest priority, most
+#      ambiguous). Used as a last resort when filename and header don't match.
+#
+# If no match is found in the active tool profile, the file is classified
+# as OTHER with severity: info ("unrecognised file in archive").
+#
+# Example walkthrough — validating a maxquant_results.zip:
+#
+#   1. Extract archive → list files:
+#      evidence.txt, peptides.txt, proteinGroups.txt, parameters.txt,
+#      summary.txt, mqpar.xml, msms.txt, allPeptides.txt
+#
+#   2. Tool already detected as "maxquant" (step_1_detect_tool found
+#      evidence.txt + mqpar.xml + proteinGroups.txt as marker files).
+#
+#   3. For each file, walk the maxquant profile's files list:
+#      evidence.txt       →  pattern "{prefix}evidence.txt" → match → ANALYSIS
+#                         →  read header → [Sequence, Modified sequence, ...] → pass
+#      exp1_evidence.txt  →  pattern "{prefix}evidence.txt" → match → ANALYSIS
+#                         →  same header check → pass (prefix is fine)
+#      parameters.txt     →  pattern "{prefix}parameters.txt" → match → OTHER
+#                         →  file_not_empty → pass
+#      mqpar.xml          →  pattern "{prefix}mqpar.xml" → match → OTHER
+#                         →  xml root = MaxQuantParams → pass
+#      msms.txt           →  pattern "{prefix}msms.txt" → match → ANALYSIS, optional
+#      results.txt        →  no filename match → check header → has columns
+#                            [Sequence, Modified sequence, Raw file] → evidence.txt!
+#      unknown.txt        →  no filename match → header doesn't match anything
+#                         →  extension fallback → unrecognised → OTHER, info
+#
+#   4. Check all mandatory files were found. Missing → severity: error.
+#      Missing recommended → severity: warning. Missing optional → info.
+# ------------------------------------------------------------------------------
+file_classification:
+  # Users often add a prefix to all files from an analysis tool, for example
+  # when multiple analyses share the same folder:
+  #   experiment1_evidence.txt, experiment1_peptides.txt, ...
+  #   my_project_report.parquet, my_project_pg_matrix.tsv, ...
+  #
+  # To handle this, each file entry supports a filename_patterns list with
+  # glob-style patterns. The validator tries each pattern against the file's
+  # basename. The special token {prefix} matches any leading string
+  # (including empty), so "{prefix}evidence.txt" matches both "evidence.txt"
+  # and "experiment1_evidence.txt".
+  #
+  # Implementation note for validators:
+  #   Replace {prefix} with the regex ".*" (or glob "*") before matching.
+  #   Example: "{prefix}evidence.txt" → regex "^.*evidence\.txt$"
+
+  resolution_order:
+    - method: filename_pattern
+      description: >
+        Match the file's basename against the filename_patterns list in each
+        file entry. Patterns support:
+          - Exact match: "evidence.txt"
+          - Glob wildcards: "combined_*.tsv"
+          - Prefix token: "{prefix}evidence.txt" matches "evidence.txt",
+            "exp1_evidence.txt", "myproject_evidence.txt", etc.
+        If a file entry has no filename_patterns, fall back to matching
+        against the 'name' field as an exact match.
+        Case-insensitive on Windows, case-sensitive on Linux/macOS.
+      priority: 1
+
+    - method: header_fingerprint
+      description: >
+        For tabular files (.tsv, .csv, .txt), read the first line (header),
+        split by the expected separator (tab or comma), and check if the
+        column names match any file entry's content_verification.required_columns.
+        A file is a match if ALL required_columns appear in the header
+        (extra columns are allowed, order does not matter).
+        This is especially useful when users rename files — even if the
+        filename doesn't match, the column names uniquely identify the file.
+      priority: 2
+
+    - method: extension
+      description: >
+        Match by file extension alone. This is the most ambiguous method and
+        is only used when filename and header checks did not match. If
+        multiple entries share the same extension, the first entry with
+        status=mandatory takes precedence.
+      priority: 3
+
+  unmatched_file:
+    category: OTHER
+    severity: info
+    message: "File not recognised in the active tool profile — classified as OTHER"
+
+# ------------------------------------------------------------------------------
+# File categories
+# ------------------------------------------------------------------------------
+# Every file in a PRIDE submission is assigned to exactly one category.
+# These categories drive validation (e.g. "at least one RAW file") and
+# determine how the file is displayed and indexed in the PRIDE Archive.
+#
+#   ANALYSIS          – Native output files from search engines / analysis tools
+#                       (e.g. evidence.txt, report.parquet, psm.tsv).
+#   RAW               – Unprocessed mass spectrometry data straight from the
+#                       instrument (vendor-specific or open-standard formats).
+#   PEAK              – Processed peak lists extracted from raw data
+#                       (e.g. .mgf, centroided .mzML).
+#   STANDARD          – Community-standard (PSI) representations of results
+#                       (mzIdentML, mzTab). These improve interoperability but
+#                       do NOT replace ANALYSIS files for most tools.
+#   SPECTRAL_LIBRARY  – Spectral libraries used or produced during the analysis.
+#   FASTA             – Protein sequence databases used for the search.
+#   METADATA          – Sample/experiment metadata (SDRF files).
+#   OTHER             – Parameter files, logs, workflows, supplementary docs.
+# ------------------------------------------------------------------------------
+file_categories:
+  - ANALYSIS
+  - RAW
+  - PEAK
+  - STANDARD
+  - SPECTRAL_LIBRARY
+  - FASTA
+  - METADATA
+  - OTHER
+
+# ------------------------------------------------------------------------------
+# Compression rules
+# ------------------------------------------------------------------------------
+# Only these archive formats are accepted by the PRIDE Submission Tool.
+# RAR is explicitly rejected.
+# ------------------------------------------------------------------------------
+compression:
+  supported_formats: [zip, gz, tar.gz]
+  rejected_formats: [rar]
+
+  # Recommended upper bound for a single compressed archive.
+  # This is NOT a hard limit — larger archives are accepted — but keeping
+  # archives under this size makes uploads more reliable and resumable.
+  recommended_max_archive_size_gb: 50
+
+# ------------------------------------------------------------------------------
+# Multiple analyses per submission
+# ------------------------------------------------------------------------------
+# A single PRIDE submission can contain multiple analyses (e.g., the same raw
+# data searched with different tools or different parameters). Each analysis
+# should be packaged as a separate archive with a descriptive name:
+#   maxquant_analysis1.zip, maxquant_analysis2.zip, diann_results.zip
+# Each archive is validated independently against its tool profile.
+# The raw data and FASTA files are shared across analyses and submitted once.
+# ------------------------------------------------------------------------------
+multiple_analyses:
+  allowed: true
+  archive_naming: "one archive per analysis, named by tool and/or analysis description"
+  shared_files: [RAW, FASTA, METADATA]
+  per_analysis_files: [ANALYSIS, STANDARD, OTHER, SPECTRAL_LIBRARY, PEAK]
+
+# ------------------------------------------------------------------------------
+# Hard limits
+# ------------------------------------------------------------------------------
+# Absolute upper bounds enforced by the submission pipeline to prevent
+# pathological uploads. These are NOT recommendations — uploads exceeding
+# these values will be rejected.
+# ------------------------------------------------------------------------------
+limits:
+  # Maximum size for a single RAW data file (uncompressed or as a single-run
+  # compressed archive). 1 TB (decimal) = 1000 GB. This covers even the
+  # largest timsTOF or 4D-proteomics acquisitions.
+  max_single_raw_file_size_gb: 1000
+
+# ------------------------------------------------------------------------------
+# Supported RAW data formats
+# ------------------------------------------------------------------------------
+# Each entry describes a vendor-specific or open-standard raw data format
+# accepted by PRIDE. Key fields:
+#
+#   extensions            – File extensions the submission tool will match.
+#                           For formats where compression is required, the
+#                           extension includes the archive suffix (e.g. .d.zip)
+#                           so validators can match the actual uploaded filename.
+#   compression_required  – If true, files MUST be compressed before upload.
+#   one_run_per_archive   – If true, each compressed file must contain exactly
+#                           one MS run. This ensures SDRF ↔ raw file linking
+#                           and per-run download statistics work correctly.
+#   directory_based       – If true, the raw data is a folder (e.g. Bruker .d,
+#                           Waters .raw) that must be archived as a whole.
+#
+# Format verification
+# ~~~~~~~~~~~~~~~~~~~
+# Each format includes a `format_verification` block that tells validators
+# how to confirm a file is genuinely that format — not just named correctly.
+# The block uses a uniform structure so any reader (Java, Python, etc.) can
+# implement the checks without format-specific knowledge:
+#
+#   method        – The verification strategy. One of:
+#                     "magic_bytes"       → read N bytes from offset and compare
+#                     "required_files"    → list files/dirs that must exist inside
+#                                           the archive (for directory-based formats)
+#                     "companion_files"   → sibling files that must be present
+#                     "xml_root_element"  → parse XML and check the root tag name
+#
+#   For magic_bytes:
+#     offset      – Byte offset from start of file (usually 0)
+#     length      – Number of bytes to read
+#     hex_value   – Expected hex string (case-insensitive)
+#     description – Human-readable explanation of what the signature means
+#
+#   For required_files (directory-based formats):
+#     one_of      – List of sub-format options. The archive is valid if it
+#                   matches ANY one of them.
+#       id              – Sub-format identifier
+#       description     – Instruments / modes that produce this layout
+#       required_files  – Files that MUST be present
+#       optional_files  – Files that MAY be present
+#
+#   For companion_files:
+#     pairs       – List of companion file rules
+#       primary_ext     – The extension of the main file
+#       companion_ext   – The extension that must accompany it
+#       required        – true / false
+#
+#   For xml_root_element:
+#     accepted_roots – List of valid root element names
+#     namespace      – Expected XML namespace URI
+# ------------------------------------------------------------------------------
+raw_formats:
+  - id: thermo
+    category: RAW
+    extensions: [.raw]
+    vendor: "Thermo Fisher Scientific"
+    compression_required: false
+    one_run_per_archive: true
+    directory_based: false
+    format_verification:
+      method: magic_bytes
+      # The first 8 bytes of every Thermo .raw file are the OLE2 Compound
+      # Document signature. Reading these bytes is the fastest way to confirm
+      # the file is a genuine Thermo .raw and not a misnamed or corrupted file.
+      offset: 0
+      length: 8
+      hex_value: "D0CF11E0A1B11AE1"
+      description: >
+        OLE2 Compound Document signature (same container as legacy .doc/.xls).
+        Thermo .raw files store spectral data inside this container with
+        internal LZF compression — additional gzip provides minimal benefit.
+
+  - id: bruker
+    category: RAW
+    extensions: [.d.zip, .d.tar.gz]
+    vendor: "Bruker"
+    compression_required: true
+    one_run_per_archive: true
+    directory_based: true
+    format_verification:
+      method: required_files
+      # After extracting the archive, look for the .d/ root folder and check
+      # that it contains at least one recognised sub-format. The archive is
+      # valid if ANY one of the sub-format checks passes.
+      description: >
+        Bruker .d folders contain different internal files depending on the
+        instrument and acquisition mode. A valid archive must match at least
+        one of the sub-format sets below.
+      one_of:
+        - id: tdf
+          description: "timsTOF with ion mobility (timsTOF Pro/HT/SCP/fleX TIMS mode)"
+          required_files: [analysis.tdf, analysis.tdf_bin]
+          optional_files: [calibration.sqlite, chromatography-data.sqlite]
+        - id: tsf
+          description: "timsTOF without ion mobility (MALDI-qTOF mode)"
+          required_files: [analysis.tsf, analysis.tsf_bin]
+          optional_files: [calibration.sqlite]
+        - id: baf
+          description: "Bruker QTOF (maXis, impact, micrOTOF)"
+          required_files: [analysis.baf]
+          optional_files: [analysis.baf_idx, analysis.baf_xtr, calibration.sqlite]
+        - id: yep
+          description: "Older Bruker/Agilent ion traps"
+          required_files: [analysis.yep]
+        - id: fid
+          description: "MALDI-TOF flex series (rapifleX, ultrafleXtreme, autoflex)"
+          required_files: [fid, acqu]
+          notes: "FID data uses a hierarchical directory structure with spot coordinates"
+
+  - id: sciex
+    category: RAW
+    extensions: [.wiff, .wiff2, .wiff.scan]
+    vendor: "SCIEX"
+    compression_required: false
+    one_run_per_archive: true
+    directory_based: false
+    format_verification:
+      method: companion_files
+      # A .wiff or .wiff2 file on its own contains only metadata. The actual
+      # spectral (X-Y) data lives in the companion .wiff.scan file. Both must
+      # be present for the data to be usable.
+      # SCIEX OS v2.1+ generates both .wiff and .wiff2 simultaneously.
+      description: >
+        SCIEX .wiff/.wiff2 files always require a companion .wiff.scan file.
+        A single .wiff can hold multiple samples — PRIDE requires one run
+        per file.
+      pairs:
+        - primary_ext: .wiff
+          companion_ext: .wiff.scan
+          required: true
+          description: "Spectral data file — always paired with .wiff"
+        - primary_ext: .wiff2
+          companion_ext: .wiff.scan
+          required: true
+          description: "Spectral data file — always paired with .wiff2"
+
+  # NOTE: Agilent .d and Bruker .d share the same extensions (.d.zip, .d.tar.gz).
+  # Validators MUST inspect archive contents (format_verification.required_files)
+  # to distinguish them: Bruker → analysis.tdf/baf/tsf/yep/fid,
+  # Agilent → AcqData/MSScan.bin. Extension alone is not sufficient.
+  - id: agilent
+    category: RAW
+    extensions: [.d.zip, .d.tar.gz]
+    vendor: "Agilent"
+    compression_required: true
+    one_run_per_archive: true
+    directory_based: true
+    format_verification:
+      method: required_files
+      # After extracting the archive, look for the .d/ root folder containing
+      # an AcqData/ subdirectory with the binary spectral data files.
+      description: >
+        Agilent .d folders must contain an AcqData/ directory with at least
+        MSScan.bin (scan records) and MSProfile.bin (profile spectral data).
+      required_contents:
+        - directory: AcqData
+          required_files: [MSScan.bin, MSProfile.bin]
+          optional_files: [MSMassCal.bin, MSPeak.bin, MSScan.xsd, MSTS.xml]
+          description: "Acquisition data — binary spectral data and metadata"
+      optional_contents:
+        - directory: Method
+          description: "Acquisition and analysis method files"
+
+  - id: waters
+    category: RAW
+    extensions: [.raw.zip, .raw.tar.gz]
+    vendor: "Waters"
+    compression_required: true
+    one_run_per_archive: true
+    directory_based: true
+    format_verification:
+      method: required_files
+      # Waters .raw is ALWAYS a directory produced by MassLynx. Each .raw
+      # folder represents one run. After extracting the archive, check for
+      # the header and at least the first acquisition function data file.
+      description: >
+        Waters .raw directories must contain _HEADER.TXT (run metadata) and
+        at least _FUNC001.DAT + _FUNC001.IDX (first acquisition function).
+        Synapt/IMS instruments use the same directory structure.
+      required_contents:
+        - file: _HEADER.TXT
+          description: "Run metadata (date, vial position)"
+        - file: _FUNC001.DAT
+          description: "Spectral data for first acquisition function"
+        - file: _FUNC001.IDX
+          description: "Index for first acquisition function data"
+      optional_contents:
+        - file: _extern.inf
+          description: "Hardware operations and function type mapping (e.g., lockmass)"
+        - file: _functns.inf
+          description: "Information on acquired functions"
+        - pattern: "_FUNC*.DAT"
+          description: "Additional acquisition function data files (MS, UV, lockmass)"
+        - pattern: "_FUNC*.IDX"
+          description: "Index files for additional acquisition functions"
+
+  - id: mzml
+    category: RAW
+    extensions: [.mzML.gz]
+    standard: "PSI"
+    schema_version: "1.1.1"
+    compression_required: true
+    one_run_per_archive: true
+    directory_based: false
+    format_verification:
+      method: xml_root_element
+      # After decompressing the .gz, parse the XML header and check the root
+      # element. Both <mzML> (plain) and <indexedmzML> (with byte-offset
+      # indices for random access) are valid.
+      description: >
+        Valid mzML files must have either <mzML> or <indexedmzML> as the XML
+        root element, under the PSI-MS namespace. Schema version 1.1.1.
+        GZ compression is mandatory — one run per compressed file.
+      accepted_roots: [mzML, indexedmzML]
+      namespace: "http://psi.hupo.org/ms/mzml"
+
+# ------------------------------------------------------------------------------
+# Raw data validation
+# ------------------------------------------------------------------------------
+# PRIDE performs automated checks on uploaded raw files during submission.
+# If any check fails the submitter is notified with an actionable error
+# message before the dataset is accepted.
+# ------------------------------------------------------------------------------
+raw_data_validation:
+  description: "PRIDE performs automated validation on submitted raw data files"
+  checks:
+    - id: file_integrity
+      description: "Compressed archives are verified to ensure they are not corrupted and can be extracted"
+    - id: format_validation
+      description: "Raw files are checked to confirm they contain valid MS data and can be read by standard tools"
+    - id: structure_verification
+      description: "For directory-based formats (.d folders), essential files are verified (e.g., analysis.tdf for Bruker timsTOF, AcqData/ for Agilent)"
+
+# ------------------------------------------------------------------------------
+# Condition flags
+# ------------------------------------------------------------------------------
+# Boolean flags that a submitter declares to activate conditional validation
+# rules. For example, setting "library_search: true" makes spectral library
+# files mandatory. Flags are independent — multiple can be active at once.
+# ------------------------------------------------------------------------------
+condition_flags:
+  - id: library_search
+    description: "Spectral library was used in the analysis"
+
+  - id: metaproteomics
+    description: "Metaproteomics study — database derived from metagenome assembly"
+
+  - id: proteogenomics
+    description: "Proteogenomics study — custom database from genomic/transcriptomic data"
+
+  - id: patient_specific_database
+    description: "Database contains personal/sensitive data (e.g., patient SNPs) — FASTA not required for privacy"
+
+  - id: ptm_analysis
+    description: "PTM (post-translational modification) analysis was performed — activates PTM-specific file requirements"
+
+# ------------------------------------------------------------------------------
+# FASTA database policy
+# ------------------------------------------------------------------------------
+# Whether a FASTA file must be uploaded depends on the experiment type and
+# the origin of the sequence database. The guiding principle is
+# *reproducibility*: if a third party cannot independently obtain the exact
+# same database, the submitter must provide it.
+# ------------------------------------------------------------------------------
+fasta_policy:
+  description: >
+    FASTA requirement depends on experiment type and database origin.
+    The key principle is reproducibility: if a third party cannot obtain
+    the exact same database independently, it must be provided.
+  rules:
+    - scenario: "Standard public database (UniProt Swiss-Prot, RefSeq, etc.)"
+      fasta_required: false
+      action: "Provide exact database name, version, and URL in metadata"
+    - scenario: "Patient-specific / personal variant database (SNPs, individual variants)"
+      fasta_required: false
+      condition_flag: patient_specific_database
+      action: "Document construction method; note privacy constraint in metadata"
+    - scenario: "Metaproteomics (metagenome-derived database)"
+      fasta_required: true
+      condition_flag: metaproteomics
+      action: "Upload FASTA file with submission"
+    - scenario: "Proteogenomics (custom genomic/transcriptomic database)"
+      fasta_required: recommended
+      condition_flag: proteogenomics
+      action: >
+        Upload FASTA file if possible. If the database contains controlled-access
+        or patient-specific genomic data, document the construction method
+        and note the access restriction in metadata instead.
+
+# ------------------------------------------------------------------------------
+# Common file definitions (YAML anchors)
+# ------------------------------------------------------------------------------
+# Shared file entries reused across tool profiles via YAML anchors (& / *).
+# When a specific tool needs different values (e.g. a different status or
+# extra extensions), the entry is written inline in that tool's profile
+# instead of referencing the anchor.
+# ------------------------------------------------------------------------------
+common_files:
+  raw_files: &common_raw_files
+    name: raw_files
+    status: mandatory
+    category: RAW
+    extensions: [.raw, .mzML.gz, .wiff, .wiff2, .wiff.scan, .d.zip, .d.tar.gz, .raw.zip, .raw.tar.gz]
+    description: "Raw data files from the mass spectrometer (vendor formats or mzML)"
+
+  fasta_database: &common_fasta_database
+    name: fasta_database
+    status: mandatory
+    category: FASTA
+    extensions: [.fasta, .fa]
+    description: >
+      Protein sequence database used for search. Mandatory for metaproteomics
+      and proteogenomics. For standard public databases (UniProt, RefSeq),
+      providing name/version/URL in metadata is sufficient. Not required
+      when database contains personal/sensitive data (see fasta_policy).
+    conditional_override:
+      - condition_flag: patient_specific_database
+        status: not_required
+      - condition_flag: metaproteomics
+        status: mandatory
+      - condition_flag: proteogenomics
+        status: recommended
+
+  sdrf: &common_sdrf
+    name: sdrf.tsv
+    status: recommended
+    category: METADATA
+    extensions: [.sdrf.tsv]
+    description: "SDRF metadata file describing samples and experimental design"
+
+  peak_lists: &common_peak_lists
+    name: peak_lists
+    status: recommended
+    category: PEAK
+    extensions: [.mgf, .mzML, .dta, .pkl]
+    description: "Processed peak lists extracted from raw data"
+
+# ==============================================================================
+# Tool-specific validation profiles
+# ==============================================================================
+# Each entry is a self-contained profile for one analysis tool / search engine.
+# A profile lists every file the tool can produce, its status
+# (mandatory / recommended / optional), the file category, accepted extensions,
+# and — for tabular files — expected column names.
+#
+# Cross-file rules at the end of each profile define relationships between
+# files (e.g. "every raw file referenced in evidence.txt must exist").
+#
+# The "generic" profile at the bottom is a catch-all for tools not explicitly
+# listed — it requires at least one ANALYSIS file plus RAW data and FASTA.
+# ==============================================================================
+tools:
+  # ---- MaxQuant ----
+  - id: maxquant
+    name: "MaxQuant"
+    description: "Software suite for quantitative proteomics (DDA and DIA)"
+
+    # How to detect that an ANALYSIS archive was produced by MaxQuant.
+    # A validator scans the archive listing for these marker files.
+    # If ALL marker_files are found, this profile is activated.
+    tool_detection:
+      marker_files: ["{prefix}evidence.txt", "{prefix}mqpar.xml", "{prefix}proteinGroups.txt"]
+      description: "MaxQuant output folders always contain these three files (possibly with a user-added prefix)"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: evidence.txt
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}evidence.txt"]
+        description: "Evidence table with peptide identifications and quantifications at PSM level"
+        columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Leading razor protein, Type, Score, MS/MS count]
+        content_verification:
+          method: tsv_header
+          # Read the first line of the file, split by tab, and check that
+          # ALL listed columns are present (order does not matter).
+          # Additional columns produced by newer MaxQuant versions are allowed.
+          separator: "\t"
+          required_columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Score]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: error
+
+      - name: peptides.txt
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}peptides.txt"]
+        description: "Peptide-level identification and quantification results"
+        columns: [Sequence, Proteins, Intensity, Score, PEP, Unique (Groups), Unique (Proteins)]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Sequence, Proteins, Intensity, Score, PEP]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: error
+
+      - name: proteinGroups.txt
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}proteinGroups.txt"]
+        description: "Protein group identification and quantification results"
+        columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Score, PEP, Reverse, Potential contaminant]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Score]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: error
+
+      - name: mzTab.mzTab
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "mzTab output containing identification and quantification data (must be enabled in MaxQuant settings)"
+
+      - name: parameters.txt
+        status: mandatory
+        category: OTHER
+        extensions: [.txt]
+        filename_patterns: ["{prefix}parameters.txt"]
+        description: "Processing parameters used in the analysis"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: summary.txt
+        status: mandatory
+        category: OTHER
+        extensions: [.txt]
+        filename_patterns: ["{prefix}summary.txt"]
+        description: "Summary statistics of the MaxQuant run"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: mqpar.xml
+        status: mandatory
+        category: OTHER
+        extensions: [.xml]
+        filename_patterns: ["{prefix}mqpar.xml"]
+        description: "MaxQuant parameter file containing all search settings"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [MaxQuantParams]
+          severity_on_fail: error
+
+      - name: allPeptides.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}allPeptides.txt"]
+        description: "All peptide-like features detected in the data"
+
+      - name: msScans.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}msScans.txt"]
+        description: "MS scan information"
+
+      - name: msmsScans.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}msmsScans.txt"]
+        description: "MS/MS scan information and fragment ion matches"
+
+      - name: "Oxidation (M)Sites.txt"
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}Oxidation (M)Sites.txt", "{prefix}*Sites.txt"]
+        description: "Oxidation modification site identifications"
+
+      - name: modificationSpecificPeptides.txt
+        status: recommended
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}modificationSpecificPeptides.txt"]
+        description: "Modified peptide identifications"
+
+      - name: msms.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}msms.txt"]
+        description: "All MS/MS scans processed"
+
+      - name: ms3Scans.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}ms3Scans.txt"]
+        description: "MS3 scan information and fragment ion matches"
+
+      - name: fragment.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}fragment.txt"]
+        description: "Fragment information"
+
+      - name: fragmentQuant.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}fragmentQuant.txt"]
+        description: "Fragment quantification data"
+
+      - name: mzRange.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}mzRange.txt"]
+        description: "Isotope patterns in the data"
+
+      - name: matchedFeatures.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}matchedFeatures.txt"]
+        description: "Matched peptide-like features across samples by Match between runs"
+
+      - name: dependentPeptides.txt
+        status: optional
+        category: ANALYSIS
+        extensions: [.txt]
+        filename_patterns: ["{prefix}dependentPeptides.txt"]
+        description: "Dependent peptide analysis results"
+
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Standard format export of identification results"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib, .sptxt, .tsv]
+        description: "Spectral library used for library-based search"
+        conditional: true
+        condition_flag: library_search
+
+      - *common_peak_lists
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "maxquant_results.zip"
+      strategy: "ZIP or TAR.GZ the entire MaxQuant output folder including txt files and andromeda folder"
+
+    cross_file_rules:
+      - id: mq_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: mq_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+      - id: mq_raw_sdrf_match
+        rule_type: reference_check
+        source_category: RAW
+        target_file: sdrf.tsv
+        severity: warning
+        description: "Each raw file must be referenced in the SDRF file"
+
+      - id: mq_evidence_raw_match
+        rule_type: column_reference_check
+        source_file: evidence.txt
+        source_column: "Raw file"
+        target_category: RAW
+        severity: error
+        description: "Raw file column in evidence.txt must match submitted raw filenames"
+
+  # ---- DIA-NN ----
+  - id: diann
+    name: "DIA-NN"
+    description: "Advanced software for DIA proteomics using neural networks"
+
+    tool_detection:
+      marker_files: ["{prefix}report.parquet", "{prefix}report.tsv"]
+      match_any: true
+      description: "DIA-NN always produces a report file (parquet since 1.8+, tsv in older versions)"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: report
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.parquet, .tsv]
+        filename_patterns: ["{prefix}report.parquet", "{prefix}report.tsv"]
+        description: "Main DIA-NN report file with all identifications and quantifications"
+        columns: [File.Name, Protein.Group, Protein.Ids, Protein.Names, Genes, Precursor.Id, Modified.Sequence, Stripped.Sequence, Precursor.Charge, Q.Value, PG.Q.Value, Global.Q.Value, Precursor.Quantity, RT]
+        content_verification:
+          # DIA-NN report can be parquet or TSV. Check format based on extension.
+          method: auto_detect
+          formats:
+            parquet:
+              method: parquet_schema
+              required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
+              severity_on_missing_column: warning
+              min_data_rows: 1
+              severity_on_empty: error
+            tsv:
+              method: tsv_header
+              separator: "\t"
+              required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
+              severity_on_missing_column: warning
+              min_data_rows: 1
+              severity_on_empty: error
+
+      - name: log_file
+        status: mandatory
+        category: OTHER
+        extensions: [.log.txt, .txt]
+        description: "DIA-NN analysis log file documenting processing steps"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: site_report
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.site_report.parquet, .site_report.tsv]
+        filename_patterns: ["{prefix}*.site_report.parquet", "{prefix}*.site_report.tsv"]
+        description: "PTM site localisation report — mandatory if produced by DIA-NN"
+        conditional: true
+        condition_flag: ptm_analysis
+
+      - name: parameter_config
+        status: recommended
+        category: OTHER
+        extensions: [.pipeline.json, .pipeline, .cfg, .txt]
+        description: "DIA-NN pipeline/configuration file with search parameters"
+
+      - name: pr_matrix.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}pr_matrix.tsv"]
+        description: "Precursor-level quantification matrix"
+
+      - name: pg_matrix.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}pg_matrix.tsv"]
+        description: "Protein group-level quantification matrix"
+
+      - name: gg_matrix.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}gg_matrix.tsv"]
+        description: "Gene group-level quantification matrix"
+
+      - name: stats.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}stats.tsv"]
+        description: "Per-run statistics from DIA-NN analysis"
+
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "Standard format export of quantification results"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.speclib, .parquet, .tsv, .blib, .sptxt]
+        description: "Spectral library used for library-based search (DIA-NN 1.8+ uses .speclib format)"
+        conditional: true
+        condition_flag: library_search
+
+      - name: empirical_library
+        status: recommended
+        category: SPECTRAL_LIBRARY
+        extensions: [.parquet, .tsv]
+        description: "Empirical library produced by DIA-NN automatically as part of MBR (match-between-runs)"
+
+      - *common_peak_lists
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "diann_results.zip"
+      strategy: "ZIP all DIA-NN output files including report and log files"
+
+    cross_file_rules:
+      - id: diann_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: diann_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+      - id: diann_raw_sdrf_match
+        rule_type: reference_check
+        source_category: RAW
+        target_file: sdrf.tsv
+        severity: warning
+        description: "Each raw file must be referenced in the SDRF file"
+
+      - id: diann_report_raw_match
+        rule_type: column_reference_check
+        source_file: report
+        source_column: "File.Name"
+        target_category: RAW
+        severity: error
+        description: "File.Name column in report must match submitted raw filenames"
+
+  # ---- Spectronaut ----
+  - id: spectronaut
+    name: "Spectronaut"
+    description: "Commercial DIA proteomics analysis platform by Biognosys"
+
+    tool_detection:
+      # Spectronaut reports use a characteristic column naming convention
+      # with dotted prefixes (R., PG., EG., FG.). Detect by checking for
+      # these columns in the header, or by the presence of .sne/.psar files.
+      marker_files: []
+      header_fingerprint:
+        any_file_with_ext: [.tsv, .csv]
+        contains_columns: [R.FileName, PG.ProteinAccessions, EG.PrecursorId]
+      description: "Spectronaut reports use R./PG./EG./FG. column prefixes"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: main_report
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xlsx]
+        description: "Primary Spectronaut report with peptide/protein identifications and quantifications"
+        columns: [R.FileName, PG.ProteinAccessions, PG.ProteinNames, PG.Quantity, PG.Qvalue, EG.PrecursorId, EG.ModifiedSequence, EG.Qvalue, FG.Quantity]
+        content_verification:
+          method: tsv_header
+          separator: auto_detect
+          required_columns: [R.FileName, PG.ProteinAccessions, EG.PrecursorId, EG.ModifiedSequence]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: error
+
+      - name: analysis_settings
+        status: mandatory
+        category: OTHER
+        extensions: [.json, .txt, .properties]
+        description: "Spectronaut analysis settings file or exported parameters documenting the search configuration"
+
+      - name: saved_experiment
+        status: recommended
+        category: ANALYSIS
+        extensions: [.sne]
+        description: "Full saved experiment file — can be loaded into the free Spectronaut Viewer version"
+
+      - name: search_archive
+        status: recommended
+        category: ANALYSIS
+        extensions: [.psar]
+        description: "Search archives generated during library generation or directDIA (if available)"
+
+      - name: protein_group_report
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xlsx]
+        description: "Protein group-level quantification report"
+
+      - name: peptide_report
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xlsx]
+        description: "Peptide-level quantification report"
+
+      - name: fragment_report
+        status: optional
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xlsx]
+        description: "Fragment-level quantification data"
+
+      - name: candidates_report
+        status: optional
+        category: ANALYSIS
+        extensions: [.tsv, .csv, .xlsx]
+        description: "All candidate identifications before filtering"
+
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "Standard format export of quantification results"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.kit, .speclib, .tsv, .csv]
+        description: "Spectral library used for analysis"
+        conditional: true
+        condition_flag: library_search
+
+      - *common_peak_lists
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "spectronaut_results.zip"
+      strategy: "ZIP all Spectronaut output files including reports and settings"
+
+    cross_file_rules:
+      - id: sn_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: sn_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+  # ---- FragPipe / MSFragger ----
+  - id: fragpipe
+    name: "FragPipe/MSFragger"
+    description: "Versatile MS proteomics analysis platform integrating MSFragger, Philosopher, IonQuant, and more"
+
+    tool_detection:
+      marker_files: ["{prefix}psm.tsv", "{prefix}fragpipe.workflow"]
+      description: "FragPipe always produces psm.tsv and the workflow file"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: psm.tsv
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}psm.tsv"]
+        description: "Peptide identification results at PSM level"
+        columns: [Spectrum, Spectrum File, Peptide, Modified Peptide, Charge, Retention, Protein, Mapped Proteins, Hyperscore, PeptideProphet Probability]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Spectrum, Spectrum File, Peptide, Modified Peptide, Charge, Protein]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: error
+
+      - name: protein.tsv
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}protein.tsv"]
+        description: "Protein-level identification and inference results"
+        columns: [Protein, Protein ID, Entry Name, Gene, Protein Probability, Combined Total Peptides, Total Spectral Count]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Protein, Protein ID, Gene, Protein Probability]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: error
+
+      - name: fragpipe.workflow
+        status: mandatory
+        category: OTHER
+        extensions: [.workflow]
+        filename_patterns: ["{prefix}fragpipe.workflow"]
+        description: "FragPipe configuration and parameter files"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: fragpipe-files.fp-manifest
+        status: mandatory
+        category: OTHER
+        extensions: [.fp-manifest]
+        filename_patterns: ["{prefix}fragpipe-files.fp-manifest"]
+        description: "FragPipe manifest files"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: combined_ion.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_ion.tsv"]
+        description: "Combined ion-level results across experiments"
+
+      - name: combined_modified_peptide.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_modified_peptide.tsv"]
+        description: "Combined peptidoform-level results across experiments"
+
+      - name: combined_peptide.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_peptide.tsv"]
+        description: "Combined peptide-level results across experiments"
+
+      - name: combined_protein.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_protein.tsv"]
+        description: "Combined protein-level results across experiments"
+
+      - name: combined_ion_label_quant.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_ion_label_quant.tsv"]
+        description: "Combined ion-level results from isotopic labeling quantification"
+
+      - name: combined_modified_peptide_label_quant.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_modified_peptide_label_quant.tsv"]
+        description: "Combined peptidoform-level results from isotopic labeling quantification"
+
+      - name: combined_protein_label_quant.tsv
+        status: recommended
+        category: ANALYSIS
+        extensions: [.tsv]
+        filename_patterns: ["{prefix}combined_protein_label_quant.tsv"]
+        description: "Combined protein-level results from isotopic labeling quantification"
+
+      - name: tmt_report_folder
+        status: recommended
+        category: ANALYSIS
+        extensions: [.zip, .tar.gz]
+        description: "Combined results from isobaric labeling quantification"
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib, .sptxt, .tsv]
+        description: "Spectral library used for library-based search"
+        conditional: true
+        condition_flag: library_search
+
+      - name: pepxml_results
+        status: recommended
+        category: ANALYSIS
+        extensions: [.pep.xml]
+        description: "PepXML identification results from MSFragger/PeptideProphet"
+
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Standard format export of identification results (via Philosopher)"
+
+      - *common_peak_lists
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "fragpipe_results.zip"
+      strategy: "ZIP output .tsv and .csv files grouped by experiment/search"
+
+    cross_file_rules:
+      - id: fp_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: fp_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+      - id: fp_raw_sdrf_match
+        rule_type: reference_check
+        source_category: RAW
+        target_file: sdrf.tsv
+        severity: warning
+        description: "Each raw file must be referenced in the SDRF file"
+
+      - id: fp_psm_raw_match
+        rule_type: column_reference_check
+        source_file: psm.tsv
+        source_column: "Spectrum File"
+        target_category: RAW
+        severity: error
+        description: "Spectrum File column in psm.tsv must match submitted raw filenames"
+
+  # ---- Skyline ----
+  - id: skyline
+    name: "Skyline"
+    description: "Open-source application for targeted proteomics (SRM/MRM/PRM/DIA)"
+
+    tool_detection:
+      marker_files: ["*.sky", "*.skyd"]
+      match_any: true
+      description: "Skyline documents always include .sky (XML) and/or .skyd (binary cache), or a .sky.zip shared archive"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: skyline_shared
+        status: recommended
+        category: ANALYSIS
+        extensions: [.sky.zip]
+        description: "Skyline shared document archive (File > Share) — preferred format, contains .sky, .skyd, libraries, and FASTA in one archive"
+
+      - name: skyline_document
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.sky]
+        description: "Skyline document (XML) — required if not submitting .sky.zip"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [SrmDocument]
+          severity_on_fail: error
+
+      - name: skyline_data
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.skyd]
+        description: "Skyline data file (binary cache) — required if not submitting .sky.zip"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: exported_reports
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.csv, .tsv]
+        description: "Exported quantification reports"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "Standard format export of quantification results"
+
+      - name: spectral_library
+        status: recommended
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib]
+        description: "Spectral library used for method development"
+
+      - name: acquisition_method
+        status: recommended
+        category: OTHER
+        extensions: [.method]
+        description: "Instrument acquisition method file"
+
+      - *common_peak_lists
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "skyline_document.sky.zip"
+      strategy: "Preferred: use Skyline File > Share Document to produce a .sky.zip archive. Alternative: submit .sky and .skyd files individually."
+
+    cross_file_rules:
+      - id: sky_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: sky_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+  # ---- OpenMS ----
+  - id: openms
+    name: "OpenMS"
+    description: "Open-source C++ library with Python bindings for LC/MS data analysis"
+
+    tool_detection:
+      marker_files: ["*.idxml"]
+      match_any: true
+      description: "OpenMS identification results use the idXML format"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: idxml_results
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.idxml]
+        description: "OpenMS identification results in idXML format"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [IdXML]
+          severity_on_fail: error
+
+      - name: quantification_results
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.consensusXML, .featureXML]
+        description: "Quantification results from OpenMS (mandatory if quantification was performed)"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [consensusXML, featureXML]
+          severity_on_fail: error
+
+      - name: workflow_description
+        status: mandatory
+        category: OTHER
+        extensions: [.toppas, .knwf, .py]
+        description: "TOPP workflow, KNIME workflow, or pyOpenMS script"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Standard format export of identification results"
+
+      - name: mztab_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzTab]
+        description: "Standard format export of identification and quantification results"
+
+      - name: topp_parameter_files
+        status: recommended
+        category: OTHER
+        extensions: [.ini, .xml]
+        description: "Parameter files for individual TOPP tools used in the workflow"
+
+      - *common_peak_lists
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "openms_results.zip"
+      strategy: "ZIP all OpenMS output XML files together"
+
+    cross_file_rules:
+      - id: oms_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: oms_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+  # ---- Mascot ----
+  - id: mascot
+    name: "Mascot"
+    description: "Search engine for protein identification by matching MS data to peptide sequence databases"
+
+    tool_detection:
+      marker_files: ["*.dat"]
+      match_any: true
+      description: "Mascot search results are .dat files with a characteristic MIME-like header"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: dat_files
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.dat]
+        description: "Mascot search result files in DAT format"
+        content_verification:
+          # Mascot .dat files are MIME-encoded text. The first line is always
+          # a MIME boundary marker. Reading the first few lines and checking
+          # for "MIME-Version:" or the boundary is sufficient.
+          method: text_starts_with
+          expected_prefix: "MIME-Version:"
+          alternative_prefix: "--gc0p4Jq0M2Yt08jU534c0p"
+          severity_on_fail: warning
+
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Results exported in mzIdentML standard format (strongly recommended)"
+
+      - name: parameter_file
+        status: mandatory
+        category: OTHER
+        extensions: [.xml]
+        description: "Mascot search parameter file"
+
+      - name: mgf_files
+        status: recommended
+        category: PEAK
+        extensions: [.mgf]
+        description: "MGF peak list files used for the Mascot search"
+
+      - *common_peak_lists
+
+      - name: custom_modifications
+        status: recommended
+        category: OTHER
+        extensions: [.txt, .xml]
+        description: "List of custom modifications used (if applicable)"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "mascot_results.zip"
+      strategy: "ZIP multiple .dat files grouped by experiment/project"
+
+    cross_file_rules:
+      - id: mascot_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: mascot_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+  # ---- Proteome Discoverer ----
+  - id: proteome_discoverer
+    name: "Proteome Discoverer"
+    description: "Thermo Scientific flexible software suite for proteomics research"
+
+    tool_detection:
+      marker_files: ["*.pdresult", "*.msf"]
+      match_any: true
+      description: "Proteome Discoverer produces .pdresult (PD 2.x+) or .msf (PD 1.x) SQLite databases"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: pdresult_file
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.pdresult, .msf]
+        description: "Proteome Discoverer result file (.pdresult for PD 2.x+, .msf for PD 1.x)"
+        content_verification:
+          # Both .pdresult and .msf are SQLite databases. Check the magic bytes.
+          method: magic_bytes
+          offset: 0
+          length: 16
+          hex_value: "53514C69746520666F726D6174203300"
+          description: "SQLite database header ('SQLite format 3\\0')"
+          severity_on_fail: error
+
+      - name: psms_export
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt, .xlsx]
+        description: "Exported PSM (Peptide Spectrum Match) results"
+        columns: [Confidence, Sequence, Modifications, Charge, m/z, "MH+ [Da]", Spectrum File]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [Confidence, Sequence, Modifications, Charge, Spectrum File]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: error
+
+      - name: peptides_export
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt, .xlsx]
+        description: "Exported peptide-level identification and quantification results"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: proteins_export
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt, .xlsx]
+        description: "Exported protein-level identification and quantification results"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: workflow_template
+        status: recommended
+        category: OTHER
+        extensions: [.pdStudy, .pdProcessingWF, .pdConsensusWF]
+        description: "Proteome Discoverer workflow template or study file"
+
+      - name: mzidentml_export
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid]
+        description: "Standard format export of identification results (strongly recommended)"
+
+      - *common_peak_lists
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "proteome_discoverer_results.zip"
+      strategy: "ZIP all Proteome Discoverer output files together"
+
+    cross_file_rules:
+      - id: pd_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: pd_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+  # ---- MS-GF+ ----
+  # NOTE: MS-GF+ natively outputs mzIdentML, so the STANDARD format file is
+  # the primary result (mandatory). No separate ANALYSIS file is required.
+  - id: msgfplus
+    name: "MS-GF+"
+    description: "Peptide identification tool matching MS/MS spectra to protein sequence databases"
+
+    tool_detection:
+      # MS-GF+ outputs .mzid files. Since mzIdentML is shared with other tools,
+      # additionally look for the MS-GF+ parameter file (.params) or check that
+      # the mzid contains MS-GF+ specific scores.
+      marker_files: ["*.mzid", "*.params"]
+      description: "MS-GF+ produces .mzid natively, usually alongside a .params file"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: mzid_results
+        status: mandatory
+        category: STANDARD
+        extensions: [.mzid]
+        description: "MS-GF+ search results in mzIdentML format (native output)"
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [MzIdentML, indexedmzIdentML]
+          namespace: "http://psidev.info/psi/pi/mzIdentML/1.1"
+          severity_on_fail: error
+
+      - name: tsv_results
+        status: optional
+        category: ANALYSIS
+        extensions: [.tsv]
+        description: "MS-GF+ search results in TSV format (alternative to mzIdentML)"
+        columns: [SpecID, ScanNum, FragMethod, Precursor, Charge, PepQValue, Peptide, Protein]
+        content_verification:
+          method: tsv_header
+          separator: "\t"
+          required_columns: [SpecID, ScanNum, Peptide, Protein, PepQValue]
+          severity_on_missing_column: warning
+          min_data_rows: 1
+          severity_on_empty: warning
+
+      - name: parameter_file
+        status: mandatory
+        category: OTHER
+        extensions: [.params, .txt]
+        description: "MS-GF+ search parameter file (.params is native format)"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: peak_lists
+        status: recommended
+        category: PEAK
+        extensions: [.mzML, .mgf]
+        description: "Peak list files used for the search (MS-GF+ primarily accepts mzML input)"
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "msgfplus_results.zip"
+      strategy: "ZIP all MS-GF+ output files together"
+
+    cross_file_rules:
+      - id: msgf_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: msgf_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+  # ---- Generic / Other Tools ----
+  # Catch-all profile for any tool not explicitly listed above.
+  # No tool_detection block — this profile is used when no other matches.
+  - id: generic
+    name: "Other Tools"
+    description: "Generic profile for tools not explicitly listed — requires RAW data, FASTA, and at least one ANALYSIS file"
+
+    files:
+      - *common_raw_files
+
+      - *common_fasta_database
+
+      - *common_sdrf
+
+      - name: analysis_files
+        status: mandatory
+        category: ANALYSIS
+        extensions: [.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid, .mzTab]
+        description: "Search results in native format from the analysis tool"
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+
+      - name: standard_format
+        status: recommended
+        category: STANDARD
+        extensions: [.mzid, .mzTab]
+        description: "Results converted to community standard formats when possible"
+
+      - name: parameter_files
+        status: recommended
+        category: OTHER
+        extensions: [.txt, .xml, .params, .cfg, .json]
+        description: "Parameter files or detailed documentation of settings"
+
+      - *common_peak_lists
+
+      - name: spectral_library
+        status: mandatory
+        category: SPECTRAL_LIBRARY
+        extensions: [.blib, .sptxt, .tsv]
+        description: "Spectral library used for library-based search"
+        conditional: true
+        condition_flag: library_search
+
+    compression:
+      analysis_grouping: single_archive
+      recommended_name: "analysis_results.zip"
+      strategy: "ZIP or TAR.GZ all analysis output files from a single analysis into one archive"
+
+    cross_file_rules:
+      - id: gen_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one raw file must be submitted"
+
+      - id: gen_fasta_file_count
+        rule_type: file_count
+        category: FASTA
+        min: 1
+        severity: warning
+        conditional_severity:
+          - condition_flag: metaproteomics
+            severity: error
+          - condition_flag: proteogenomics
+            severity: warning
+        description: >
+          FASTA database presence check. Severity depends on experiment type
+          (see fasta_policy): mandatory for metaproteomics, recommended for
+          proteogenomics (databases may contain controlled-access or
+          patient-specific genomic data), reference-only for standard
+          public databases.
+
+      - id: gen_analysis_file_count
+        rule_type: file_count
+        category: ANALYSIS
+        min: 1
+        severity: error
+        description: "At least one ANALYSIS file must be submitted"
+
+      - id: gen_d_folder_bruker
+        rule_type: archive_content
+        applies_to_extensions: [.d.zip, .d.tar.gz]
+        vendor: bruker
+        severity: error
+        one_of:
+          - pattern: "*/analysis.tdf"
+            also_required: "*/analysis.tdf_bin"
+            sub_format: tdf
+          - pattern: "*/analysis.tsf"
+            also_required: "*/analysis.tsf_bin"
+            sub_format: tsf
+          - pattern: "*/analysis.baf"
+            sub_format: baf
+          - pattern: "*/analysis.yep"
+            sub_format: yep
+          - pattern: "**/fid"
+            also_required: "**/acqu"
+            sub_format: fid
+        description: "Bruker .d folders must contain a valid data format (TDF, TSF, BAF, YEP, or FID)"
+
+      - id: gen_d_folder_agilent
+        rule_type: archive_content
+        applies_to_extensions: [.d.zip, .d.tar.gz]
+        vendor: agilent
+        severity: error
+        required_contents:
+          - pattern: "*/AcqData/MSScan.bin"
+            description: "Scan record data"
+          - pattern: "*/AcqData/MSProfile.bin"
+            description: "Profile spectral data"
+        description: "Agilent .d folders must contain AcqData/ with MSScan.bin and MSProfile.bin"
