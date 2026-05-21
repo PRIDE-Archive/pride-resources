@@ -616,14 +616,14 @@ fasta_policy:
     the exact same database independently, it must be provided.
   rules:
     - scenario: "Standard public database (UniProt Swiss-Prot, RefSeq, etc.)"
-      fasta_required: false
+      fasta_required: optional
       action: "Provide exact database name, version, and URL in metadata"
     - scenario: "Patient-specific / personal variant database (SNPs, individual variants)"
-      fasta_required: false
+      fasta_required: optional
       condition_flag: patient_specific_database
       action: "Document construction method; note privacy constraint in metadata"
     - scenario: "Metaproteomics (metagenome-derived database)"
-      fasta_required: true
+      fasta_required: mandatory
       condition_flag: metaproteomics
       action: "Upload FASTA file with submission"
     - scenario: "Proteogenomics (custom genomic/transcriptomic database)"
