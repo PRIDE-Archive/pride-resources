@@ -741,6 +741,7 @@ tools:
     description: "Olink affinity proteomics (NPX protein quantification)."
     tool_detection:
       marker_files: [ "*.npx.csv", "*.npx.parquet" ]
+      match_any: true
     files:
       - name: olink_npx_result
         status: mandatory
