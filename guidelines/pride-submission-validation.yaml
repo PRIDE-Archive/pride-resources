@@ -725,6 +725,7 @@ tools:
     description: "SomaLogic affinity proteomics (aptamer-based protein quantification)."
     tool_detection:
       marker_files: [ "*.adat", "*.bml" ]
+      match_any: true
     files:
       - name: somascan_result
         status: mandatory
