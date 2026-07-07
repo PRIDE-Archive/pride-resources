@@ -719,7 +719,6 @@ tools:
       - name: evidence.txt
         status: mandatory
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}evidence.txt"]
         description: "Evidence table with peptide identifications and quantifications at PSM level"
         columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Leading razor protein, Type, Score, MS/MS count]
@@ -737,7 +736,6 @@ tools:
       - name: peptides.txt
         status: mandatory
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}peptides.txt"]
         description: "Peptide-level identification and quantification results"
         columns: [Sequence, Proteins, Intensity, Score, PEP, Unique (Groups), Unique (Proteins)]
@@ -752,7 +750,6 @@ tools:
       - name: proteinGroups.txt
         status: mandatory
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}proteinGroups.txt"]
         description: "Protein group identification and quantification results"
         columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Score, PEP, Reverse, Potential contaminant]
@@ -773,7 +770,6 @@ tools:
       - name: parameters.txt
         status: mandatory
         category: OTHER
-        extensions: [.txt]
         filename_patterns: ["{prefix}parameters.txt"]
         description: "Processing parameters used in the analysis"
         content_verification:
@@ -783,7 +779,6 @@ tools:
       - name: summary.txt
         status: mandatory
         category: OTHER
-        extensions: [.txt]
         filename_patterns: ["{prefix}summary.txt"]
         description: "Summary statistics of the MaxQuant run"
         content_verification:
@@ -793,7 +788,6 @@ tools:
       - name: mqpar.xml
         status: mandatory
         category: OTHER
-        extensions: [.xml]
         filename_patterns: ["{prefix}mqpar.xml"]
         description: "MaxQuant parameter file containing all search settings"
         content_verification:
@@ -804,77 +798,66 @@ tools:
       - name: allPeptides.txt
         status: recommended
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}allPeptides.txt"]
         description: "All peptide-like features detected in the data"
 
       - name: msScans.txt
         status: recommended
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}msScans.txt"]
         description: "MS scan information"
 
       - name: msmsScans.txt
         status: recommended
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}msmsScans.txt"]
         description: "MS/MS scan information and fragment ion matches"
 
       - name: "Oxidation (M)Sites.txt"
         status: recommended
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}Oxidation (M)Sites.txt", "{prefix}*Sites.txt"]
         description: "Oxidation modification site identifications"
 
       - name: modificationSpecificPeptides.txt
         status: recommended
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}modificationSpecificPeptides.txt"]
         description: "Modified peptide identifications"
 
       - name: msms.txt
         status: optional
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}msms.txt"]
         description: "All MS/MS scans processed"
 
       - name: ms3Scans.txt
         status: optional
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}ms3Scans.txt"]
         description: "MS3 scan information and fragment ion matches"
 
       - name: fragment.txt
         status: optional
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}fragment.txt"]
         description: "Fragment information"
 
       - name: fragmentQuant.txt
         status: optional
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}fragmentQuant.txt"]
         description: "Fragment quantification data"
 
       - name: mzRange.txt
         status: optional
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}mzRange.txt"]
         description: "Isotope patterns in the data"
 
       - name: matchedFeatures.txt
         status: optional
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}matchedFeatures.txt"]
         description: "Matched peptide-like features across samples by Match between runs"
 
@@ -1015,28 +998,24 @@ tools:
       - name: pr_matrix.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}pr_matrix.tsv"]
         description: "Precursor-level quantification matrix"
 
       - name: pg_matrix.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}pg_matrix.tsv"]
         description: "Protein group-level quantification matrix"
 
       - name: gg_matrix.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}gg_matrix.tsv"]
         description: "Gene group-level quantification matrix"
 
       - name: stats.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}stats.tsv"]
         description: "Per-run statistics from DIA-NN analysis"
 
@@ -1049,7 +1028,7 @@ tools:
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
-        extensions: [.speclib, .parquet, .tsv, .blib, .sptxt]
+        extensions: [.speclib, .parquet, .blib, .sptxt]
         description: "Spectral library used for library-based search (DIA-NN 1.8+ uses .speclib format)"
         conditional: true
         condition_flag: library_search
@@ -1057,7 +1036,7 @@ tools:
       - name: empirical_library
         status: recommended
         category: SPECTRAL_LIBRARY
-        extensions: [.parquet, .tsv]
+        extensions: [.parquet]
         description: "Empirical library produced by DIA-NN automatically as part of MBR (match-between-runs)"
 
       - *common_peak_lists
@@ -1250,7 +1229,6 @@ tools:
       - name: psm.tsv
         status: mandatory
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}psm.tsv"]
         description: "Peptide identification results at PSM level"
         columns: [Spectrum, Spectrum File, Peptide, Modified Peptide, Charge, Retention, Protein, Mapped Proteins, Hyperscore, PeptideProphet Probability]
@@ -1265,7 +1243,6 @@ tools:
       - name: protein.tsv
         status: mandatory
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}protein.tsv"]
         description: "Protein-level identification and inference results"
         columns: [Protein, Protein ID, Entry Name, Gene, Protein Probability, Combined Total Peptides, Total Spectral Count]
@@ -1300,49 +1277,42 @@ tools:
       - name: combined_ion.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}combined_ion.tsv"]
         description: "Combined ion-level results across experiments"
 
       - name: combined_modified_peptide.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}combined_modified_peptide.tsv"]
         description: "Combined peptidoform-level results across experiments"
 
       - name: combined_peptide.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}combined_peptide.tsv"]
         description: "Combined peptide-level results across experiments"
 
       - name: combined_protein.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}combined_protein.tsv"]
         description: "Combined protein-level results across experiments"
 
       - name: combined_ion_label_quant.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}combined_ion_label_quant.tsv"]
         description: "Combined ion-level results from isotopic labeling quantification"
 
       - name: combined_modified_peptide_label_quant.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}combined_modified_peptide_label_quant.tsv"]
         description: "Combined peptidoform-level results from isotopic labeling quantification"
 
       - name: combined_protein_label_quant.tsv
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv]
         filename_patterns: ["{prefix}combined_protein_label_quant.tsv"]
         description: "Combined protein-level results from isotopic labeling quantification"
 
