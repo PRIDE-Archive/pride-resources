@@ -682,6 +682,18 @@ common_files:
     extensions: [.mgf, .mzML, .dta, .pkl]
     description: "Processed peak lists extracted from raw data"
 
+# -----------------------------------------------------------------------------
+# Binds the AFFINITY submission type to the affinity profiles, in BOTH
+# directions. Source: FileScanAndValidationTask lines 131-137.
+# -----------------------------------------------------------------------------
+submission_types:
+  - id: AFFINITY
+    profiles: [somascan, olink]
+    required_extensions: [.adat,.bml,.npx.csv,.npx.parquet]
+    match_any: true
+    severity: error
+
+
 # ==============================================================================
 # Tool-specific validation profiles
 # ==============================================================================
@@ -697,7 +709,74 @@ common_files:
 # listed — it requires at least one ANALYSIS file plus RAW data and FASTA.
 # ==============================================================================
 tools:
-  # ---- MaxQuant ----
+  - id: somascan
+    name: "SomaScan"
+    description: "SomaLogic affinity proteomics (aptamer-based protein quantification)."
+    tool_detection:
+      marker_files: [ "*.adat", "*.bml" ]
+      match_any: true
+    files:
+      - name: somascan_result
+        status: mandatory
+        category: ANALYSIS
+        filename_patterns: [ "*.adat", "*.bml" ]
+        description: "SomaScan platform quantification result files."
+        content_verification:
+          method: file_not_empty
+          severity_on_empty: error
+      - *common_sdrf
+
+  - id: olink
+    name: "Olink"
+    description: "Olink affinity proteomics (NPX protein quantification)."
+    tool_detection:
+      marker_files: [ "*.npx.csv", "*.npx.parquet" ]
+      match_any: true
+    files:
+      - name: olink_npx_result
+        status: mandatory
+        category: ANALYSIS
+        description: "Olink NPX quantification result. Exactly one of the formats below."
+        one_of:
+          - name: olink_npx_csv
+            filename_patterns: [ "*.npx.csv" ]
+            description: "Olink NPX quantification result (CSV)."
+            content_verification:
+              method: csv_header
+              accepted_separators: [ ",", ";" ]
+              required_columns:
+                - SampleID
+                - OlinkID
+                - UniProt
+                - Assay
+                - MissingFreq
+                - Panel
+                - LOD
+                - Normalization
+                - PlateID
+                - NPX
+              severity_on_missing_column: error
+              severity_on_empty: error
+          - name: olink_npx_parquet
+            filename_patterns: [ "*.npx.parquet" ]
+            description: "Olink NPX quantification result (Parquet)."
+            content_verification:
+              method: parquet_schema
+              required_columns:
+                - SampleID
+                - OlinkID
+                - UniProt
+                - Normalization
+                - Assay
+                - Panel
+                - PlateID
+                - NPX
+              severity_on_missing_column: error
+              severity_on_empty: error
+
+      - *common_sdrf
+
+    # ---- MaxQuant ----
   - id: maxquant
     name: "MaxQuant"
     description: "Software suite for quantitative proteomics (DDA and DIA)"
