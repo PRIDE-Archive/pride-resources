@@ -687,7 +687,7 @@ common_files:
 # directions. Source: FileScanAndValidationTask lines 131-137.
 # -----------------------------------------------------------------------------
 submission_types:
-  AFFINITY:
+  - id: AFFINITY
     profiles: [somascan, olink]
     required_extensions: [.adat,.bml,.npx.csv,.npx.parquet]
     match_any: true
