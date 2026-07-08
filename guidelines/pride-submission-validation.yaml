@@ -689,21 +689,10 @@ common_files:
 submission_types:
   AFFINITY:
     profiles: [somascan, olink]
+    required_extensions: [.adat,.bml,.npx.csv,.npx.parquet]
+    match_any: true
+    severity: error
 
-    # Direction 1: AFFINITY selected  =>  at least one affinity profile must match.
-    require_one_of_profiles:
-      severity: error
-      message: >-
-        Your Submission type is Affinity Proteomics. Please upload
-        .adat/.bml/.npx.csv/.npx.parquet result files or go back to
-        change the Submission Type.
-
-    # Direction 2: any affinity profile's files present  =>  type MUST be AFFINITY.
-    profiles_require_this_type:
-      severity: error
-      message: >-
-        Your submission contains .adat/.bml/.npx.csv/.npx.parquet files.
-        Please go back and select Affinity Proteomics as Submission Type.
 
 # ==============================================================================
 # Tool-specific validation profiles
