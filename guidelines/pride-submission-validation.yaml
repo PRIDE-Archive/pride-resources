@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.0.0"
+version: "2.0.1"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -943,7 +943,6 @@ tools:
       - name: dependentPeptides.txt
         status: optional
         category: ANALYSIS
-        extensions: [.txt]
         filename_patterns: ["{prefix}dependentPeptides.txt"]
         description: "Dependent peptide analysis results"
 
