@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.0.1"
+version: "2.0.2"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -689,8 +689,6 @@ common_files:
 submission_types:
   - id: AFFINITY
     profiles: [somascan, olink]
-    required_extensions: [.adat,.bml,.npx.csv,.npx.parquet]
-    match_any: true
     severity: error
 
 
@@ -730,7 +728,7 @@ tools:
     name: "Olink"
     description: "Olink affinity proteomics (NPX protein quantification)."
     tool_detection:
-      marker_files: [ "*.npx.csv", "*.npx.parquet" ]
+      marker_files: [ "{prefix}npx.csv", "{prefix}npx.parquet" ]
       match_any: true
     files:
       - name: olink_npx_result
@@ -739,7 +737,7 @@ tools:
         description: "Olink NPX quantification result. Exactly one of the formats below."
         one_of:
           - name: olink_npx_csv
-            filename_patterns: [ "*.npx.csv" ]
+            filename_patterns: [ "{prefix}npx.csv" ]
             description: "Olink NPX quantification result (CSV)."
             content_verification:
               method: csv_header
@@ -758,7 +756,7 @@ tools:
               severity_on_missing_column: error
               severity_on_empty: error
           - name: olink_npx_parquet
-            filename_patterns: [ "*.npx.parquet" ]
+            filename_patterns: [ "{prefix}npx.parquet" ]
             description: "Olink NPX quantification result (Parquet)."
             content_verification:
               method: parquet_schema
