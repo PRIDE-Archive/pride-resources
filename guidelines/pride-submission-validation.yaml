@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.0.3"
+version: "2.0.4"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -1990,7 +1990,7 @@ tools:
       - name: analysis_files
         status: mandatory
         category: ANALYSIS
-        extensions: [.txt, .tsv, .csv, .pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid, .mzTab]
+        extensions: [.pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid, .mzTab]
         description: "Search results in native format from the analysis tool"
         content_verification:
           method: file_not_empty
@@ -2005,7 +2005,7 @@ tools:
       - name: parameter_files
         status: recommended
         category: OTHER
-        extensions: [.txt, .xml, .params, .cfg, .json]
+        extensions: [.txt, .tsv, .csv, .xml, .params, .cfg, .json]
         description: "Parameter files or detailed documentation of settings"
 
       - *common_peak_lists
