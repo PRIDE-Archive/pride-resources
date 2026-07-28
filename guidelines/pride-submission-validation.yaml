@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.0.4"
+version: "2.0.5"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -686,8 +686,8 @@ common_files:
 # Registers the required Submission Types
 # -----------------------------------------------------------------------------
 submission_types:
-  - PRIDE_ARCHIVE
-  - AFFINITY
+  - MS_PROTEOMICS
+  - AFFINITY_PROTEOMICS
 
 
 # ==============================================================================
@@ -707,7 +707,7 @@ submission_types:
 tools:
   - id: somascan
     name: "SomaScan"
-    submission_types: [AFFINITY]
+    submission_types: [AFFINITY_PROTEOMICS]
     description: "SomaLogic affinity proteomics (aptamer-based protein quantification)."
     tool_detection:
       marker_files: [ "*.adat", "*.bml" ]
@@ -725,7 +725,7 @@ tools:
 
   - id: olink
     name: "Olink"
-    submission_types: [AFFINITY]
+    submission_types: [AFFINITY_PROTEOMICS]
     description: "Olink affinity proteomics (NPX protein quantification)."
     tool_detection:
       marker_files: [ "{prefix}npx.csv", "{prefix}npx.parquet" ]
@@ -776,15 +776,15 @@ tools:
 
   - id: generic_affinity
     name: "Other Affinity Tools"
-    submission_types: [AFFINITY]
-    description: "Generic profile for AFFINITY tools not explicitly listed — accept any files"
+    submission_types: [AFFINITY_PROTEOMICS]
+    description: "Generic profile for AFFINITY PROTEOMICS tools not explicitly listed — accept any files"
 
     files:
       - name: other_files
         status: mandatory
         category: OTHER
         extensions: [ .txt, .pdf ]
-        description: "Other files for AFFINITY submission"
+        description: "Other files for AFFINITY PROTEOMICS submission"
         content_verification:
           method: file_not_empty
           severity_on_empty: error
@@ -793,7 +793,7 @@ tools:
     # ---- MaxQuant ----
   - id: maxquant
     name: "MaxQuant"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Software suite for quantitative proteomics (DDA and DIA)"
 
     # How to detect that an ANALYSIS archive was produced by MaxQuant.
@@ -1025,7 +1025,7 @@ tools:
   # ---- DIA-NN ----
   - id: diann
     name: "DIA-NN"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Advanced software for DIA proteomics using neural networks"
 
     tool_detection:
@@ -1183,7 +1183,7 @@ tools:
   # ---- Spectronaut ----
   - id: spectronaut
     name: "Spectronaut"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Commercial DIA proteomics analysis platform by Biognosys"
 
     tool_detection:
@@ -1308,7 +1308,7 @@ tools:
   # ---- FragPipe / MSFragger ----
   - id: fragpipe
     name: "FragPipe/MSFragger"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Versatile MS proteomics analysis platform integrating MSFragger, Philosopher, IonQuant, and more"
 
     tool_detection:
@@ -1488,7 +1488,7 @@ tools:
   # ---- Skyline ----
   - id: skyline
     name: "Skyline"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Open-source application for targeted proteomics (SRM/MRM/PRM/DIA)"
 
     tool_detection:
@@ -1590,7 +1590,7 @@ tools:
   # ---- OpenMS ----
   - id: openms
     name: "OpenMS"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Open-source C++ library with Python bindings for LC/MS data analysis"
 
     tool_detection:
@@ -1687,7 +1687,7 @@ tools:
   # ---- Mascot ----
   - id: mascot
     name: "Mascot"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Search engine for protein identification by matching MS data to peptide sequence databases"
 
     tool_detection:
@@ -1774,7 +1774,7 @@ tools:
 
   # ---- Proteome Discoverer ----
   - id: proteome_discoverer
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     name: "Proteome Discoverer"
     description: "Thermo Scientific flexible software suite for proteomics research"
 
@@ -1885,7 +1885,7 @@ tools:
   # the primary result (mandatory). No separate ANALYSIS file is required.
   - id: msgfplus
     name: "MS-GF+"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Peptide identification tool matching MS/MS spectra to protein sequence databases"
 
     tool_detection:
@@ -1977,7 +1977,7 @@ tools:
   # No tool_detection block — this profile is used when no other matches.
   - id: generic
     name: "Other Tools"
-    submission_types: [PRIDE_ARCHIVE]
+    submission_types: [MS_PROTEOMICS]
     description: "Generic profile for tools not explicitly listed — requires RAW data, FASTA, and at least one ANALYSIS file"
 
     files:
