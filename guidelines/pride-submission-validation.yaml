@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.0.5"
+version: "2.0.6"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -707,6 +707,7 @@ submission_types:
 tools:
   - id: somascan
     name: "SomaScan"
+    accession:
     submission_types: [AFFINITY_PROTEOMICS]
     description: "SomaLogic affinity proteomics (aptamer-based protein quantification)."
     tool_detection:
@@ -725,6 +726,7 @@ tools:
 
   - id: olink
     name: "Olink"
+    accession:
     submission_types: [AFFINITY_PROTEOMICS]
     description: "Olink affinity proteomics (NPX protein quantification)."
     tool_detection:
@@ -793,6 +795,7 @@ tools:
     # ---- MaxQuant ----
   - id: maxquant
     name: "MaxQuant"
+    accession: MS:1001583
     submission_types: [MS_PROTEOMICS]
     description: "Software suite for quantitative proteomics (DDA and DIA)"
 
@@ -1025,6 +1028,7 @@ tools:
   # ---- DIA-NN ----
   - id: diann
     name: "DIA-NN"
+    accession: MS:1003253
     submission_types: [MS_PROTEOMICS]
     description: "Advanced software for DIA proteomics using neural networks"
 
@@ -1183,6 +1187,7 @@ tools:
   # ---- Spectronaut ----
   - id: spectronaut
     name: "Spectronaut"
+    accession: MS:1001327
     submission_types: [MS_PROTEOMICS]
     description: "Commercial DIA proteomics analysis platform by Biognosys"
 
@@ -1308,6 +1313,7 @@ tools:
   # ---- FragPipe / MSFragger ----
   - id: fragpipe
     name: "FragPipe/MSFragger"
+    accession: MS:1003429
     submission_types: [MS_PROTEOMICS]
     description: "Versatile MS proteomics analysis platform integrating MSFragger, Philosopher, IonQuant, and more"
 
@@ -1488,6 +1494,7 @@ tools:
   # ---- Skyline ----
   - id: skyline
     name: "Skyline"
+    accession: MS:1002546
     submission_types: [MS_PROTEOMICS]
     description: "Open-source application for targeted proteomics (SRM/MRM/PRM/DIA)"
 
@@ -1590,6 +1597,7 @@ tools:
   # ---- OpenMS ----
   - id: openms
     name: "OpenMS"
+    accession: MS:1003430
     submission_types: [MS_PROTEOMICS]
     description: "Open-source C++ library with Python bindings for LC/MS data analysis"
 
@@ -1687,6 +1695,7 @@ tools:
   # ---- Mascot ----
   - id: mascot
     name: "Mascot"
+    accession: MS:1001207
     submission_types: [MS_PROTEOMICS]
     description: "Search engine for protein identification by matching MS data to peptide sequence databases"
 
@@ -1774,8 +1783,9 @@ tools:
 
   # ---- Proteome Discoverer ----
   - id: proteome_discoverer
-    submission_types: [MS_PROTEOMICS]
     name: "Proteome Discoverer"
+    accession: MS:1000650
+    submission_types: [MS_PROTEOMICS]
     description: "Thermo Scientific flexible software suite for proteomics research"
 
     tool_detection:
@@ -1885,6 +1895,7 @@ tools:
   # the primary result (mandatory). No separate ANALYSIS file is required.
   - id: msgfplus
     name: "MS-GF+"
+    accession: MS:1002048
     submission_types: [MS_PROTEOMICS]
     description: "Peptide identification tool matching MS/MS spectra to protein sequence databases"
 
