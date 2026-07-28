@@ -707,7 +707,7 @@ submission_types:
 tools:
   - id: somascan
     name: "SomaScan"
-    accession:
+    accession: PRIDE:0000636
     submission_types: [AFFINITY_PROTEOMICS]
     description: "SomaLogic affinity proteomics (aptamer-based protein quantification)."
     tool_detection:
@@ -726,7 +726,7 @@ tools:
 
   - id: olink
     name: "Olink"
-    accession:
+    accession: PRIDE:0000637
     submission_types: [AFFINITY_PROTEOMICS]
     description: "Olink affinity proteomics (NPX protein quantification)."
     tool_detection:
