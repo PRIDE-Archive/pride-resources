@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.0.6"
+version: "2.0.7"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -1494,7 +1494,7 @@ tools:
   # ---- Skyline ----
   - id: skyline
     name: "Skyline"
-    accession: MS:1002546
+    accession: MS:1000922
     submission_types: [MS_PROTEOMICS]
     description: "Open-source application for targeted proteomics (SRM/MRM/PRM/DIA)"
 
