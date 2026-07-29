@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.0.7"
+version: "2.1.0"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -288,14 +288,30 @@ file_classification:
 #   OTHER             – Parameter files, logs, workflows, supplementary docs.
 # ------------------------------------------------------------------------------
 file_categories:
-  - ANALYSIS
-  - RAW
-  - PEAK
-  - STANDARD
-  - SPECTRAL_LIBRARY
-  - FASTA
-  - METADATA
-  - OTHER
+  - id: ANALYSIS
+    name: Analysis Files
+    description: Native output files from search engines / analysis tools (e.g. evidence.txt, report.parquet, psm.tsv).
+  - id: RAW
+    name: Raw Files
+    description: Unprocessed mass spectrometry data straight from the instrument (vendor-specific or open-standard formats).
+  - id: PEAK
+    name: Peak Files
+    description: Processed peak lists extracted from raw data (e.g. .mgf, centroided .mzML).
+  - id: STANDARD
+    name: Standard Files
+    description: Community-standard (PSI) representations of results (mzIdentML, mzTab). These improve interoperability but do NOT replace ANALYSIS files for most tools.
+  - id: SPECTRAL_LIBRARY
+    name: Spectral Library Files
+    description: Spectral libraries used or produced during the analysis.
+  - id: FASTA
+    name: Fasta Database Files
+    description: Protein sequence databases used for the search.
+  - id: METADATA
+    name: Metadata Files
+    description: Sample/experiment metadata (SDRF files).
+  - id: OTHER
+    name: Other Files
+    description: Parameter files, logs, workflows, supplementary docs.
 
 # ------------------------------------------------------------------------------
 # Compression rules
