@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.1.0"
+version: "2.1.1"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -840,6 +840,7 @@ tools:
       - name: evidence.txt
         status: mandatory
         category: ANALYSIS
+        optional_if: [mzTab.mzTab]
         filename_patterns: ["{prefix}evidence.txt"]
         description: "Evidence table with peptide identifications and quantifications at PSM level"
         columns: [Sequence, Modified sequence, Raw file, Intensity, Charge, m/z, Retention time, Proteins, Leading razor protein, Type, Score, MS/MS count]
@@ -857,6 +858,7 @@ tools:
       - name: peptides.txt
         status: mandatory
         category: ANALYSIS
+        optional_if: [mzTab.mzTab]
         filename_patterns: ["{prefix}peptides.txt"]
         description: "Peptide-level identification and quantification results"
         columns: [Sequence, Proteins, Intensity, Score, PEP, Unique (Groups), Unique (Proteins)]
@@ -871,6 +873,7 @@ tools:
       - name: proteinGroups.txt
         status: mandatory
         category: ANALYSIS
+        optional_if: [mzTab.mzTab]
         filename_patterns: ["{prefix}proteinGroups.txt"]
         description: "Protein group identification and quantification results"
         columns: [Protein IDs, Majority protein IDs, Peptide counts, Intensity, Score, PEP, Reverse, Potential contaminant]
