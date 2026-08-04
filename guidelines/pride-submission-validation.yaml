@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.1.1"
+version: "2.1.2"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -2028,7 +2028,7 @@ tools:
       - name: analysis_files
         status: mandatory
         category: ANALYSIS
-        extensions: [.pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid, .mzTab]
+        extensions: [.pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid]
         description: "Search results in native format from the analysis tool"
         content_verification:
           method: file_not_empty
