@@ -889,7 +889,7 @@ tools:
       - name: mzTab.mzTab
         status: recommended
         category: STANDARD
-        filename_patterns: ["{prefix}mzTab"]
+        filename_patterns: ["{prefix}.mzTab"]
         description: "mzTab output containing identification and quantification data (must be enabled in MaxQuant settings)"
 
       - name: parameters.txt
