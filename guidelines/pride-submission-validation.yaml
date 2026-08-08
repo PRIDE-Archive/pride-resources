@@ -1568,7 +1568,7 @@ tools:
       - name: exported_reports
         status: mandatory
         category: ANALYSIS
-        possible_file_extensions: [.csv, .tsv]
+        filename_patterns: ["{prefix}.csv", "{prefix}.tsv"]
         description: "Exported quantification reports"
         content_verification:
           method: file_not_empty
@@ -1656,7 +1656,7 @@ tools:
       - name: quantification_results
         status: mandatory
         category: ANALYSIS
-        filename_patterns: ["{prefix}.consensusXML, {prefix}.featureXML"]
+        filename_patterns: ["{prefix}.consensusXML", "{prefix}.featureXML"]
         description: "Quantification results from OpenMS (mandatory if quantification was performed)"
         content_verification:
           method: xml_root_element
@@ -1849,7 +1849,7 @@ tools:
         status: mandatory
         category: ANALYSIS
         possible_file_extensions: [.txt]
-        filename_patterns: ["{prefix}.xlsx"]
+        filename_patterns: ["{prefix}.xlsx", "{prefix}.tsv"]
         description: "Exported PSM (Peptide Spectrum Match) results"
         columns: [Confidence, Sequence, Modifications, Charge, m/z, "MH+ [Da]", Spectrum File]
         content_verification:
