@@ -671,14 +671,14 @@ common_files:
     name: raw_files
     status: mandatory
     category: RAW
-    extensions: [.raw, .mzML.gz, .wiff, .wiff2, .wiff.scan, .d.zip, .d.tar.gz, .raw.zip, .raw.tar.gz]
+    filename_patterns: ["{prefix}.raw", "{prefix}.mzML.gz", "{prefix}.wiff", "{prefix}.wiff2", "{prefix}.wiff.scan", "{prefix}.d.zip", "{prefix}.d.tar.gz", "{prefix}.raw.zip", "{prefix}.raw.tar.gz"]
     description: "Raw data files from the mass spectrometer (vendor formats or mzML)"
 
   fasta_database: &common_fasta_database
     name: fasta_database
     status: mandatory
     category: FASTA
-    extensions: [.fasta, .fa]
+    filename_patterns: ["{prefix}.fasta","{prefix}.fa"]
     description: >
       Protein sequence database used for search. Mandatory for metaproteomics
       and proteogenomics. For standard public databases (UniProt, RefSeq),
@@ -696,14 +696,14 @@ common_files:
     name: sdrf.tsv
     status: recommended
     category: METADATA
-    extensions: [.sdrf.tsv]
+    filename_patterns: ["{prefix}.sdrf.tsv"]
     description: "SDRF metadata file describing samples and experimental design"
 
   peak_lists: &common_peak_lists
     name: peak_lists
     status: recommended
     category: PEAK
-    extensions: [.mgf, .mzML, .dta, .pkl]
+    filename_patterns: ["{prefix}.mgf", "{prefix}.mzML", "{prefix}.dta", "{prefix}.pkl"]
     description: "Processed peak lists extracted from raw data"
 
 # -----------------------------------------------------------------------------
@@ -737,6 +737,7 @@ tools:
     tool_detection:
       marker_files: [ "*.adat", "*.bml" ]
       match_any: true
+
     files:
       - name: somascan_result
         status: mandatory
@@ -809,7 +810,7 @@ tools:
       - name: other_files
         status: mandatory
         category: OTHER
-        extensions: [ .txt, .pdf ]
+        filename_patterns: [ "{prefix}.txt", "{prefix}.pdf" ]
         description: "Other files for AFFINITY PROTEOMICS submission"
         content_verification:
           method: file_not_empty
@@ -888,7 +889,7 @@ tools:
       - name: mzTab.mzTab
         status: recommended
         category: STANDARD
-        extensions: [.mzTab]
+        filename_patterns: ["{prefix}mzTab"]
         description: "mzTab output containing identification and quantification data (must be enabled in MaxQuant settings)"
 
       - name: parameters.txt
@@ -994,13 +995,13 @@ tools:
       - name: mzidentml_export
         status: recommended
         category: STANDARD
-        extensions: [.mzid]
+        filename_patterns: ["{prefix}.mzid"]
         description: "Standard format export of identification results"
 
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
-        extensions: [.blib, .sptxt, .tsv]
+        filename_patterns: ["{prefix}.blib", "{prefix}.sptxt", "{prefix}.tsv"]
         description: "Spectral library used for library-based search"
         conditional: true
         condition_flag: library_search
@@ -1074,7 +1075,7 @@ tools:
       - name: report
         status: mandatory
         category: ANALYSIS
-        extensions: [.parquet, .tsv]
+        possible_file_extensions: [.parquet, .tsv]
         filename_patterns: ["{prefix}report.parquet", "{prefix}report.tsv"]
         description: "Main DIA-NN report file with all identifications and quantifications"
         columns: [File.Name, Protein.Group, Protein.Ids, Protein.Names, Genes, Precursor.Id, Modified.Sequence, Stripped.Sequence, Precursor.Charge, Q.Value, PG.Q.Value, Global.Q.Value, Precursor.Quantity, RT]
@@ -1099,7 +1100,8 @@ tools:
       - name: log_file
         status: mandatory
         category: OTHER
-        extensions: [.log.txt, .txt]
+        possible_file_extensions: [.txt]
+        filename_patterns: ["{prefix}.log.txt"]
         description: "DIA-NN analysis log file documenting processing steps"
         content_verification:
           method: file_not_empty
@@ -1108,8 +1110,7 @@ tools:
       - name: site_report
         status: mandatory
         category: ANALYSIS
-        extensions: [.site_report.parquet, .site_report.tsv]
-        filename_patterns: ["{prefix}*.site_report.parquet", "{prefix}*.site_report.tsv"]
+        filename_patterns: ["{prefix}.site_report.parquet", "{prefix}.site_report.tsv"]
         description: "PTM site localisation report — mandatory if produced by DIA-NN"
         conditional: true
         condition_flag: ptm_analysis
@@ -1117,7 +1118,8 @@ tools:
       - name: parameter_config
         status: recommended
         category: OTHER
-        extensions: [.pipeline.json, .pipeline, .cfg, .txt]
+        possible_file_extensions: [.txt]
+        filename_patterns: ["{prefix}.pipeline.json", "{prefix}.pipeline", "{prefix}.cfg"]
         description: "DIA-NN pipeline/configuration file with search parameters"
 
       - name: pr_matrix.tsv
@@ -1147,13 +1149,13 @@ tools:
       - name: mztab_export
         status: recommended
         category: STANDARD
-        extensions: [.mzTab]
+        filename_patterns: ["{prefix}.mzTab"]
         description: "Standard format export of quantification results"
 
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
-        extensions: [.speclib, .parquet, .blib, .sptxt]
+        filename_patterns: ["{prefix}.speclib", "{prefix}.parquet", "{prefix}.blib", "{prefix}.sptxt"]
         description: "Spectral library used for library-based search (DIA-NN 1.8+ uses .speclib format)"
         conditional: true
         condition_flag: library_search
@@ -1161,7 +1163,7 @@ tools:
       - name: empirical_library
         status: recommended
         category: SPECTRAL_LIBRARY
-        extensions: [.parquet]
+        filename_patterns: ["{prefix}.parquet"]
         description: "Empirical library produced by DIA-NN automatically as part of MBR (match-between-runs)"
 
       - *common_peak_lists
@@ -1238,7 +1240,7 @@ tools:
       - name: main_report
         status: mandatory
         category: ANALYSIS
-        extensions: [.tsv, .csv, .xlsx]
+        filename_patterns: ["{prefix}.tsv", "{prefix}.csv", "{prefix}.xlsx"]
         description: "Primary Spectronaut report with peptide/protein identifications and quantifications"
         columns: [R.FileName, PG.ProteinAccessions, PG.ProteinNames, PG.Quantity, PG.Qvalue, EG.PrecursorId, EG.ModifiedSequence, EG.Qvalue, FG.Quantity]
         content_verification:
@@ -1252,55 +1254,55 @@ tools:
       - name: analysis_settings
         status: mandatory
         category: OTHER
-        extensions: [.json, .txt, .properties]
+        filename_patterns: ["{prefix}.json", "{prefix}.txt", "{prefix}.properties"]
         description: "Spectronaut analysis settings file or exported parameters documenting the search configuration"
 
       - name: saved_experiment
         status: recommended
         category: ANALYSIS
-        extensions: [.sne]
+        filename_patterns: ["{prefix}.sne"]
         description: "Full saved experiment file — can be loaded into the free Spectronaut Viewer version"
 
       - name: search_archive
         status: recommended
         category: ANALYSIS
-        extensions: [.psar]
+        filename_patterns: ["{prefix}.psar"]
         description: "Search archives generated during library generation or directDIA (if available)"
 
       - name: protein_group_report
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv, .csv, .xlsx]
+        filename_patterns: ["{prefix}.tsv", "{prefix}.csv", "{prefix}.xlsx"]
         description: "Protein group-level quantification report"
 
       - name: peptide_report
         status: recommended
         category: ANALYSIS
-        extensions: [.tsv, .csv, .xlsx]
+        filename_patterns: ["{prefix}.tsv", "{prefix}.csv", "{prefix}.xlsx"]
         description: "Peptide-level quantification report"
 
       - name: fragment_report
         status: optional
         category: ANALYSIS
-        extensions: [.tsv, .csv, .xlsx]
+        filename_patterns: ["{prefix}.tsv", "{prefix}.csv", "{prefix}.xlsx"]
         description: "Fragment-level quantification data"
 
       - name: candidates_report
         status: optional
         category: ANALYSIS
-        extensions: [.tsv, .csv, .xlsx]
+        filename_patterns: ["{prefix}.tsv", "{prefix}.csv", "{prefix}.xlsx"]
         description: "All candidate identifications before filtering"
 
       - name: mztab_export
         status: recommended
         category: STANDARD
-        extensions: [.mzTab]
+        filename_patterns: ["{prefix}.mzTab"]
         description: "Standard format export of quantification results"
 
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
-        extensions: [.kit, .speclib, .tsv, .csv]
+        filename_patterns: ["{prefix}.kit", "{prefix}.speclib", "{prefix}.tsv", "{prefix}.csv"]
         description: "Spectral library used for analysis"
         conditional: true
         condition_flag: library_search
@@ -1386,7 +1388,7 @@ tools:
       - name: fragpipe.workflow
         status: mandatory
         category: OTHER
-        extensions: [.workflow]
+        possible_file_extensions: [.workflow]
         filename_patterns: ["{prefix}fragpipe.workflow"]
         description: "FragPipe configuration and parameter files"
         content_verification:
@@ -1396,7 +1398,7 @@ tools:
       - name: fragpipe-files.fp-manifest
         status: mandatory
         category: OTHER
-        extensions: [.fp-manifest]
+        possible_file_extensions: [.fp-manifest]
         filename_patterns: ["{prefix}fragpipe-files.fp-manifest"]
         description: "FragPipe manifest files"
         content_verification:
@@ -1448,13 +1450,14 @@ tools:
       - name: tmt_report_folder
         status: recommended
         category: ANALYSIS
-        extensions: [.zip, .tar.gz]
+        possible_file_extensions: [.zip, .tar.gz]
         description: "Combined results from isobaric labeling quantification"
 
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
-        extensions: [.blib, .sptxt, .tsv]
+        possible_file_extensions: [.tsv]
+        filename_patterns: ["{prefix}.blib", "{prefix}.sptxt"]
         description: "Spectral library used for library-based search"
         conditional: true
         condition_flag: library_search
@@ -1462,13 +1465,13 @@ tools:
       - name: pepxml_results
         status: recommended
         category: ANALYSIS
-        extensions: [.pep.xml]
+        filename_patterns: ["{prefix}.pep.xml"]
         description: "PepXML identification results from MSFragger/PeptideProphet"
 
       - name: mzidentml_export
         status: recommended
         category: STANDARD
-        extensions: [.mzid]
+        filename_patterns: ["{prefix}.mzid"]
         description: "Standard format export of identification results (via Philosopher)"
 
       - *common_peak_lists
@@ -1540,13 +1543,13 @@ tools:
       - name: skyline_shared
         status: recommended
         category: ANALYSIS
-        extensions: [.sky.zip]
+        filename_patterns: ["{prefix}.sky.zip"]
         description: "Skyline shared document archive (File > Share) — preferred format, contains .sky, .skyd, libraries, and FASTA in one archive"
 
       - name: skyline_document
         status: mandatory
         category: ANALYSIS
-        extensions: [.sky]
+        filename_patterns: ["{prefix}.sky"]
         description: "Skyline document (XML) — required if not submitting .sky.zip"
         content_verification:
           method: xml_root_element
@@ -1556,7 +1559,7 @@ tools:
       - name: skyline_data
         status: mandatory
         category: ANALYSIS
-        extensions: [.skyd]
+        filename_patterns: ["{prefix}.skyd"]
         description: "Skyline data file (binary cache) — required if not submitting .sky.zip"
         content_verification:
           method: file_not_empty
@@ -1565,7 +1568,7 @@ tools:
       - name: exported_reports
         status: mandatory
         category: ANALYSIS
-        extensions: [.csv, .tsv]
+        possible_file_extensions: [.csv, .tsv]
         description: "Exported quantification reports"
         content_verification:
           method: file_not_empty
@@ -1574,19 +1577,19 @@ tools:
       - name: mztab_export
         status: recommended
         category: STANDARD
-        extensions: [.mzTab]
+        filename_patterns: ["{prefix}.mzTab"]
         description: "Standard format export of quantification results"
 
       - name: spectral_library
         status: recommended
         category: SPECTRAL_LIBRARY
-        extensions: [.blib]
+        filename_patterns: ["{prefix}.blib"]
         description: "Spectral library used for method development"
 
       - name: acquisition_method
         status: recommended
         category: OTHER
-        extensions: [.method]
+        filename_patterns: ["{prefix}.method"]
         description: "Instrument acquisition method file"
 
       - *common_peak_lists
@@ -1643,7 +1646,7 @@ tools:
       - name: idxml_results
         status: mandatory
         category: ANALYSIS
-        extensions: [.idxml]
+        filename_patterns: ["{prefix}.idxml"]
         description: "OpenMS identification results in idXML format"
         content_verification:
           method: xml_root_element
@@ -1653,7 +1656,7 @@ tools:
       - name: quantification_results
         status: mandatory
         category: ANALYSIS
-        extensions: [.consensusXML, .featureXML]
+        filename_patterns: ["{prefix}.consensusXML, {prefix}.featureXML"]
         description: "Quantification results from OpenMS (mandatory if quantification was performed)"
         content_verification:
           method: xml_root_element
@@ -1663,7 +1666,7 @@ tools:
       - name: workflow_description
         status: mandatory
         category: OTHER
-        extensions: [.toppas, .knwf, .py]
+        filename_patterns: ["{prefix}.toppas, {prefix}.knwf, {prefix}.py"]
         description: "TOPP workflow, KNIME workflow, or pyOpenMS script"
         content_verification:
           method: file_not_empty
@@ -1672,19 +1675,20 @@ tools:
       - name: mzidentml_export
         status: recommended
         category: STANDARD
-        extensions: [.mzid]
+        filename_patterns: ["{prefix}.mzid"]
         description: "Standard format export of identification results"
 
       - name: mztab_export
         status: recommended
         category: STANDARD
-        extensions: [.mzTab]
+        filename_patterns: ["{prefix}.mzTab"]
         description: "Standard format export of identification and quantification results"
 
       - name: topp_parameter_files
         status: recommended
         category: OTHER
-        extensions: [.ini, .xml]
+        possible_file_extensions: [.xml]
+        filename_patterns: ["{prefix}.ini"]
         description: "Parameter files for individual TOPP tools used in the workflow"
 
       - *common_peak_lists
@@ -1741,7 +1745,7 @@ tools:
       - name: dat_files
         status: mandatory
         category: ANALYSIS
-        extensions: [.dat]
+        filename_patterns: ["{prefix}.dat"]
         description: "Mascot search result files in DAT format"
         content_verification:
           # Mascot .dat files are MIME-encoded text. The first line is always
@@ -1755,19 +1759,19 @@ tools:
       - name: mzidentml_export
         status: recommended
         category: STANDARD
-        extensions: [.mzid]
+        filename_patterns: ["{prefix}.mzid"]
         description: "Results exported in mzIdentML standard format (strongly recommended)"
 
       - name: parameter_file
         status: mandatory
         category: OTHER
-        extensions: [.xml]
+        filename_patterns: ["{prefix}.xml"]
         description: "Mascot search parameter file"
 
       - name: mgf_files
         status: recommended
         category: PEAK
-        extensions: [.mgf]
+        filename_patterns: ["{prefix}.mgf"]
         description: "MGF peak list files used for the Mascot search"
 
       - *common_peak_lists
@@ -1775,7 +1779,7 @@ tools:
       - name: custom_modifications
         status: recommended
         category: OTHER
-        extensions: [.txt, .xml]
+        possible_file_extensions: [.txt, .xml]
         description: "List of custom modifications used (if applicable)"
 
     compression:
@@ -1830,7 +1834,7 @@ tools:
       - name: pdresult_file
         status: mandatory
         category: ANALYSIS
-        extensions: [.pdresult, .msf]
+        filename_patterns: ["{prefix}.pdresult", "{prefix}.msf"]
         description: "Proteome Discoverer result file (.pdresult for PD 2.x+, .msf for PD 1.x)"
         content_verification:
           # Both .pdresult and .msf are SQLite databases. Check the magic bytes.
@@ -1844,7 +1848,8 @@ tools:
       - name: psms_export
         status: mandatory
         category: ANALYSIS
-        extensions: [.txt, .xlsx]
+        possible_file_extensions: [.txt]
+        filename_patterns: ["{prefix}.xlsx"]
         description: "Exported PSM (Peptide Spectrum Match) results"
         columns: [Confidence, Sequence, Modifications, Charge, m/z, "MH+ [Da]", Spectrum File]
         content_verification:
@@ -1858,7 +1863,8 @@ tools:
       - name: peptides_export
         status: mandatory
         category: ANALYSIS
-        extensions: [.txt, .xlsx]
+        possible_file_extensions: [.txt]
+        filename_patterns: ["{prefix}.xlsx"]
         description: "Exported peptide-level identification and quantification results"
         content_verification:
           method: file_not_empty
@@ -1867,7 +1873,8 @@ tools:
       - name: proteins_export
         status: mandatory
         category: ANALYSIS
-        extensions: [.txt, .xlsx]
+        possible_file_extensions: [.txt]
+        filename_patterns: ["{prefix}.xlsx"]
         description: "Exported protein-level identification and quantification results"
         content_verification:
           method: file_not_empty
@@ -1876,13 +1883,13 @@ tools:
       - name: workflow_template
         status: recommended
         category: OTHER
-        extensions: [.pdStudy, .pdProcessingWF, .pdConsensusWF]
+        filename_patterns: ["{prefix}.pdStudy", "{prefix}.pdProcessingWF", "{prefix}.pdConsensusWF"]
         description: "Proteome Discoverer workflow template or study file"
 
       - name: mzidentml_export
         status: recommended
         category: STANDARD
-        extensions: [.mzid]
+        filename_patterns: ["{prefix}.mzid"]
         description: "Standard format export of identification results (strongly recommended)"
 
       - *common_peak_lists
@@ -1943,7 +1950,7 @@ tools:
       - name: mzid_results
         status: mandatory
         category: STANDARD
-        extensions: [.mzid]
+        filename_patterns: ["{prefix}.mzid"]
         description: "MS-GF+ search results in mzIdentML format (native output)"
         content_verification:
           method: xml_root_element
@@ -1954,7 +1961,7 @@ tools:
       - name: tsv_results
         status: optional
         category: ANALYSIS
-        extensions: [.tsv]
+        filename_patterns: ["{prefix}.tsv"]
         description: "MS-GF+ search results in TSV format (alternative to mzIdentML)"
         columns: [SpecID, ScanNum, FragMethod, Precursor, Charge, PepQValue, Peptide, Protein]
         content_verification:
@@ -1968,7 +1975,8 @@ tools:
       - name: parameter_file
         status: mandatory
         category: OTHER
-        extensions: [.params, .txt]
+        possible_file_extensions: [.txt]
+        filename_patterns: ["{prefix}.params"]
         description: "MS-GF+ search parameter file (.params is native format)"
         content_verification:
           method: file_not_empty
@@ -1977,7 +1985,7 @@ tools:
       - name: peak_lists
         status: recommended
         category: PEAK
-        extensions: [.mzML, .mgf]
+        filename_patterns: ["{prefix}.mzML", "{prefix}.mgf"]
         description: "Peak list files used for the search (MS-GF+ primarily accepts mzML input)"
 
     compression:
@@ -2028,7 +2036,7 @@ tools:
       - name: analysis_files
         status: mandatory
         category: ANALYSIS
-        extensions: [.pep.xml, .idxml, .dat, .pdresult, .parquet, .mzid]
+        filename_patterns: ["{prefix}.pep.xml", "{prefix}.idxml", "{prefix}.dat","{prefix}.pdresult","{prefix}.parquet","{prefix}.mzid"]
         description: "Search results in native format from the analysis tool"
         content_verification:
           method: file_not_empty
@@ -2037,13 +2045,13 @@ tools:
       - name: standard_format
         status: recommended
         category: STANDARD
-        extensions: [.mzid, .mzTab]
+        filename_patterns: ["{prefix}.mzid", "{prefix}.mzTab"]
         description: "Results converted to community standard formats when possible"
 
       - name: parameter_files
         status: recommended
         category: OTHER
-        extensions: [.txt, .tsv, .csv, .xml, .params, .cfg, .json]
+        possible_file_extensions: [.txt, .tsv, .csv, .xml, .params, .cfg, .json]
         description: "Parameter files or detailed documentation of settings"
 
       - *common_peak_lists
@@ -2051,7 +2059,7 @@ tools:
       - name: spectral_library
         status: mandatory
         category: SPECTRAL_LIBRARY
-        extensions: [.blib, .sptxt, .tsv]
+        filename_patterns: ["{prefix}.blib", "{prefix}.sptxt", "{prefix}.tsv"]
         description: "Spectral library used for library-based search"
         conditional: true
         condition_flag: library_search
