@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.2.0"
+version: "2.2.1"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -296,13 +296,13 @@ file_categories:
     name: Analysis Files
     description: Native output files from search engines / analysis tools (e.g. evidence.txt, report.parquet, psm.tsv).
     order: 2
-  - id: PEAK
-    name: Peak Files
-    description: Processed peak lists extracted from raw data (e.g. .mgf, centroided .mzML).
-    order: 3
   - id: STANDARD
     name: Standard Files
     description: Community-standard (PSI) representations of results (mzIdentML, mzTab). These improve interoperability but do NOT replace ANALYSIS files for most tools.
+    order: 3
+  - id: PEAK
+    name: Peak Files
+    description: Processed peak lists extracted from raw data (e.g. .mgf, centroided .mzML).
     order: 4
   - id: SPECTRAL_LIBRARY
     name: Spectral Library Files
