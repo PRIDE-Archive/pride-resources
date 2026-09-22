@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.2.1"
+version: "2.2.2"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -1860,22 +1860,12 @@ tools:
           min_data_rows: 1
           severity_on_empty: error
 
-      - name: peptides_export
+      - name: peptides_or_proteins_export
         status: mandatory
         category: ANALYSIS
         possible_file_extensions: [.txt]
         filename_patterns: ["{prefix}.xlsx"]
-        description: "Exported peptide-level identification and quantification results"
-        content_verification:
-          method: file_not_empty
-          severity_on_empty: error
-
-      - name: proteins_export
-        status: mandatory
-        category: ANALYSIS
-        possible_file_extensions: [.txt]
-        filename_patterns: ["{prefix}.xlsx"]
-        description: "Exported protein-level identification and quantification results"
+        description: "Exported peptide-level or protein-level identification and quantification results"
         content_verification:
           method: file_not_empty
           severity_on_empty: error
