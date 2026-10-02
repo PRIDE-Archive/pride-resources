@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.2.2"
+version: "2.2.3"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -424,6 +424,7 @@ raw_formats:
   - id: thermo
     category: RAW
     extensions: [.raw]
+    vendor_accession: MS:1000483
     vendor: "Thermo Fisher Scientific"
     compression_required: false
     one_run_per_archive: true
@@ -444,6 +445,7 @@ raw_formats:
   - id: bruker
     category: RAW
     extensions: [.d.zip, .d.tar.gz]
+    vendor_accession: MS:1000122
     vendor: "Bruker"
     compression_required: true
     one_run_per_archive: true
@@ -481,6 +483,7 @@ raw_formats:
   - id: sciex
     category: RAW
     extensions: [.wiff, .wiff2, .wiff.scan]
+    vendor_accession: MS:1000121
     vendor: "SCIEX"
     compression_required: false
     one_run_per_archive: true
@@ -512,6 +515,7 @@ raw_formats:
   - id: agilent
     category: RAW
     extensions: [.d.zip, .d.tar.gz]
+    vendor_accession: MS:1000490
     vendor: "Agilent"
     compression_required: true
     one_run_per_archive: true
@@ -535,6 +539,7 @@ raw_formats:
   - id: waters
     category: RAW
     extensions: [.raw.zip, .raw.tar.gz]
+    vendor_accession: MS:1000126
     vendor: "Waters"
     compression_required: true
     one_run_per_archive: true
