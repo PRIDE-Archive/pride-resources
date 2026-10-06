@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.2.3"
+version: "2.2.4"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -2099,7 +2099,7 @@ tools:
       - id: gen_d_folder_bruker
         rule_type: archive_content
         applies_to_extensions: [.d.zip, .d.tar.gz]
-        vendor: bruker
+        vendor: MS:1000122
         severity: error
         one_of:
           - pattern: "*/analysis.tdf"
@@ -2120,7 +2120,7 @@ tools:
       - id: gen_d_folder_agilent
         rule_type: archive_content
         applies_to_extensions: [.d.zip, .d.tar.gz]
-        vendor: agilent
+        vendor: MS:1000490
         severity: error
         required_contents:
           - pattern: "*/AcqData/MSScan.bin"
