@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.2.5"
+version: "2.2.6"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -2031,7 +2031,7 @@ tools:
       - name: analysis_files
         status: mandatory
         category: ANALYSIS
-        filename_patterns: ["{prefix}.pep.xml", "{prefix}.idxml", "{prefix}.dat","{prefix}.pdresult","{prefix}.parquet","{prefix}.mzid"]
+        filename_patterns: ["{prefix}.pep.xml", "{prefix}.idxml", "{prefix}.dat","{prefix}.pdresult","{prefix}.parquet"]
         description: "Search results in native format from the analysis tool"
         content_verification:
           method: file_not_empty
