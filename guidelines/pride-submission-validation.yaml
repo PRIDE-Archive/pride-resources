@@ -95,7 +95,7 @@
 #
 # ==============================================================================
 
-version: "2.2.6"
+version: "2.3.0"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -805,6 +805,160 @@ tools:
               severity_on_empty: error
 
       - *common_sdrf
+
+  - id: nulisaseq
+    name: "NULISAseq"
+    submission_types: [AFFINITY_PROTEOMICS]
+    description: "Alamar Biosciences NULISAseq affinity proteomics platform (attomolar-sensitivity antibody-based protein quantification with NGS readout)."
+    tool_detection:
+      marker_files: [ "{prefix}npq.csv" ]
+      match_any: true
+      description: "NULISAseq produces an NPQ long-format CSV result file"
+
+    files:
+      - name: nulisa_npq_result
+        status: mandatory
+        category: ANALYSIS
+        filename_patterns: [ "{prefix}npq.csv" ]
+        description: >
+          NPQ long-format file (one row per sample and target), with LOD,
+          unnormalised counts, plate, well, sample type, sample matrix,
+          and QC flags. Exported from ACC or NULISA Analysis Software (NAS).
+          If intensity or bridge normalisation was applied, submit that file
+          as well (e.g. {prefix}.bridge_normalized.npq.csv).
+        columns:
+          - PlateID
+          - SampleName
+          - SampleType
+          - sampleID
+          - sampleBarcode
+          - wellRow
+          - wellCol
+          - AUTO_WELLPOSITION
+          - SAMPLE_MATRIX
+          - Target
+          - AlamarTargetID
+          - Panel
+          - PanelLotNumber
+          - InstrumentID
+          - NPQ
+          - LOD
+          - UnnormalizedCount
+          - Sample_QC_Status
+          - Sample_QC_IC_Median
+          - Sample_QC_Detectability
+          - Sample_QC_ICReads
+          - Sample_QC_NumReads
+        content_verification:
+          method: csv_header
+          accepted_separators: [ ",", ";" ]
+          required_columns:
+            - PlateID
+            - SampleName
+            - SampleType
+            - Target
+            - AlamarTargetID
+            - NPQ
+            - LOD
+          severity_on_missing_column: error
+          min_data_rows: 1
+          severity_on_empty: error
+          # Additional content validation checks (per NULISAseq guidelines):
+          # - File must contain at least one data record
+          # - Possible values for column SampleType (case-insensitive): Sample, IPC, SC, NC, Calibrator, Bridge
+          # - NPQ and LOD values must be real numbers or NA
+          # - Each combination of PlateID, SampleName and Target must appear only once
+          # - Where given, wellRow must be A-H and wellCol must be 1-12
+          # - Where given, possible values for column Sample_QC_Status: NA, PASS, WARN
+
+      - name: nulisa_xml_summary
+        status: mandatory
+        category: RAW
+        filename_patterns: [ "{prefix}.xml" ]
+        description: >
+          Complete run output from ARGO Command Center (ACC): run details,
+          target annotation (Alamar target ID, UniProt ID), sample annotation,
+          raw read counts and NPQ for every sample and target, and plate and sample QC.
+          One file per plate. File name exported from ACC must be kept as-is,
+          as it is used as the PlateID in the NPQ file.
+        content_verification:
+          method: xml_root_element
+          accepted_roots: [NULISAseq]
+          severity_on_fail: error
+          # Additional XML structure checks (per NULISAseq guidelines):
+          # - File is well-formed XML with root element NULISAseq
+          # - File contains sections: ExecutionDetails, RunSummary, and Data
+          # - ExecutionDetails includes XMLversion, Assay, and TargetKitLotNumber
+          # - Every sample type is one of Sample, IPC, SC, NC, Calibrator, Bridge (case-insensitive)
+          # - Each Sample element in Data has a ReadCount for every target listed in RunSummary
+
+      - *common_sdrf
+
+      - name: npq_values_workbook
+        status: optional
+        category: OTHER
+        filename_patterns: [ "{prefix}.xlsx" ]
+        description: "NAS Excel export in wide format (targets x samples), with NPQ, raw counts, target and sample annotation, run QC and sample QC sheets"
+
+      - name: aq_results
+        status: optional
+        category: OTHER
+        filename_patterns: [ "{prefix}.csv", "{prefix}.xlsx" ]
+        description: "Absolute concentrations (pg/mL and aM) for AQ panels"
+
+      - name: annotation_export
+        status: optional
+        category: OTHER
+        filename_patterns: [ "{prefix}.zip" ]
+        description: "Results split by sample annotation, plus control data (XML and Excel files)"
+
+      - name: qc_report
+        status: optional
+        category: OTHER
+        filename_patterns: [ "{prefix}.html", "{prefix}.pdf", "{prefix}.xlsx" ]
+        description: "Sample and plate quality control report from NAS"
+
+      - name: fastq_files
+        status: optional
+        category: OTHER
+        filename_patterns: [ "{prefix}.fastq", "{prefix}.fastq.gz" ]
+        description: "Raw sequencing reads of the pooled library (one file per sequencing run). FASTQ files are not validated"
+
+      - name: processing_metadata
+        status: optional
+        category: OTHER
+        filename_patterns: [ "{prefix}.txt", "{prefix}.xlsx" ]
+        description: "Any additional normalisation applied by the user (intensity or bridge normalisation) and software versions"
+
+    cross_file_rules:
+      - id: nulisa_raw_file_count
+        rule_type: file_count
+        category: RAW
+        min: 1
+        severity: error
+        description: "At least one RAW file (XML Summary, one per plate) must be submitted"
+
+      - id: nulisa_npq_file_count
+        rule_type: file_count
+        category: ANALYSIS
+        min: 1
+        severity: error
+        description: "At least one NPQ result file must be submitted"
+
+      - id: nulisa_plate_id_xml_match
+        rule_type: column_reference_check
+        source_file: nulisa_npq_result
+        source_column: "PlateID"
+        target_category: RAW
+        severity: error
+        description: "Every PlateID in the NPQ file must match the file name of an XML Summary file in the submission"
+
+      - id: nulisa_raw_sdrf_match
+        rule_type: reference_check
+        source_category: RAW
+        target_file: sdrf.tsv
+        severity: warning
+        description: "Each raw XML summary file must be referenced in the SDRF file"
 
   - id: generic_affinity
     name: "Other Affinity Tools"
