@@ -44,6 +44,8 @@
 #                     separator accepts: "\t", ",", or "auto_detect".
 #                     "auto_detect" infers from extension: .tsv/.txt → tab,
 #                     .csv → comma.
+#   csv_header      — Parse CSV using one of accepted_separators and check
+#                     required_columns, min_data_rows and their severities.
 #   parquet_schema  — Open the parquet file, read the schema, check column
 #                     names. Fields: required_columns,
 #                             severity_on_missing_column, min_data_rows,
@@ -126,9 +128,11 @@ severity_levels: [error, warning, info]
 # the rules in this file, and WHAT severity to report on failure.
 #
 # Step 1 — Detect the analysis tool
-#   Look at the ANALYSIS archive(s). For each tool profile in "tools",
-#   check if the archive contains the files listed in tool_detection.marker_files.
-#   First match wins. No match → use the "generic" profile.
+#   Look at submitted files and the ANALYSIS archive(s). For each tool profile
+#   in "tools" that supports the declared submission type,
+#   check for the files listed in tool_detection.marker_files.
+#   First match wins. No match → use "generic_affinity" for AFFINITY_PROTEOMICS
+#   or "generic" for MS_PROTEOMICS.
 #
 # Step 2 — Check that required files are present
 #   Walk the matched tool's "files" list. For each entry, look for a
@@ -141,8 +145,9 @@ severity_levels: [error, warning, info]
 #   Run the format_verification check (magic bytes, archive contents, etc.).
 #   Failed → error (file may be corrupted or misnamed).
 #
-# Step 4 — Verify ANALYSIS file contents
-#   For each ANALYSIS file that has a content_verification block, run it.
+# Step 4 — Verify tool-specific file contents
+#   For each matched file that has a content_verification block, run it
+#   (including RAW files such as NULISAseq XML summaries).
 #   Tabular files → read header, check required columns exist.
 #   Binary files → open and check schema/signature.
 #   Missing column → error or warning (as specified per file).
@@ -275,8 +280,8 @@ file_classification:
 #
 #   ANALYSIS          – Native output files from search engines / analysis tools
 #                       (e.g. evidence.txt, report.parquet, psm.tsv).
-#   RAW               – Unprocessed mass spectrometry data straight from the
-#                       instrument (vendor-specific or open-standard formats).
+#   RAW               – Instrument data (vendor-specific or open-standard
+#                       formats), including affinity platform run summaries.
 #   PEAK              – Processed peak lists extracted from raw data
 #                       (e.g. .mgf, centroided .mzML).
 #   STANDARD          – Community-standard (PSI) representations of results
@@ -290,7 +295,7 @@ file_classification:
 file_categories:
   - id: RAW
     name: Raw Files
-    description: Unprocessed mass spectrometry data straight from the instrument (vendor-specific or open-standard formats).
+    description: Instrument data (vendor-specific or open-standard formats), including affinity platform run summaries such as NULISAseq XML.
     order: 1
   - id: ANALYSIS
     name: Analysis Files
@@ -590,6 +595,18 @@ raw_formats:
       accepted_roots: [mzML, indexedmzML]
       namespace: "http://psi.hupo.org/ms/mzml"
 
+  - id: nulisaseq
+    category: RAW
+    extensions: [.xml]
+    vendor: "Alamar Biosciences"
+    compression_required: false
+    one_run_per_archive: true
+    directory_based: false
+    format_verification:
+      method: xml_root_element
+      accepted_roots: [NULISAseq]
+      description: "ACC XML Summary, one file per plate, with root element NULISAseq"
+
 # ------------------------------------------------------------------------------
 # Raw data validation
 # ------------------------------------------------------------------------------
@@ -603,7 +620,7 @@ raw_data_validation:
     - id: file_integrity
       description: "Compressed archives are verified to ensure they are not corrupted and can be extracted"
     - id: format_validation
-      description: "Raw files are checked to confirm they contain valid MS data and can be read by standard tools"
+      description: "Raw files are checked against the applicable MS or affinity platform format and tool-specific content rules"
     - id: structure_verification
       description: "For directory-based formats (.d folders), essential files are verified (e.g., analysis.tdf for Bruker timsTOF, AcqData/ for Agilent)"
 
@@ -811,7 +828,7 @@ tools:
     submission_types: [AFFINITY_PROTEOMICS]
     description: "Alamar Biosciences NULISAseq affinity proteomics platform (attomolar-sensitivity antibody-based protein quantification with NGS readout)."
     tool_detection:
-      marker_files: [ "{prefix}npq.csv" ]
+      marker_files: [ "{prefix}.npq.csv" ]
       match_any: true
       description: "NULISAseq produces an NPQ long-format CSV result file"
 
@@ -819,7 +836,7 @@ tools:
       - name: nulisa_npq_result
         status: mandatory
         category: ANALYSIS
-        filename_patterns: [ "{prefix}npq.csv" ]
+        filename_patterns: [ "{prefix}.npq.csv" ]
         description: >
           NPQ long-format file (one row per sample and target), with LOD,
           unnormalised counts, plate, well, sample type, sample matrix,
@@ -849,6 +866,10 @@ tools:
           - Sample_QC_Detectability
           - Sample_QC_ICReads
           - Sample_QC_NumReads
+          - matching
+          - non-matching
+          # The source mentions per-metric _Status columns without listing
+          # their exact names; these are not enumerated without an NPQ header.
         content_verification:
           method: csv_header
           accepted_separators: [ ",", ";" ]
@@ -863,13 +884,14 @@ tools:
           severity_on_missing_column: error
           min_data_rows: 1
           severity_on_empty: error
-          # Additional content validation checks (per NULISAseq guidelines):
-          # - File must contain at least one data record
-          # - Possible values for column SampleType (case-insensitive): Sample, IPC, SC, NC, Calibrator, Bridge
-          # - NPQ and LOD values must be real numbers or NA
-          # - Each combination of PlateID, SampleName and Target must appear only once
-          # - Where given, wellRow must be A-H and wellCol must be 1-12
-          # - Where given, possible values for column Sample_QC_Status: NA, PASS, WARN
+          # Additional requirements from nulisaseq_section.md are documented
+          # below; csv_header does not express or enforce these row checks:
+          # - AlamarTargetID has string datatype
+          # - SampleType (case-insensitive): Sample, IPC, SC, NC, Calibrator, Bridge
+          # - NPQ and LOD are real numbers (double datatype) or NA
+          # - Each combination of PlateID, SampleName and Target is unique
+          # - Where given, wellRow is A-H and wellCol is 1-12
+          # - Where given, Sample_QC_Status is NA, PASS or WARN
 
       - name: nulisa_xml_summary
         status: mandatory
@@ -885,12 +907,15 @@ tools:
           method: xml_root_element
           accepted_roots: [NULISAseq]
           severity_on_fail: error
-          # Additional XML structure checks (per NULISAseq guidelines):
-          # - File is well-formed XML with root element NULISAseq
-          # - File contains sections: ExecutionDetails, RunSummary, and Data
-          # - ExecutionDetails includes XMLversion, Assay, and TargetKitLotNumber
-          # - Every sample type is one of Sample, IPC, SC, NC, Calibrator, Bridge (case-insensitive)
-          # - Each Sample element in Data has a ReadCount for every target listed in RunSummary
+          # Additional requirements from nulisaseq_section.md are documented
+          # below; xml_root_element does not express or enforce these checks:
+          # - Required sections: ExecutionDetails, RunSummary and Data
+          # - ExecutionDetails includes XMLversion, Assay and TargetKitLotNumber
+          # - Sample types (case-insensitive): Sample, IPC, SC, NC, Calibrator, Bridge
+          # - Each Sample in Data has a ReadCount for every target in RunSummary
+        # QC WARN flags are accepted; samples are not automatically excluded.
+        # Plate QC is reported only in XML. SDRF is authoritative for sample
+        # metadata because annotations can be changed after the run.
 
       - *common_sdrf
 
