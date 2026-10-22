@@ -97,7 +97,7 @@
 #
 # ==============================================================================
 
-version: "2.3.1"
+version: "2.3.2"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -825,6 +825,7 @@ tools:
 
   - id: nulisaseq
     name: "NULISAseq"
+    accession: PRIDE:0001017
     submission_types: [AFFINITY_PROTEOMICS]
     description: "Alamar Biosciences NULISAseq affinity proteomics platform (attomolar-sensitivity antibody-based protein quantification with NGS readout)."
     tool_detection:
