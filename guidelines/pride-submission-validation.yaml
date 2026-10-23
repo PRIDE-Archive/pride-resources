@@ -97,7 +97,7 @@
 #
 # ==============================================================================
 
-version: "2.3.2"
+version: "2.3.3"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -599,6 +599,7 @@ raw_formats:
     category: RAW
     extensions: [.xml]
     vendor: "Alamar Biosciences"
+    vendor_accession: PRIDE:0001019
     compression_required: false
     one_run_per_archive: true
     directory_based: false
