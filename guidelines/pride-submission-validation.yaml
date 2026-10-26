@@ -97,7 +97,7 @@
 #
 # ==============================================================================
 
-version: "2.3.3"
+version: "2.4.0"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -1267,21 +1267,19 @@ tools:
         columns: [File.Name, Protein.Group, Protein.Ids, Protein.Names, Genes, Precursor.Id, Modified.Sequence, Stripped.Sequence, Precursor.Charge, Q.Value, PG.Q.Value, Global.Q.Value, Precursor.Quantity, RT]
         content_verification:
           # DIA-NN report can be parquet or TSV. Check format based on extension.
-          method: auto_detect
-          formats:
-            parquet:
-              method: parquet_schema
-              required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
-              severity_on_missing_column: warning
-              min_data_rows: 1
-              severity_on_empty: error
-            tsv:
-              method: tsv_header
-              separator: "\t"
-              required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
-              severity_on_missing_column: warning
-              min_data_rows: 1
-              severity_on_empty: error
+          - method: parquet_schema
+            target_files: ["{prefix}report.parquet"]
+            required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
+            severity_on_missing_column: warning
+            min_data_rows: 1
+            severity_on_empty: error
+          - method: tsv_header
+            target_files: ["{prefix}report.tsv"]
+            separator: "\t"
+            required_columns: [File.Name, Protein.Group, Protein.Ids, Precursor.Id, Modified.Sequence, Q.Value, Precursor.Quantity]
+            severity_on_missing_column: warning
+            min_data_rows: 1
+            severity_on_empty: error
 
       - name: log_file
         status: mandatory
