@@ -2032,8 +2032,7 @@ tools:
       - name: psms_export
         status: mandatory
         category: ANALYSIS
-        possible_file_extensions: [.txt]
-        filename_patterns: ["{prefix}.xlsx", "{prefix}.tsv"]
+        filename_patterns: ["{prefix}.xlsx", "{prefix}.tsv", "{prefix}.txt"]
         description: "Exported PSM (Peptide Spectrum Match) results"
         columns: [Confidence, Sequence, Modifications, Charge, m/z, "MH+ [Da]", Spectrum File]
         content_verification:
@@ -2047,8 +2046,7 @@ tools:
       - name: peptides_or_proteins_export
         status: mandatory
         category: ANALYSIS
-        possible_file_extensions: [.txt]
-        filename_patterns: ["{prefix}.xlsx"]
+        filename_patterns: ["{prefix}.xlsx", "{prefix}.txt"]
         description: "Exported peptide-level or protein-level identification and quantification results"
         content_verification:
           method: file_not_empty
