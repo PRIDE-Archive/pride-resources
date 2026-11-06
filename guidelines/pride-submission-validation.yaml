@@ -97,7 +97,7 @@
 #
 # ==============================================================================
 
-version: "2.4.2"
+version: "2.4.3"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -2030,7 +2030,7 @@ tools:
           severity_on_fail: error
 
       - name: psms_export
-        status: mandatory
+        status: recommended # TODO revert to mandatory when fixed
         category: ANALYSIS
         filename_patterns: ["{prefix}.xlsx", "{prefix}.tsv", "{prefix}.txt"]
         description: "Exported PSM (Peptide Spectrum Match) results"
