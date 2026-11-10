@@ -97,7 +97,7 @@
 #
 # ==============================================================================
 
-version: "2.4.3"
+version: "2.4.4"
 description: "PRIDE submission validation rules — machine-readable source of truth"
 
 # ------------------------------------------------------------------------------
@@ -449,7 +449,7 @@ raw_formats:
 
   - id: bruker
     category: RAW
-    extensions: [.d.zip, .d.tar.gz]
+    extensions: [.d.zip, .d.tar.gz, .d.7z]
     vendor_accession: MS:1000122
     vendor: "Bruker instrument model"
     compression_required: true
@@ -519,7 +519,7 @@ raw_formats:
   # Agilent → AcqData/MSScan.bin. Extension alone is not sufficient.
   - id: agilent
     category: RAW
-    extensions: [.d.zip, .d.tar.gz]
+    extensions: [.d.zip, .d.tar.gz, .d.7z]
     vendor_accession: MS:1000490
     vendor: "Agilent instrument model"
     compression_required: true
@@ -543,7 +543,7 @@ raw_formats:
 
   - id: waters
     category: RAW
-    extensions: [.raw.zip, .raw.tar.gz]
+    extensions: [.raw.zip, .raw.tar.gz, .raw.7z]
     vendor_accession: MS:1000126
     vendor: "Waters instrument model"
     compression_required: true
@@ -694,7 +694,7 @@ common_files:
     name: raw_files
     status: mandatory
     category: RAW
-    filename_patterns: ["{prefix}.raw", "{prefix}.mzML.gz", "{prefix}.wiff", "{prefix}.wiff2", "{prefix}.wiff.scan", "{prefix}.d.zip", "{prefix}.d.tar.gz", "{prefix}.raw.zip", "{prefix}.raw.tar.gz"]
+    filename_patterns: ["{prefix}.raw", "{prefix}.mzML.gz", "{prefix}.wiff", "{prefix}.wiff2", "{prefix}.wiff.scan", "{prefix}.d.zip", "{prefix}.d.tar.gz", "{prefix}.raw.zip", "{prefix}.raw.tar.gz", "{prefix}.d.7z"]
     description: "Raw data files from the mass spectrometer (vendor formats or mzML)"
 
   fasta_database: &common_fasta_database
@@ -2275,7 +2275,7 @@ tools:
 
       - id: gen_d_folder_bruker
         rule_type: archive_content
-        applies_to_extensions: [.d.zip, .d.tar.gz]
+        applies_to_extensions: [.d.zip, .d.tar.gz, .d.7z]
         vendor: MS:1000122
         severity: error
         one_of:
@@ -2296,7 +2296,7 @@ tools:
 
       - id: gen_d_folder_agilent
         rule_type: archive_content
-        applies_to_extensions: [.d.zip, .d.tar.gz]
+        applies_to_extensions: [.d.zip, .d.tar.gz, .d.7z]
         vendor: MS:1000490
         severity: error
         required_contents:
